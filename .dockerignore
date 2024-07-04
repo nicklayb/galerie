@@ -1,0 +1,10 @@
+.elixir_ls/
+_build/
+deps/
+Makefile
+README.md
+.gitignore
+.iex.exs
+apps/astral_web/assets/node_modules
+apps/astral_web/priv/static
+.git/
