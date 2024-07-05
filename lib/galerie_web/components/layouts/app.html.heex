@@ -1,8 +1,8 @@
-<nav class="flex justify-between">
-  <a class="flex-initial px-4 py-2" href={~p(/app)}><%= gettext("Galerie") %></a>
-  <a class="flex-initial px-4 py-2" href={~p(/app/settings)}><%= gettext("Settings") %></a>
+<nav class="flex justify-between bg-true-gray-200">
+  <a class="flex-initial px-6 py-4" href={~p(/app)}><%= gettext("Galerie") %></a>
+  <a class="flex-initial px-6 py-4" href={~p(/app/settings)}><%= gettext("Settings") %></a>
 </nav>
-<main class="flex flex-1 p-4">
+<main class="flex flex-1 h-full">
   <Ui.loading loading={Map.get(assigns, :loading, false)}>
     <%= @inner_content %>
   </Ui.loading>
