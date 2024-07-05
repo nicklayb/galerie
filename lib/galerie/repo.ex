@@ -38,6 +38,30 @@ defmodule Galerie.Repo do
     |> to_result()
   end
 
+  @default_limit 25
+  @default_offset 0
+  def paginate(queryable, params \\ %{}) do
+    limit = Map.get(params, :limit, @default_limit)
+    offset = Map.get(params, :offset, @default_offset)
+    sort_by = Map.get(params, :sort_by, :id)
+
+    queryable
+    |> Ecto.Query.subquery()
+    |> Ecto.Query.order_by(^sort_by)
+    |> Ecto.Query.limit(^(limit + 1))
+    |> Ecto.Query.offset(^offset)
+    |> all()
+    |> Page.new(queryable, limit, offset)
+  end
+
+  def next(%Page{query: query, limit: limit, offset: offset}) do
+    paginate(query, %{offset: offset + limit, limit: limit})
+  end
+
+  def map_paginated_results(%Page{results: results} = page, function) do
+    %Page{page | results: function.(results)}
+  end
+
   defp to_result(record_or_nil), do: Result.from_nil(record_or_nil, :not_found)
 
   def unwrap_transaction({:ok, result}, key), do: {:ok, Map.get(result, key)}

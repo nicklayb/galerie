@@ -16,6 +16,9 @@ defmodule Galerie.Picture do
     field(:type, Ecto.Enum, values: @picture_types)
     field(:size, :integer)
 
+    field(:converted_jpeg, :string)
+    field(:thumbnail, :string)
+
     has_one(:picture_exif, PictureExif)
     has_one(:picture_metadata, PictureMetadata)
 
@@ -23,10 +26,18 @@ defmodule Galerie.Picture do
   end
 
   @required ~w(name extension original_name fullpath size)a
-  def changeset(%Picture{} = picture \\ %Picture{}, params) do
+  @optional ~w(converted_jpeg thumbnail)a
+  def create_changeset(%Picture{} = picture \\ %Picture{}, params) do
     picture
     |> Ecto.Changeset.cast(params, [:fullpath])
     |> cast_parts()
+    |> Ecto.Changeset.validate_required(@required)
+  end
+
+  @castable @required ++ @optional
+  def changeset(%Picture{} = picture \\ %Picture{}, params) do
+    picture
+    |> Ecto.Changeset.cast(params, @castable)
     |> Ecto.Changeset.validate_required(@required)
   end
 

@@ -15,6 +15,9 @@ defmodule Galerie.Repo.Migrations.CreatePicturesTable do
       add(:fullpath, :string, null: false)
       add(:type, :picture_type)
 
+      add(:thumbnail, :string, null: true)
+      add(:converted_jpeg, :string, null: true)
+
       timestamps()
     end
 

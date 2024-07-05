@@ -23,3 +23,5 @@ erl_crash.dump
 /assets/node_modules
 /bucket
 /scanned
+/priv/thumbnails
+/priv/raw_converted
