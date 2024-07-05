@@ -20,7 +20,7 @@ defmodule GalerieWeb.Plugs.EnsureAuthenticated do
     Logger.debug("[#{inspect(__MODULE__)}] Failure to ensure user offline (#{email} loaded)")
 
     conn
-    |> Phoenix.Controller.redirect(to: ~p(/app/home))
+    |> Phoenix.Controller.redirect(to: ~p(/app))
     |> Plug.Conn.halt()
   end
 

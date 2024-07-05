@@ -107,9 +107,7 @@ defmodule Galerie.Jobs.Processor do
     ExifParser.parse_tiff_file(fullpath)
   end
 
-  defp normalize(%{ifd0: ifd0}) do
-    ifd0
-  end
+  defp normalize(%{ifd0: ifd0}), do: ifd0
 
   defp shift_timezone(nil, _), do: nil
 

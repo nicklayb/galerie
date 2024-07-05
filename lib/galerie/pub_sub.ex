@@ -13,6 +13,7 @@ defmodule Galerie.PubSub do
 
   @doc "Topic generators"
   @spec topic(topic()) :: String.t()
+  def topic(Galerie.Picture), do: "pictures"
   def topic(Galerie.User), do: "users"
   def topic({:live_session, id}), do: "live_session:#{id}"
   def topic({namespace, id}), do: "#{topic(namespace)}:#{id}"

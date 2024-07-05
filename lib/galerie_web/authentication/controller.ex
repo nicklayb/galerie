@@ -22,7 +22,7 @@ defmodule GalerieWeb.Authentication.Controller do
         conn
         |> Plug.Conn.clear_session()
         |> Authentication.login_user(user)
-        |> Phoenix.Controller.redirect(to: ~p(/app/home))
+        |> Phoenix.Controller.redirect(to: ~p(/app))
 
       _ ->
         changeset =
@@ -45,7 +45,7 @@ defmodule GalerieWeb.Authentication.Controller do
         conn
         |> Plug.Conn.clear_session()
         |> Authentication.login_user(user)
-        |> Phoenix.Controller.redirect(to: ~p(/app/home))
+        |> Phoenix.Controller.redirect(to: ~p(/app))
 
       {:error, {:user, %Ecto.Changeset{} = changeset, _}} ->
         render(conn, "register.html", changeset: changeset)

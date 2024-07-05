@@ -45,6 +45,12 @@ defmodule GalerieWeb.Router do
   end
 
   scope("/", GalerieWeb) do
+    pipe_through([:browser, :session_authenticated])
+
+    get("/pictures/:image", Library.Controller, :get)
+  end
+
+  scope("/", GalerieWeb) do
     pipe_through([:browser, :session_offline])
 
     get("/", Authentication.Controller, :login)

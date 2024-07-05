@@ -6,7 +6,7 @@ config :galerie,
 
 config :galerie, Oban,
   repo: Galerie.ObanRepo,
-  queues: [imports: 10, processors: 10, thumbnails: 10]
+  queues: [imports: 10, processors: 10, thumbnails: 3]
 
 config :galerie, Galerie.ObanRepo, priv: "priv/oban"
 

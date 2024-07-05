@@ -7,11 +7,16 @@ defmodule Galerie.Folder do
     |> tap(&create_directory_if_missing/1)
   end
 
-  def thumbnail_output(path) do
+  def thumbnail(path) do
     priv_dir()
     |> Path.join("thumbnails")
     |> Path.join(path)
     |> then(&(&1 <> ".jpg"))
+  end
+
+  def thumbnail_output(path) do
+    path
+    |> thumbnail()
     |> tap(&create_directory_if_missing/1)
   end
 

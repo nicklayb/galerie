@@ -1,1 +1,11 @@
-Library
+<%= case @pictures do %>
+  <% %Page{results: pictures} -> %>
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 m-auto">
+      <%= for picture <- pictures do %>
+        <Picture.thumbnail picture={picture} />
+      <% end %>
+    </div>
+
+  <% _ -> %>
+
+<% end %>
