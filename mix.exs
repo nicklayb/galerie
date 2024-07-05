@@ -1,9 +1,9 @@
-defmodule Nectarine.MixProject do
+defmodule Galerie.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :nectarine,
+      app: :galerie,
       version: "0.1.0",
       elixir: "~> 1.13",
       start_permanent: Mix.env() == :prod,
@@ -13,15 +13,15 @@ defmodule Nectarine.MixProject do
       releases: releases(),
       test_coverage: [
         ignore_modules: [
-          NectarineWeb,
-          NectarineWeb.ConnCase,
-          NectarineWeb.Endpoint,
-          NectarineWeb.Gettext,
-          NectarineWeb.Telemetry,
-          Nectarine.Application,
-          Nectarine.DataCase,
-          Nectarine.BaseCase,
-          ~r/^NectarineTest\.(.*)/,
+          GalerieWeb,
+          GalerieWeb.ConnCase,
+          GalerieWeb.Endpoint,
+          GalerieWeb.Gettext,
+          GalerieWeb.Telemetry,
+          Galerie.Application,
+          Galerie.DataCase,
+          Galerie.BaseCase,
+          ~r/^GalerieTest\.(.*)/,
           ~r/^Swoosh\.(.*)/
         ]
       ]
@@ -30,7 +30,7 @@ defmodule Nectarine.MixProject do
 
   def application do
     [
-      mod: {Nectarine.Application, []},
+      mod: {Galerie.Application, []},
       extra_applications: [:logger, :runtime_tools]
     ]
   end
@@ -44,10 +44,13 @@ defmodule Nectarine.MixProject do
       {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
       {:ecto_sql, "~> 3.7"},
       {:esbuild, "~> 0.2", runtime: Mix.env() == :dev},
+      {:file_system, "~> 0.0"},
       {:floki, ">= 0.27.0", only: :test},
       {:gettext, "~> 0.11"},
       {:gen_smtp, "~> 1.0"},
       {:hackney, "~> 1.18"},
+      {:image, "~> 0.37"},
+      {:exif_parser, "~> 0.3"},
       {:jason, "~> 1.1"},
       {:oban, "~> 2.16"},
       {:phoenix, "~> 1.7.9"},
@@ -94,10 +97,10 @@ defmodule Nectarine.MixProject do
 
   defp releases do
     [
-      nectarine: [
+      galerie: [
         include_executables_for: [:unix],
         applications: [
-          nectarine: :permanent
+          galerie: :permanent
         ]
       ]
     ]

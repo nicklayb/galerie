@@ -1,4 +1,4 @@
-defmodule NectarineTest.Support.Spawn do
+defmodule GalerieTest.Support.Spawn do
   @moduledoc """
   Helper module to quickly spawn processes.
   """
@@ -8,15 +8,15 @@ defmodule NectarineTest.Support.Spawn do
 
   ## Examples
 
-      iex> Spawn.subscriber(Nectarine.User)
-      iex> Nectarine.PubSub.broadcast(Nectarine.User, :hello)
+      iex> Spawn.subscriber(Galerie.User)
+      iex> Galerie.PubSub.broadcast(Galerie.User, :hello)
 
   The code above should output a IO.inspect message with the received
   PubSub message.
   """
-  @spec subscriber(Nectarine.PubSub.topic(), function() | nil) :: pid()
+  @spec subscriber(Galerie.PubSub.topic(), function() | nil) :: pid()
   def subscriber(topic, function \\ nil) do
-    receiver(fn -> Nectarine.PubSub.subscribe(topic) end, function)
+    receiver(fn -> Galerie.PubSub.subscribe(topic) end, function)
   end
 
   @doc "Spawns a process that awaits message after calling a given function"

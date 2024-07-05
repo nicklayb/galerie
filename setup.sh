@@ -4,9 +4,9 @@
 # Configuration
 # -----------------------------------------------------------------------------
 
-pascalCaseBefore="Clementine"
-snakeCaseBefore="clementine"
-kebabCaseBefore="clementine"
+pascalCaseBefore="Nectarine"
+snakeCaseBefore="nectarine"
+kebabCaseBefore="nectarine"
 
 # The identifiers above will be replaced in the content of the files found below
 content=$(find . -type f \( \

@@ -1,7 +1,7 @@
-defmodule NectarineTest.Support.Mocks.MockGenerator do
-  @behaviour Nectarine.Generator
+defmodule GalerieTest.Support.Mocks.MockGenerator do
+  @behaviour Galerie.Generator
 
-  @impl Nectarine.Generator
+  @impl Galerie.Generator
   def generate(options) do
     case Keyword.fetch!(options, :value) do
       sequence when is_list(sequence) ->

@@ -1,6 +1,6 @@
-defmodule NectarineTest.Support.Fixture do
-  alias NectarineTest.Support.Factory
-  alias NectarineTest.Support.MockConfig
+defmodule GalerieTest.Support.Fixture do
+  alias GalerieTest.Support.Factory
+  alias GalerieTest.Support.MockConfig
 
   def create_user(context) do
     user_params = Map.get(context, :user_params, [])
@@ -9,7 +9,7 @@ defmodule NectarineTest.Support.Fixture do
 
   def enforce_password_rules(context) do
     enforce_rules = Map.get(context, :enforce_rules, true)
-    MockConfig.mock_config(:nectarine, Nectarine.User.Password, enforce_rules: enforce_rules)
+    MockConfig.mock_config(:galerie, Galerie.User.Password, enforce_rules: enforce_rules)
     :ok
   end
 end

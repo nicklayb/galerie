@@ -1,4 +1,4 @@
-defmodule Nectarine.Repo.Migrations.CreateUsersTable do
+defmodule Galerie.Repo.Migrations.CreateUsersTable do
   use Ecto.Migration
 
   def change do

@@ -1,4 +1,4 @@
 #!/bin/sh
 set -e
 
-exec /opt/rel/nectarine/bin/nectarine "$@"
+exec /opt/rel/galerie/bin/galerie "$@"

@@ -60,34 +60,34 @@ end
 
 release_stage = Env.get("RELEASE_STAGE", to_string(config_env()))
 
-config :nectarine, release_stage: release_stage
+config :galerie, release_stage: release_stage
 
 config :logger, level: Env.atom("LOGGER_LEVEL", "info")
 
-config :nectarine, Nectarine.Repo,
+config :galerie, Galerie.Repo,
   hostname: Env.get("DB_HOST", "localhost"),
-  database: Env.get("DB_NAME", "nectarine"),
+  database: Env.get("DB_NAME", "galerie"),
   username: Env.get("DB_USER", "postgres"),
   password: Env.get("DB_PASS", "postgres")
 
-config :nectarine, Nectarine.ObanRepo,
+config :galerie, Galerie.ObanRepo,
   hostname: Env.get("OBAN_DB_HOST", "localhost"),
-  database: Env.get("OBAN_DB_NAME", "nectarine_oban"),
+  database: Env.get("OBAN_DB_NAME", "galerie_oban"),
   username: Env.get("OBAN_DB_USER", "postgres"),
   password: Env.get("OBAN_DB_PASS", "postgres")
 
 if config_env() == :test do
-  config :nectarine, Nectarine.Repo, database: "nectarine_test"
-  config :nectarine, Nectarine.ObanRepo, database: "nectarine_oban_test"
+  config :galerie, Galerie.Repo, database: "galerie_test"
+  config :galerie, Galerie.ObanRepo, database: "galerie_oban_test"
 end
 
-config :nectarine, Nectarine.User.Password,
+config :galerie, Galerie.User.Password,
   enforce_rules: Env.boolean("ENFORCE_PASSWORD_RULES", "true")
 
 app_host = Env.uri("APP_HOST", "http://localhost:4000")
 port = Env.integer("PORT", 4000)
 
-config :nectarine, NectarineWeb.Endpoint,
+config :galerie, GalerieWeb.Endpoint,
   http: [port: port],
   url: [host: app_host.host, scheme: app_host.scheme, port: app_host.port],
   secret_key_base: Env.get!("SECRET_KEY_BASE"),
@@ -99,17 +99,19 @@ mailer_from =
     [email_address, name] -> {email_address, name}
   end
 
-config :nectarine, Nectarine.Mailer, mailer_from: mailer_from
+config :galerie, Galerie.Mailer, mailer_from: mailer_from
+
+config :galerie, Galerie.Scanner.Supervisor, folders: Env.get!("GALERIE_FOLDERS")
 
 case {config_env(), Env.get("MAILER_ADAPTER", "local")} do
   {:test, _} ->
-    config :nectarine, Nectarine.Mailer, adapter: Swoosh.Adapters.Test
+    config :galerie, Galerie.Mailer, adapter: Swoosh.Adapters.Test
 
   {_, "local"} ->
-    config :nectarine, Nectarine.Mailer, adapter: Swoosh.Adapters.Local
+    config :galerie, Galerie.Mailer, adapter: Swoosh.Adapters.Local
 
   {_, "smtp"} ->
-    config :nectarine, Nectarine.Mailer,
+    config :galerie, Galerie.Mailer,
       adapter: Swoosh.Adapters.SMTP,
       relay: Env.get!("MAILER_SMTP_RELAY"),
       username: Env.get!("MAILER_SMTP_USERNAME"),

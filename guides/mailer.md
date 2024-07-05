@@ -1,6 +1,6 @@
 # Mailer
 
-Nectarine has to send emails here and there and uses [Swoosh](https://hexdocs.pm/swoosh/Swoosh.Adapters.SMTP.html) to do so. The application is already configured to support the following adapters (defined using `MAILER_ADAPTER`.
+Galerie has to send emails here and there and uses [Swoosh](https://hexdocs.pm/swoosh/Swoosh.Adapters.SMTP.html) to do so. The application is already configured to support the following adapters (defined using `MAILER_ADAPTER`.
 
 - `"local"`: Uses a faker email sender that sends to a local view where you can inspect them.
 - `"smtp"`: Uses a SMTP server to send a email. You need a few more env variables in order for this to work. See [SMTP](#smtp) section.

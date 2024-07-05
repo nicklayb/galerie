@@ -1,10 +1,10 @@
-defmodule Nectarine.BaseCase do
+defmodule Galerie.BaseCase do
   use ExUnit.CaseTemplate
 
   using do
     quote do
-      alias NectarineTest.Support.MockConfig
-      import NectarineTest.Support.Fixture
+      alias GalerieTest.Support.MockConfig
+      import GalerieTest.Support.Fixture
     end
   end
 end

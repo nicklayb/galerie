@@ -1,13 +1,13 @@
 import Config
 
-config :nectarine, Nectarine.Repo,
+config :galerie, Galerie.Repo,
   username: "postgres",
   password: "postgres",
-  database: "nectarine_test#{System.get_env("MIX_TEST_PARTITION")}",
+  database: "galerie_test#{System.get_env("MIX_TEST_PARTITION")}",
   hostname: "localhost",
   pool: Ecto.Adapters.SQL.Sandbox
 
-config :nectarine, NectarineWeb.Endpoint,
+config :galerie, GalerieWeb.Endpoint,
   http: [port: 4002],
   server: false
 

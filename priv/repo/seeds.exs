@@ -1,4 +1,4 @@
-alias Nectarine.Accounts
+alias Galerie.Accounts
 
 defmodule Seed do
   def create_user(users) when is_list(users) do

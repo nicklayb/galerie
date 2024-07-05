@@ -1,22 +1,24 @@
 import Config
 
-config :nectarine,
-  ecto_repos: [Nectarine.Repo, Nectarine.ObanRepo],
+config :galerie,
+  ecto_repos: [Galerie.Repo, Galerie.ObanRepo],
   environment: config_env()
 
-config :nectarine, Oban, repo: Nectarine.ObanRepo, queues: [default: 10]
+config :galerie, Oban,
+  repo: Galerie.ObanRepo,
+  queues: [imports: 10, processors: 10]
 
-config :nectarine, Nectarine.ObanRepo, priv: "priv/oban"
+config :galerie, Galerie.ObanRepo, priv: "priv/oban"
 
-config :nectarine, Nectarine.Generator, default_max_tries: 3
+config :galerie, Galerie.Generator, default_max_tries: 3
 
-config :nectarine, Nectarine.Repo, migration_primary_key: [name: :id, type: :binary_id]
+config :galerie, Galerie.Repo, migration_primary_key: [name: :id, type: :binary_id]
 
-config :nectarine, NectarineWeb.Endpoint,
+config :galerie, GalerieWeb.Endpoint,
   url: [host: "localhost"],
   secret_key_base: "czNpciKyTe+8fnrhDOJB4j1v2EyoExjgKsDy1KWYWXyHadR0ZbwtmnLDoWGKaE+h",
-  render_errors: [view: NectarineWeb.ErrorView, accepts: ~w(html json), layout: false],
-  pubsub_server: Nectarine.PubSub,
+  render_errors: [view: GalerieWeb.ErrorView, accepts: ~w(html json), layout: false],
+  pubsub_server: Galerie.PubSub,
   live_view: [signing_salt: "SwHEX71s"]
 
 config :logger, :console,

@@ -1,5 +1,5 @@
-defmodule NectarineTest.Support.Factory do
-  alias Nectarine.Repo
+defmodule GalerieTest.Support.Factory do
+  alias Galerie.Repo
 
   def insert!(type, params \\ []) do
     type
@@ -16,7 +16,7 @@ defmodule NectarineTest.Support.Factory do
   def build(:user) do
     id = next_integer(:user_id)
 
-    %Nectarine.User{
+    %Galerie.User{
       id: id(),
       first_name: "John",
       last_name: "Doe",

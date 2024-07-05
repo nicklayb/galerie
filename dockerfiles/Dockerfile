@@ -1,11 +1,11 @@
 # STEP 1 - Build release compiler container
 FROM elixir:1.11-alpine AS builder
 
-ENV APP_NAME=nectarine \
+ENV APP_NAME=galerie \
     APP_VERSION=0.1.0 \
     MIX_ENV=prod
 
-WORKDIR /nectarine
+WORKDIR /galerie
 
 # Install build requirements
 RUN apk update && \
@@ -53,10 +53,10 @@ RUN chmod a+x /usr/local/bin/entrypoint.sh
 RUN mkdir ${ROOT_FOLDER}/logs
 
 # Create a non-root user
-RUN adduser -D nectarine && \
-    chown -R nectarine: ${ROOT_FOLDER}
+RUN adduser -D galerie && \
+    chown -R galerie: ${ROOT_FOLDER}
 
-USER nectarine
+USER galerie
 
 ENTRYPOINT ["entrypoint.sh"]
 CMD ["start"]

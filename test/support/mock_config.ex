@@ -1,4 +1,4 @@
-defmodule NectarineTest.Support.MockConfig do
+defmodule GalerieTest.Support.MockConfig do
   def mock_config(root_key, opts) do
     root_key
     |> get_current_config()

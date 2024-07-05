@@ -14,7 +14,7 @@ on:
 env:
   SECRET_KEY_BASE: "AoGYUaRhn77k8uIXUz5jERU5AiV4qRiF"
   LIVE_VIEW_SALT: "dcaTyiy2wytRzi3KoJX3RVem1wAYhrj1"
-  MAILER_FROM: "ci@nectarine.com"
+  MAILER_FROM: "ci@galerie.com"
   AWS_S3_HOSTNAME: "http://localhost:9000"
   MIX_ENV: "test"
 

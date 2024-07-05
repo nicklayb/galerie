@@ -1,4 +1,4 @@
-defmodule Nectarine.DataCase do
+defmodule Galerie.DataCase do
   @moduledoc """
   This module defines the setup for tests requiring
   access to the application's data layer.
@@ -10,7 +10,7 @@ defmodule Nectarine.DataCase do
   we enable the SQL sandbox, so changes done to the database
   are reverted at the end of every test. If you are using
   PostgreSQL, you can even run database tests asynchronously
-  by setting `use Nectarine.DataCase, async: true`, although
+  by setting `use Galerie.DataCase, async: true`, although
   this option is not recommended for other databases.
   """
 
@@ -19,24 +19,24 @@ defmodule Nectarine.DataCase do
 
   using do
     quote do
-      alias Nectarine.Repo
+      alias Galerie.Repo
 
-      alias NectarineTest.Support.MockConfig
+      alias GalerieTest.Support.MockConfig
 
       import Ecto
       import Ecto.Changeset
       import Ecto.Query
-      import Nectarine.DataCase
-      import NectarineTest.Support.Fixture
-      import NectarineTest.Support.Factory
+      import Galerie.DataCase
+      import GalerieTest.Support.Fixture
+      import GalerieTest.Support.Factory
     end
   end
 
   setup tags do
-    :ok = Sandbox.checkout(Nectarine.Repo)
+    :ok = Sandbox.checkout(Galerie.Repo)
 
     unless tags[:async] do
-      Sandbox.mode(Nectarine.Repo, {:shared, self()})
+      Sandbox.mode(Galerie.Repo, {:shared, self()})
     end
 
     :ok

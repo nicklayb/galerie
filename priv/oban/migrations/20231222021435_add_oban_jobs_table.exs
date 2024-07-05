@@ -1,4 +1,4 @@
-defmodule Nectarine.Repo.Migrations.AddObanJobsTable do
+defmodule Galerie.Repo.Migrations.AddObanJobsTable do
   use Ecto.Migration
 
   def up do

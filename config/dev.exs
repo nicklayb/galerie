@@ -1,14 +1,14 @@
 import Config
 
-config :nectarine, Nectarine.Repo,
+config :galerie, Galerie.Repo,
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
 
-config :nectarine, Nectarine.ObanRepo,
+config :galerie, Galerie.ObanRepo,
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
 
-config :nectarine, NectarineWeb.Endpoint,
+config :galerie, GalerieWeb.Endpoint,
   http: [port: 4000],
   debug_errors: true,
   code_reloader: true,
@@ -29,8 +29,8 @@ config :nectarine, NectarineWeb.Endpoint,
     patterns: [
       ~r"priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$",
       ~r"priv/gettext/.*(po)$",
-      ~r"lib/nectarine_web/(live|views)/.*(ex)$",
-      ~r"lib/nectarine_web/templates/.*(eex)$"
+      ~r"lib/galerie_web/(live|views)/.*(ex)$",
+      ~r"lib/galerie_web/templates/.*(eex)$"
     ]
   ]
 
