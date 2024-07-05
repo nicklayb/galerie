@@ -14,11 +14,16 @@ defmodule Galerie.Jobs.ThumbnailGenerator do
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"picture_id" => picture_id}}) do
-    picture_id
-    |> Library.get_picture()
-    |> Result.and_then(&convert_raw/1)
-    |> Result.and_then(&generate_thumbnail/1)
-    |> Result.with_default(:discard)
+    result =
+      picture_id
+      |> Library.get_picture()
+      |> Result.and_then(&convert_raw/1)
+      |> Result.and_then(&generate_thumbnail/1)
+
+    case result do
+      {:ok, picture} -> {:ok, picture}
+      _ -> :discard
+    end
   end
 
   defp convert_raw(%Picture{type: :tiff} = picture) do
@@ -38,7 +43,7 @@ defmodule Galerie.Jobs.ThumbnailGenerator do
     |> Result.and_then(&Image.write(&1, thumbnail_path))
     |> Result.and_then(fn _ ->
       picture
-      |> Picture.changeset(%{thumbnail_path: thumbnail_path})
+      |> Picture.changeset(%{thumbnail: thumbnail_path})
       |> Repo.update()
     end)
   end
