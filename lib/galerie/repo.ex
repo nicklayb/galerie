@@ -3,6 +3,7 @@ defmodule Galerie.Repo do
     otp_app: :galerie,
     adapter: Ecto.Adapters.Postgres
 
+  alias Galerie.Repo.Page
   require Ecto.Query
 
   @type record_id :: integer()

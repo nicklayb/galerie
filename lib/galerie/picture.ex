@@ -97,4 +97,11 @@ defmodule Galerie.Picture do
 
     key
   end
+
+  def jpeg_path(%Picture{type: :tiff, converted_jpeg: converted_jpeg})
+      when is_binary(converted_jpeg),
+      do: {:ok, converted_jpeg}
+
+  def jpeg_path(%Picture{type: :tiff}), do: {:error, :no_jpeg_available}
+  def jpeg_path(%Picture{fullpath: fullpath}), do: {:ok, fullpath}
 end

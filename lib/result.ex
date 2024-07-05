@@ -40,6 +40,10 @@ defmodule Result do
   def map({:ok, result}, function), do: {:ok, function.(result)}
   def map(error, _), do: error
 
+  @spec and_then(t(any(), any()), (any() -> t(any(), any()))) :: t(any(), any())
+  def and_then({:ok, result}, function), do: function.(result)
+  def and_then(error, _), do: error
+
   @spec tap(t(any(), any()), (any() -> any())) :: t(any(), any())
   def tap({:ok, result}, function) do
     function.(result)

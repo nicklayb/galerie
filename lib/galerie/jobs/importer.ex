@@ -30,8 +30,8 @@ defmodule Galerie.Jobs.Importer do
 
   defp enqueue_post_steps(%Picture{} = picture) do
     picture
-    |> enqueue_processor()
-    |> enqueue_thumbnail_generator()
+    |> tap(&enqueue_processor/1)
+    |> tap(&enqueue_thumbnail_generator/1)
   end
 
   defp enqueue_processor(%Picture{} = picture), do: Galerie.Jobs.Processor.enqueue(picture)
