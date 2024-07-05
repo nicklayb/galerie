@@ -28,7 +28,7 @@ defmodule GalerieWeb.Components.Form do
   attr(:rest, :global)
   attr(:label, :string, default: nil)
 
-  @class "block w-full bg-true-gray-900 rounded border-0 py-1.5 pr-20 text-true-gray-50 ring-1 ring-inset ring-true-gray-500 placeholder:text-true-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-400 sm:text-sm sm:leading-6 group-[.has-errors]:ring-red-400"
+  @class "block w-full bg-true-gray-100 rounded border-0 py-1.5 pr-20 text-true-gray-900 ring-1 ring-inset ring-true-gray-500 placeholder:text-true-gray-400 focus:ring-2 focus:ring-inset focus:ring-pink-600 sm:text-sm sm:leading-6 group-[.has-errors]:ring-red-400"
   def text_input(%{field: _field} = assigns) do
     assigns = update(assigns, :class, &Helpers.class(@class, &1))
 
@@ -71,12 +71,12 @@ defmodule GalerieWeb.Components.Form do
 
   @default_classes "inline-block py-1.5 px-3 h-10 rounded"
   @classes %{
-    default: "bg-purple-400 hover:bg-purple-500 text-true-gray-50",
+    default: "bg-pink-500 hover:bg-pink-600 text-true-gray-50",
     white: "bg-true-gray-100 text-true-gray-900 hover:bg-true-gray-200",
-    clear: "bg-transparent text-true-gray-200 hover:text-purple-400",
-    link: "bg-transparent text-purple-600 hover:text-purple-400",
+    clear: "bg-transparent text-true-gray-200 hover:text-pink-400",
+    link: "bg-transparent text-pink-600 hover:text-pink-400",
     outline:
-      "bg-transparent text-true-gray-100 border border-true-gray-100 hover:border-purple-400 hover:text-purple-400"
+      "bg-transparent text-true-gray-100 border border-true-gray-100 hover:border-pink-400 hover:text-pink-400"
   }
   def button(%{href: _href} = assigns) do
     assigns = update_button_class(assigns)

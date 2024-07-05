@@ -31,7 +31,7 @@ defmodule GalerieWeb.Components.Layouts do
 
   def logo(assigns) do
     ~H"""
-    <h1 class="text-4xl font-bold uppercase tracking-wide">Galerie</h1>
+    <h1 class="text-4xl text-pink-400 font-bold uppercase tracking-wide">Galerie</h1>
     """
   end
 end

@@ -12,7 +12,7 @@ defmodule GalerieWeb.Authentication.View do
 
   def container(assigns) do
     ~H"""
-    <div class="bg-gray-800 rounded-lg p-4">
+    <div class="bg-gray-200 rounded-lg p-4">
       <div class="text-center my-4">
         <Layouts.logo />
       </div>
