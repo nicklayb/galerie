@@ -72,6 +72,10 @@ defmodule Galerie.Jobs.Processor do
     picture_metadata
     |> PictureMetadata.changeset(params)
     |> Repo.insert_or_update()
+    |> Result.log(
+      &"[#{inspect(__MODULE__)}] [metadata] [#{&1.picture_id}] [processed]",
+      &"[#{inspect(__MODULE__)}] [metadata] [#{picture_id}] [failed] #{inspect(&1)}"
+    )
   end
 
   defp upsert_exif(nil, picture_id, exif), do: upsert_exif(%PictureExif{}, picture_id, exif)
@@ -80,6 +84,11 @@ defmodule Galerie.Jobs.Processor do
     picture_exif
     |> PictureExif.changeset(%{picture_id: picture_id, exif: exif})
     |> Repo.insert_or_update()
+    |> Result.tap(&Galerie.PubSub.broadcast(Picture, {:processed, &1}))
+    |> Result.log(
+      &"[#{inspect(__MODULE__)}] [exif] [#{&1.picture_id}] [processed]",
+      &"[#{inspect(__MODULE__)}] [exif] [#{picture_id}] [failed] #{inspect(&1)}"
+    )
   end
 
   def format_date_time(nil, _timezone), do: nil

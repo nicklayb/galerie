@@ -96,7 +96,7 @@ defmodule GalerieWeb.Components.Ui do
     """
   end
 
-  slot(:inner_block, required: true)
+  slot(:inner_block, required: false)
   attr(:loading, :boolean, default: false)
 
   def loading(assigns) do
@@ -106,7 +106,7 @@ defmodule GalerieWeb.Components.Ui do
         <Icon.loading />
       </div>
     <% else %>
-      <%= render_slot(@inner_block) %>
+      <%= if assigns[:inner_block], do: render_slot(@inner_block) %>
     <% end %>
     """
   end

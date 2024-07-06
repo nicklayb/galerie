@@ -2,15 +2,22 @@
   <div class="flex-iniital w-72">
     <div class="">Filter</div>
   </div>
-  <div class="flex-1 overflow-y-auto p-4">
-    <%= case @pictures do %>
-      <% %Page{results: pictures} -> %>
-        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 m-auto">
-          <%= for picture <- pictures do %>
-            <Picture.thumbnail picture={picture} />
-          <% end %>
-        </div>
-      <% _ -> %>
-    <% end %>
-  </div>
+  <Ui.loading loading={@updating}>
+    <div class="flex-1 overflow-y-auto p-4" id="library" phx-viewport-bottom={if @pictures.has_next_page and not @scroll_disabled, do: "scrolled-bottom"}>
+      <%= case @pictures do %>
+        <% %Page{results: pictures} -> %>
+          <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 m-auto">
+            <%= for picture <- pictures do %>
+              <Picture.thumbnail picture={picture} />
+            <% end %>
+          </div>
+        <% _ -> %>
+      <% end %>
+    </div>
+  </Ui.loading>
+  <%= if Enum.any?(@new_pictures) do %>
+    <div class="fixed bottom-0 right-0 bg-yellow-400 rounded-full shadow-lg px-4 py-2 m-6" phx-click="clear-new-pictures">
+      <%= gettext("%{count} new pictures processed", count: length(@new_pictures)) %>
+    </div>
+  <% end %>
 </div>

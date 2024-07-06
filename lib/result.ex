@@ -3,6 +3,8 @@ defmodule Result do
   Helper function to deal with :ok/:error tuples
   """
 
+  require Logger
+
   @type success(success_type) :: {:ok, success_type}
   @type error(error_type) :: {:error, error_type} | :error
   @type t(success_type, error_type) :: success(success_type) | error(error_type)
@@ -44,13 +46,37 @@ defmodule Result do
   def and_then({:ok, result}, function), do: function.(result)
   def and_then(error, _), do: error
 
-  @spec tap(t(any(), any()), (any() -> any())) :: t(any(), any())
-  def tap({:ok, result}, function) do
-    function.(result)
+  @spec log(t(any(), any()), (any() -> any()), (any() -> any())) :: t(any(), any())
+  def log(result, success_function, error_function \\ &Function.identity/1)
+
+  def log({:ok, result}, success_function, _) do
+    result
+    |> then(success_function)
+    |> Logger.info()
+
     {:ok, result}
   end
 
-  def tap(error, _), do: error
+  def log({:error, error}, _, error_function) do
+    error
+    |> then(error_function)
+    |> Logger.error()
+
+    {:error, error}
+  end
+
+  @spec tap(t(any(), any()), (any() -> any()), (any() -> any())) :: t(any(), any())
+  def tap(result, success_function, error_function \\ &Function.identity/1)
+
+  def tap({:ok, result}, success_function, _) do
+    success_function.(result)
+    {:ok, result}
+  end
+
+  def tap({:error, error}, _, error_function) do
+    error_function.(error)
+    {:error, error}
+  end
 
   def with_default({:ok, result}, _), do: result
   def with_default(_, fallback), do: fallback

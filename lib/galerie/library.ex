@@ -4,7 +4,7 @@ defmodule Galerie.Library do
 
   @spec list_pictures(Keyword.t()) :: Repo.Page.t()
   def list_pictures(_) do
-    Repo.paginate(Picture)
+    Repo.paginate(Picture, %{limit: 30})
   end
 
   @spec get_picture(String.t()) :: Result.t(Picture.t(), :not_found)

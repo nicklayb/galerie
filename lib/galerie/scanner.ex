@@ -30,8 +30,9 @@ defmodule Galerie.Scanner do
   end
 
   def handle_info({:file_event, watcher_pid, {path, events}}, %{watcher_pid: watcher_pid} = state) do
-    if Enum.member?(events, :created) and picture?(path) do
-      Logger.debug("Picture #{path} created, enqueueing import...")
+    Logger.debug("[#{inspect(__MODULE__)}] [#{inspect(events)}] #{path}")
+
+    if Enum.member?(events, :created) or Enum.member?(events, :moved_to) do
       Galerie.Jobs.Importer.enqueue(path)
     end
 
@@ -40,21 +41,5 @@ defmodule Galerie.Scanner do
 
   def handle_info({:file_event, watcher_pid, :stop}, %{watcher_pid: watcher_pid} = state) do
     {:noreply, state}
-  end
-
-  defp picture?(path) do
-    tiff_picture?(path) or jpeg_picture?(path)
-  end
-
-  defp jpeg_picture?(path) do
-    path
-    |> ExifParser.parse_jpeg_file()
-    |> Result.succeeded?()
-  end
-
-  defp tiff_picture?(path) do
-    path
-    |> ExifParser.parse_tiff_file()
-    |> Result.succeeded?()
   end
 end
