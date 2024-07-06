@@ -5,6 +5,7 @@ defmodule GalerieWeb.Library.Live do
   alias Galerie.Repo
   alias Galerie.Repo.Page
 
+  alias GalerieWeb.Components.Icon
   alias GalerieWeb.Components.Picture
   alias GalerieWeb.Components.Ui
 
@@ -15,6 +16,7 @@ defmodule GalerieWeb.Library.Live do
       socket
       |> assign(:updating, true)
       |> assign(:new_pictures, [])
+      |> assign(:selected_pictures, MapSet.new())
       |> start_async(:load_pictures, fn -> load_pictures(%{}) end)
 
     Galerie.PubSub.subscribe(Galerie.Picture)
@@ -54,6 +56,23 @@ defmodule GalerieWeb.Library.Live do
 
   def handle_event("clear-new-pictures", _, socket) do
     socket = assign(socket, :new_pictures, [])
+    {:noreply, socket}
+  end
+
+  def handle_event("deselect-picture", %{"picture_id" => picture_id}, socket) do
+    socket = update(socket, :selected_pictures, &MapSet.delete(&1, picture_id))
+
+    {:noreply, socket}
+  end
+
+  def handle_event("select-picture", %{"picture_id" => picture_id}, socket) do
+    socket = update(socket, :selected_pictures, &MapSet.put(&1, picture_id))
+
+    {:noreply, socket}
+  end
+
+  def handle_event("deselect-all", _, socket) do
+    socket = assign(socket, :selected_pictures, MapSet.new())
     {:noreply, socket}
   end
 
