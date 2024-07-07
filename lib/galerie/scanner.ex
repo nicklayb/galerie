@@ -32,7 +32,7 @@ defmodule Galerie.Scanner do
   def handle_info({:file_event, watcher_pid, {path, events}}, %{watcher_pid: watcher_pid} = state) do
     Logger.debug("[#{inspect(__MODULE__)}] [#{inspect(events)}] #{path}")
 
-    if Enum.member?(events, :created) or Enum.member?(events, :moved_to) do
+    if Enum.member?(events, :closed) or Enum.member?(events, :moved_to) do
       Galerie.Jobs.Importer.enqueue(path)
     end
 

@@ -17,6 +17,7 @@ defmodule GalerieWeb.Library.Live do
       |> assign(:updating, true)
       |> assign(:new_pictures, [])
       |> assign(:filter_selected, false)
+      |> assign(:last_index, 0)
       |> assign(:selected_pictures, MapSet.new())
       |> start_async(:load_pictures, fn -> load_pictures(%{}) end)
 
@@ -28,7 +29,7 @@ defmodule GalerieWeb.Library.Live do
   def handle_async(:load_pictures, {:ok, page}, socket) do
     socket =
       socket
-      |> assign(:pictures, page)
+      |> assign_pictures(page)
       |> assign(:updating, false)
       |> assign(:scroll_disabled, false)
 
@@ -37,6 +38,7 @@ defmodule GalerieWeb.Library.Live do
 
   defp load_pictures(%{pictures: %Page{} = previous_page}) do
     new_page = Repo.next(previous_page)
+
     Page.merge(previous_page, new_page)
   end
 
@@ -60,30 +62,53 @@ defmodule GalerieWeb.Library.Live do
     {:noreply, socket}
   end
 
-  def handle_event("deselect-picture", %{"picture_id" => picture_id}, socket) do
-    socket =
-      socket
-      |> update(:selected_pictures, &MapSet.delete(&1, picture_id))
-      |> then(fn socket ->
-        if Enum.any?(socket.assigns.selected_pictures) do
-          socket
-        else
-          assign(socket, :filter_selected, false)
-        end
-      end)
-
-    {:noreply, socket}
-  end
-
   def handle_event("filter-selected", _, socket) do
     socket = update(socket, :filter_selected, &(not &1))
 
     {:noreply, socket}
   end
 
-  def handle_event("select-picture", %{"picture_id" => picture_id}, socket) do
-    socket = update(socket, :selected_pictures, &MapSet.put(&1, picture_id))
+  def handle_event(
+        "picture-click",
+        %{"shift_key" => true, "index" => index},
+        socket
+      ) do
+    socket = toggle_between_index(socket, String.to_integer(index))
+    {:noreply, socket}
+  end
 
+  def handle_event(
+        "picture-click",
+        %{"ctrl_key" => true, "index" => index, "picture_id" => picture_id},
+        socket
+      ) do
+    socket =
+      if picture_selected?(socket, picture_id) do
+        deselect_picture(socket, picture_id, index)
+      else
+        select_picture(socket, picture_id, index)
+      end
+
+    {:noreply, socket}
+  end
+
+  def handle_event("picture-click", %{"index" => index, "picture_id" => picture_id}, socket) do
+    IO.inspect("Click")
+    {:noreply, socket}
+  end
+
+  def handle_event("select-picture", %{"index" => index, "shift_key" => true}, socket) do
+    socket = toggle_between_index(socket, String.to_integer(index))
+    {:noreply, socket}
+  end
+
+  def handle_event("select-picture", %{"index" => index, "picture_id" => picture_id}, socket) do
+    socket = select_picture(socket, picture_id, index)
+    {:noreply, socket}
+  end
+
+  def handle_event("deselect-picture", %{"index" => index, "picture_id" => picture_id}, socket) do
+    socket = deselect_picture(socket, picture_id, index)
     {:noreply, socket}
   end
 
@@ -107,5 +132,49 @@ defmodule GalerieWeb.Library.Live do
 
   def handle_info(%Galerie.PubSub.Message{}, socket) do
     {:noreply, socket}
+  end
+
+  defp assign_pictures(socket, pictures) do
+    assign(socket, :pictures, Page.map_results(pictures, &Galerie.Picture.put_index/1))
+  end
+
+  defp select_picture(socket, picture_id, index) do
+    socket
+    |> update(:selected_pictures, &MapSet.put(&1, picture_id))
+    |> assign(:last_index, String.to_integer(index))
+  end
+
+  defp deselect_picture(socket, picture_id, index) do
+    socket
+    |> update(:selected_pictures, &MapSet.delete(&1, picture_id))
+    |> then(fn socket ->
+      if Enum.any?(socket.assigns.selected_pictures) do
+        socket
+      else
+        assign(socket, :filter_selected, false)
+      end
+    end)
+    |> assign(:last_index, String.to_integer(index))
+  end
+
+  defp picture_selected?(%{assigns: %{selected_pictures: selected_pictures}}, picture_id) do
+    MapSet.member?(selected_pictures, picture_id)
+  end
+
+  defp toggle_between_index(
+         %{assigns: %{last_index: last_index, pictures: %Page{results: pictures}}} = socket,
+         new_last_index
+       ) do
+    last_index = last_index + 1
+    bottom_index = min(last_index, new_last_index)
+    top_index = max(last_index, new_last_index)
+    range = bottom_index..top_index
+    new_pictures = Enum.slice(pictures, range)
+
+    socket
+    |> update(:selected_pictures, fn selected_pictures ->
+      Enum.reduce(new_pictures, selected_pictures, &MapSet.Extra.toggle(&2, &1.id))
+    end)
+    |> assign(:last_index, new_last_index)
   end
 end

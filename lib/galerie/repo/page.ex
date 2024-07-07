@@ -31,4 +31,14 @@ defmodule Galerie.Repo.Page do
   def merge(%Page{results: previous_results}, %Page{results: new_results} = right) do
     %Page{right | results: previous_results ++ new_results}
   end
+
+  @spec map_every_results(t(), ([any()] -> [any()])) :: t()
+  def map_results(%Page{results: results} = page, function) do
+    %Page{page | results: function.(results)}
+  end
+
+  @spec map_every_results(t(), (any() -> any())) :: t()
+  def map_every_results(%Page{} = page, function) do
+    map_results(page, &Enum.map(&1, function))
+  end
 end

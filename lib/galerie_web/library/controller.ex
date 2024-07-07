@@ -5,6 +5,7 @@ defmodule GalerieWeb.Library.Controller do
   action_fallback(Error.Controller)
   plug(:put_view, GalerieWeb.Library.View)
 
+  # TODO: The code below isn't safe, temporary solution to make it work
   def get(conn, %{"image" => image}) do
     thumbnail_location = Folder.thumbnail(image)
 

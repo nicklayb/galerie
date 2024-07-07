@@ -19,6 +19,8 @@ defmodule Galerie.Picture do
     field(:converted_jpeg, :string)
     field(:thumbnail, :string)
 
+    field(:index, :integer, virtual: true)
+
     has_one(:picture_exif, PictureExif)
     has_one(:picture_metadata, PictureMetadata)
 
@@ -104,4 +106,12 @@ defmodule Galerie.Picture do
 
   def jpeg_path(%Picture{type: :tiff}), do: {:error, :no_jpeg_available}
   def jpeg_path(%Picture{fullpath: fullpath}), do: {:ok, fullpath}
+
+  def put_index(pictures) do
+    Enum.with_index(pictures, &put_index/2)
+  end
+
+  def put_index(%Picture{} = picture, index) do
+    %Picture{picture | index: index}
+  end
 end

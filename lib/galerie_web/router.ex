@@ -45,8 +45,9 @@ defmodule GalerieWeb.Router do
   end
 
   scope("/", GalerieWeb) do
-    pipe_through([:browser, :session_authenticated])
+    pipe_through([:browser])
 
+    # TODO: This route should be secured through authentication
     get("/pictures/:image", Library.Controller, :get)
   end
 
