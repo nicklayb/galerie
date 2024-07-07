@@ -5,7 +5,7 @@ defmodule GalerieWeb.Library.Live do
   alias Galerie.Repo
   alias Galerie.Repo.Page
 
-  alias GalerieWeb.Components.Icon
+  alias GalerieWeb.Components.FloatingPills
   alias GalerieWeb.Components.Picture
   alias GalerieWeb.Components.Ui
 
@@ -16,6 +16,7 @@ defmodule GalerieWeb.Library.Live do
       socket
       |> assign(:updating, true)
       |> assign(:new_pictures, [])
+      |> assign(:filter_selected, false)
       |> assign(:selected_pictures, MapSet.new())
       |> start_async(:load_pictures, fn -> load_pictures(%{}) end)
 
@@ -60,7 +61,22 @@ defmodule GalerieWeb.Library.Live do
   end
 
   def handle_event("deselect-picture", %{"picture_id" => picture_id}, socket) do
-    socket = update(socket, :selected_pictures, &MapSet.delete(&1, picture_id))
+    socket =
+      socket
+      |> update(:selected_pictures, &MapSet.delete(&1, picture_id))
+      |> then(fn socket ->
+        if Enum.any?(socket.assigns.selected_pictures) do
+          socket
+        else
+          assign(socket, :filter_selected, false)
+        end
+      end)
+
+    {:noreply, socket}
+  end
+
+  def handle_event("filter-selected", _, socket) do
+    socket = update(socket, :filter_selected, &(not &1))
 
     {:noreply, socket}
   end

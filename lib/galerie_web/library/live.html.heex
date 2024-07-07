@@ -7,7 +7,7 @@
       <%= case @pictures do %>
         <% %Page{results: pictures} -> %>
           <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 m-auto">
-            <%= for picture <- pictures do %>
+          <%= for picture <- if @filter_selected, do: Enum.filter(pictures, &(MapSet.member?(@selected_pictures, &1.id))), else: pictures do %>
               <Picture.thumbnail picture={picture} checked={Enum.member?(@selected_pictures, picture.id)}/>
             <% end %>
           </div>
@@ -15,18 +15,14 @@
       <% end %>
     </div>
   </Ui.loading>
-  <div class="z-50 fixed bottom-0 right-0 m-6 mb-4 text-right flex flex-col">
-    <%= if Enum.any?(@new_pictures) do %>
-      <div class="inline-flex items-center right-0 bg-yellow-400 rounded-full shadow-lg px-4 py-2 justify-between">
-        <%= gettext("%{count} new pictures processed", count: length(@new_pictures)) %>
-        <span class="ml-2 hover:bg-yellow-600 w-5 cursor-pointer h-5 rounded-full flex items-center justify-center" phx-click="clear-new-pictures"><Icon.cross width="10" height="10"/></span>
-      </div>
-    <% end %>
-    <%= if Enum.any?(@selected_pictures) do %>
-      <div class="inline-flex items-center bg-pink-500 text-true-gray-100 rounded-full shadow-lg px-4 py-2 justify-between" phx-click="clear-new-pictures">
-        <%= gettext("%{count} selected", count: MapSet.size(@selected_pictures)) %>
-        <span class="ml-2 hover:bg-pink-600 w-5 cursor-pointer h-5 rounded-full flex items-center justify-center" phx-click="deselect-all"><Icon.cross width="10" height="10"/></span>
-      </div>
-    <% end %>
-  </div>
+  <FloatingPills.pills>
+    <FloatingPills.pill visible={Enum.any?(@new_pictures)} text={gettext("%{count} new pictures processed", count: length(@new_pictures))} pill_class="bg-yellow-400" button_class="hover:bg-yellow-600">
+      <:button phx_click="clear-new-pictures" icon={:cross} width="10" height="10"/>
+    </FloatingPills.pill>
+    <FloatingPills.pill visible={Enum.any?(@selected_pictures)} text={gettext("%{count} selected", count: MapSet.size(@selected_pictures))}>
+      <:button phx_click="filter-selected" icon={:eye} width="15" height="15" class={if @filter_selected, do: "bg-pink-600", else: ""}/>
+      <:button phx_click="open-action-dropdown" icon={:hamburger} width="15" height="15"/>
+      <:button phx_click="deselect-all" icon={:cross} width="10" height="10"/>
+    </FloatingPills.pill>
+  </FloatingPills.pills>
 </div>

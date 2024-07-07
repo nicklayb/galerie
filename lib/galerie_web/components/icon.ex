@@ -2,6 +2,10 @@ defmodule GalerieWeb.Components.Icon do
   use Phoenix.Component
   alias GalerieWeb.Components.Helpers
 
+  def icon(%{icon: icon} = assigns) do
+    apply(__MODULE__, icon, [assigns])
+  end
+
   attr(:height, :string, default: "4")
   attr(:width, :string, default: "4")
   attr(:class, :string, default: "text-gray-300")
@@ -65,34 +69,41 @@ defmodule GalerieWeb.Components.Icon do
     """
   end
 
-  def folder_closed(assigns) do
-    ~H"""
-    <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 18">
-      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5v11a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1H1Zm0 0V2a1 1 0 0 1 1-1h5.443a1 1 0 0 1 .8.4l2.7 3.6H1Z"/>
-    </svg>
-    """
-  end
-
-  def folder_opened(assigns) do
-    ~H"""
-    <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 21 18">
-      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.539 17h12.476l4-9H5m-2.461 9a1 1 0 0 1-.914-1.406L5 8m-2.461 9H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.443a1 1 0 0 1 .8.4l2.7 3.6H16a1 1 0 0 1 1 1v2H5"/>
-    </svg>
-    """
-  end
-
-  def song(assigns) do
-    ~H"""
-      <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 16">
-        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 11.5V1s3 1 3 4m-7-3H1m9 4H1m4 4H1m13 2.4c0 1.325-1.343 2.4-3 2.4s-3-1.075-3-2.4S9.343 10 11 10s3 1.075 3 2.4Z"/>
-      </svg>
-    """
-  end
+  attr(:height, :string, default: "4")
+  attr(:width, :string, default: "4")
+  attr(:class, :string, default: "")
 
   def add(assigns) do
     ~H"""
-    <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+    <svg class={@class} height={@height} width={@width} aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
       <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 5.757v8.486M5.757 10h8.486M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+    </svg>
+    """
+  end
+
+  attr(:height, :string, default: "4")
+  attr(:width, :string, default: "4")
+  attr(:class, :string, default: "")
+
+  def hamburger(assigns) do
+    ~H"""
+    <svg class={@class} height={@height} width={@width} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M4 18L20 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      <path d="M4 12L20 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      <path d="M4 6L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    """
+  end
+
+  attr(:height, :string, default: "4")
+  attr(:width, :string, default: "4")
+  attr(:class, :string, default: "")
+
+  def eye(assigns) do
+    ~H"""
+    <svg class={@class} height={@height} width={@width} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M15.0007 12C15.0007 13.6569 13.6576 15 12.0007 15C10.3439 15 9.00073 13.6569 9.00073 12C9.00073 10.3431 10.3439 9 12.0007 9C13.6576 9 15.0007 10.3431 15.0007 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M12.0012 5C7.52354 5 3.73326 7.94288 2.45898 12C3.73324 16.0571 7.52354 19 12.0012 19C16.4788 19 20.2691 16.0571 21.5434 12C20.2691 7.94291 16.4788 5 12.0012 5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>
     """
   end
