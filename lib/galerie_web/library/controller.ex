@@ -6,15 +6,30 @@ defmodule GalerieWeb.Library.Controller do
   plug(:put_view, GalerieWeb.Library.View)
 
   # TODO: The code below isn't safe, temporary solution to make it work
-  def get(conn, %{"image" => image}) do
-    thumbnail_location = Folder.thumbnail(image)
+  def get(conn, %{"image" => image} = params) do
+    file_location =
+      params
+      |> Map.get("type")
+      |> file_path(image)
 
-    if File.exists?(thumbnail_location) do
-      send_download(conn, {:file, thumbnail_location})
+    if File.exists?(file_location) do
+      send_download(conn, {:file, file_location})
     else
       conn
       |> put_status(404)
       |> halt()
     end
+  end
+
+  defp file_path("thumb", image) do
+    Folder.thumbnail(image)
+  end
+
+  defp file_path("tiff", image) do
+    Folder.raw_converted(image)
+  end
+
+  defp file_path(_, image) do
+    image
   end
 end

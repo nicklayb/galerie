@@ -19,6 +19,8 @@ defmodule GalerieWeb.Library.Live do
       |> assign(:filter_selected, false)
       |> assign(:last_index, 0)
       |> assign(:selected_pictures, MapSet.new())
+      |> assign(:highlighted_picture, nil)
+      |> assign(:highlighted_index, nil)
       |> start_async(:load_pictures, fn -> load_pictures(%{}) end)
 
     Galerie.PubSub.subscribe(Galerie.Picture)
@@ -92,8 +94,22 @@ defmodule GalerieWeb.Library.Live do
     {:noreply, socket}
   end
 
-  def handle_event("picture-click", %{"index" => index, "picture_id" => picture_id}, socket) do
-    IO.inspect("Click")
+  def handle_event(
+        "picture-click",
+        %{"index" => index, "picture_id" => picture_id},
+        %{assigns: %{pictures: %Page{results: pictures}}} = socket
+      ) do
+    socket =
+      case Enum.find(pictures, &(&1.id == picture_id)) do
+        %Galerie.Picture{} = picture ->
+          socket
+          |> assign(:highlighted_picture, picture)
+          |> assign(:highlighted_index, String.to_integer(index))
+
+        _ ->
+          socket
+      end
+
     {:noreply, socket}
   end
 
@@ -114,6 +130,67 @@ defmodule GalerieWeb.Library.Live do
 
   def handle_event("deselect-all", _, socket) do
     socket = assign(socket, :selected_pictures, MapSet.new())
+    {:noreply, socket}
+  end
+
+  def handle_event(
+        "viewer:keyup",
+        %{"key" => "ArrowLeft"},
+        %{assigns: %{highlighted_index: highlighted_index, pictures: %Page{results: pictures}}} =
+          socket
+      ) do
+    new_index =
+      if highlighted_index == 0 do
+        length(pictures) - 1
+      else
+        highlighted_index - 1
+      end
+
+    picture = Enum.at(pictures, new_index)
+
+    socket =
+      socket
+      |> assign(:highlighted_index, new_index)
+      |> assign(:highlighted_picture, picture)
+
+    {:noreply, socket}
+  end
+
+  def handle_event(
+        "viewer:keyup",
+        %{"key" => "ArrowRight"},
+        %{assigns: %{highlighted_index: highlighted_index, pictures: %Page{results: pictures}}} =
+          socket
+      ) do
+    total_pictures = length(pictures)
+
+    new_index =
+      if highlighted_index >= total_pictures - 1 do
+        0
+      else
+        highlighted_index + 1
+      end
+
+    picture = Enum.at(pictures, new_index)
+
+    socket =
+      socket
+      |> assign(:highlighted_index, new_index)
+      |> assign(:highlighted_picture, picture)
+
+    {:noreply, socket}
+  end
+
+  def handle_event("viewer:keyup", %{"key" => "Escape"}, socket) do
+    socket =
+      socket
+      |> assign(:highlighted_index, nil)
+      |> assign(:highlighted_picture, nil)
+
+    {:noreply, socket}
+  end
+
+  def handle_event("viewer:keyup", _, socket) do
     {:noreply, socket}
   end
 

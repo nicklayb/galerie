@@ -25,4 +25,7 @@
       <:button phx_click="deselect-all" icon={:cross} width="10" height="10"/>
     </FloatingPills.pill>
   </FloatingPills.pills>
+  <%= if not is_nil(@highlighted_picture) do %>
+    <Picture.viewer picture={@highlighted_picture} index={@highlighted_index} />
+  <% end %>
 </div>

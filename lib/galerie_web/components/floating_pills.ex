@@ -7,7 +7,7 @@ defmodule GalerieWeb.Components.FloatingPills do
 
   def pills(assigns) do
     ~H"""
-    <div class="z-50 fixed bottom-0 right-0 m-6 mb-4 text-right">
+    <div class="z-30 fixed bottom-0 right-0 m-6 mb-4 text-right">
       <%= render_slot(@inner_block) %>
     </div>
     """
