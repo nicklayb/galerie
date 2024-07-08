@@ -8,7 +8,7 @@ defmodule Seed do
     Enum.map(users, &create_user/1)
   end
 
-  @password "Shawi1234"
+  @password "admin"
   def create_user(user_params) do
     user_params
     |> Map.merge(%{password: @password, password_confirmation: @password})
@@ -19,5 +19,5 @@ end
 
 [_nicolas] =
   Seed.create_user([
-    %{first_name: "Nicolas", last_name: "Boisvert", email: "nicklay@me.com"}
+    %{first_name: "John", last_name: "Doe", email: "admin@example.com"}
   ])

@@ -5,7 +5,7 @@ DOCKER_TAG:=latest
 DOCKER_IMAGE=galerie:$(DOCKER_TAG)
 DOCKER_REMOTE_IMAGE=$(DOCKER_REGISTRY)/$(DOCKER_IMAGE)
 
-setup: asdf-install boot-docker deps setup-assets create-db reset-db iex-server
+setup: asdf-install boot-docker deps setup-assets create-db reset-db
 
 dev: boot-docker create-db iex-server
 
