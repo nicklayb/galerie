@@ -22,6 +22,10 @@ erl_crash.dump
 /priv/static
 /assets/node_modules
 /bucket
-/scanned
+/samples/*
+!/samples/DSC00397.JPG
+!/samples/DSC00413.JPG
+!/samples/DSC00428.ARW
+!/samples/DSC00461.jpg
 /priv/thumbnails
 /priv/raw_converted

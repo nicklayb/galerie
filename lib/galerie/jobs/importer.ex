@@ -1,19 +1,20 @@
 defmodule Galerie.Jobs.Importer do
   use Oban.Worker, queue: :imports
 
+  alias Galerie.Folder
   alias Galerie.Library
   alias Galerie.Picture
   alias Galerie.Repo
 
   require Logger
 
-  def enqueue(path) do
+  def enqueue(path, %Folder{id: folder_id, path: folder_path}) do
     if picture?(path) do
       Logger.debug(
         "[#{inspect(__MODULE__)}] [enqueueing] Picture #{path} created, enqueueing import..."
       )
 
-      %{path: path}
+      %{path: path, folder_path: folder_path, folder_id: folder_id}
       |> Galerie.Jobs.Importer.new()
       |> Oban.insert()
     else
@@ -23,11 +24,17 @@ defmodule Galerie.Jobs.Importer do
   end
 
   @impl Oban.Worker
-  def perform(%Oban.Job{args: %{"path" => path}}) do
+  def perform(%Oban.Job{
+        args: %{"path" => path, "folder_path" => folder_path, "folder_id" => folder_id}
+      }) do
     case Library.get_picture_by_path(path) do
       {:error, :not_found} ->
         %Picture{}
-        |> Picture.create_changeset(%{fullpath: path})
+        |> Picture.create_changeset(%{
+          fullpath: path,
+          folder_path: folder_path,
+          folder_id: folder_id
+        })
         |> Repo.insert()
         |> Result.tap(&Galerie.PubSub.broadcast(Picture, {:imported, &1}))
         |> Result.log(

@@ -1,5 +1,6 @@
 defmodule Galerie.Picture do
   use Ecto.Schema
+  alias Galerie.Folder
   alias Galerie.Picture
   alias Galerie.PictureExif
   alias Galerie.PictureMetadata
@@ -20,6 +21,9 @@ defmodule Galerie.Picture do
     field(:thumbnail, :string)
 
     field(:index, :integer, virtual: true)
+    field(:folder_path, :string, virtual: true)
+
+    belongs_to(:folder, Folder)
 
     has_one(:picture_exif, PictureExif)
     has_one(:picture_metadata, PictureMetadata)
@@ -27,11 +31,13 @@ defmodule Galerie.Picture do
     timestamps()
   end
 
-  @required ~w(name extension original_name fullpath size)a
+  @required_for_cast ~w(fullpath folder_id folder_path)a
+  @required ~w(folder_id name extension original_name fullpath size)a
   @optional ~w(converted_jpeg thumbnail)a
   def create_changeset(%Picture{} = picture \\ %Picture{}, params) do
     picture
-    |> Ecto.Changeset.cast(params, [:fullpath])
+    |> Ecto.Changeset.cast(params, @required_for_cast)
+    |> Ecto.Changeset.validate_required(@required_for_cast)
     |> cast_parts()
     |> Ecto.Changeset.validate_required(@required)
   end
@@ -43,29 +49,32 @@ defmodule Galerie.Picture do
     |> Ecto.Changeset.validate_required(@required)
   end
 
-  defp cast_parts(%Ecto.Changeset{} = changeset) do
-    case Ecto.Changeset.get_change(changeset, :fullpath) do
-      nil ->
-        changeset
+  defp cast_parts(%Ecto.Changeset{valid?: true} = changeset) do
+    fullpath = Ecto.Changeset.get_change(changeset, :fullpath)
+    folder_path = Ecto.Changeset.get_change(changeset, :folder_path)
 
-      path ->
-        %{name: name, type: type, extension: extension, original_name: original_name} =
-          extract_parts(path)
+    %{name: name, type: type, extension: extension, original_name: original_name} =
+      extract_parts(fullpath, folder_path)
 
-        %File.Stat{size: file_size} = File.stat!(path)
+    %File.Stat{size: file_size} = File.stat!(fullpath)
 
-        changeset
-        |> Ecto.Changeset.change(%{
-          name: name,
-          extension: extension,
-          original_name: original_name,
-          type: type
-        })
-        |> Ecto.Changeset.change(%{size: file_size})
-    end
+    Ecto.Changeset.change(changeset, %{
+      name: name,
+      extension: extension,
+      original_name: original_name,
+      type: type,
+      size: file_size
+    })
   end
 
-  defp extract_parts(path) do
+  defp cast_parts(%Ecto.Changeset{} = changeset), do: changeset
+
+  defp extract_parts(path, folder_path) do
+    original_name =
+      path
+      |> String.replace(folder_path, "", global: false)
+      |> String.trim_leading("/")
+
     [filename | _] =
       path
       |> Path.split()
@@ -80,7 +89,7 @@ defmodule Galerie.Picture do
 
     %{
       extension: extension,
-      original_name: filename,
+      original_name: original_name,
       name: String.replace(filename, ".#{extension}", ""),
       type: type
     }

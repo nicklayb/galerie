@@ -1,5 +1,8 @@
 alias Galerie.Accounts
 
+Galerie.Repo.start_link([])
+Task.Supervisor.start_link(name: Galerie.MailerSupervisor)
+
 defmodule Seed do
   def create_user(users) when is_list(users) do
     Enum.map(users, &create_user/1)

@@ -109,7 +109,9 @@ mailer_from =
 
 config :galerie, Galerie.Mailer, mailer_from: mailer_from
 
-config :galerie, Galerie.FileControl.Supervisor, folders: Env.get!("GALERIE_FOLDERS")
+config :galerie, Galerie.FileControl.Supervisor,
+  enabled: Env.boolean("GALERIE_FILE_CONTROL", "false"),
+  folders: Env.get!("GALERIE_FOLDERS")
 
 case {config_env(), Env.get("MAILER_ADAPTER", "local")} do
   {:test, _} ->

@@ -18,9 +18,12 @@ defmodule Galerie.Repo.Migrations.CreatePicturesTable do
       add(:thumbnail, :string, null: true)
       add(:converted_jpeg, :string, null: true)
 
+      add(:folder_id, references("folders"))
+
       timestamps()
     end
 
     create(unique_index("pictures", :fullpath))
+    create(unique_index("pictures", [:original_name, :folder_id]))
   end
 end

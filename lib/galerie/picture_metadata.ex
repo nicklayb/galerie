@@ -10,7 +10,8 @@ defmodule Galerie.PictureMetadata do
     field(:exposure_time, :float)
     field(:f_number, :float)
     field(:lens_model, :string)
-    field(:make, :string)
+    field(:camera_make, :string)
+    field(:camera_model, :string)
     field(:datetime_original, :naive_datetime)
     field(:longitude, :float)
     field(:latitude, :float)
@@ -24,7 +25,7 @@ defmodule Galerie.PictureMetadata do
   end
 
   @required ~w(width height orientation picture_id)a
-  @optional ~w(exposure_time f_number lens_model make datetime_original longitude latitude)a
+  @optional ~w(exposure_time f_number lens_model camera_make camera_model datetime_original longitude latitude)a
   @castable @required ++ @optional
   def changeset(%PictureMetadata{} = picture_metadata \\ %PictureMetadata{}, params) do
     picture_metadata

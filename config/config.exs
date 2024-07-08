@@ -4,10 +4,6 @@ config :galerie,
   ecto_repos: [Galerie.Repo, Galerie.ObanRepo],
   environment: config_env()
 
-config :galerie, Oban,
-  repo: Galerie.ObanRepo,
-  queues: [imports: 10, processors: 10, thumbnails: 3]
-
 config :galerie, Galerie.ObanRepo, priv: "priv/oban"
 
 config :galerie, Galerie.Generator, default_max_tries: 3

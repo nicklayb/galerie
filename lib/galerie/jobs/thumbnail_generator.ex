@@ -1,7 +1,7 @@
 defmodule Galerie.Jobs.ThumbnailGenerator do
   use Oban.Worker, queue: :thumbnails
 
-  alias Galerie.Folder
+  alias Galerie.Directory
   alias Galerie.Library
   alias Galerie.Picture
   alias Galerie.Repo
@@ -34,7 +34,7 @@ defmodule Galerie.Jobs.ThumbnailGenerator do
 
   @thumbnail_size 400
   defp generate_thumbnail(%Picture{fullpath: fullpath} = picture) do
-    thumbnail_path = Folder.thumbnail_output(fullpath)
+    thumbnail_path = Directory.thumbnail_output(fullpath)
 
     picture
     |> Picture.jpeg_path()

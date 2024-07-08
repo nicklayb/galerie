@@ -1,10 +1,14 @@
 defmodule Galerie.FileControl.Supervisor do
-  use Supervisor
+  use Supervisor, restart: :transient
 
   @supervisor __MODULE__
   @registry Galerie.FileControl.Registry
   def start_link(args) do
-    Supervisor.start_link(__MODULE__, args, name: @supervisor)
+    if enabled?() do
+      Supervisor.start_link(__MODULE__, args, name: @supervisor)
+    else
+      :ignore
+    end
   end
 
   def init(_) do
@@ -30,5 +34,9 @@ defmodule Galerie.FileControl.Supervisor do
     |> Application.get_env(@supervisor)
     |> Keyword.fetch!(:folders)
     |> String.split("|")
+  end
+
+  defp enabled? do
+    Galerie.Env.config(@supervisor, :enabled)
   end
 end

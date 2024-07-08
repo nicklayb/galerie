@@ -89,7 +89,7 @@ defmodule Galerie.MixProject do
         "cmd npm install --prefix assets"
       ],
       "ecto.setup": ["ecto.create", "ecto.migrate", "ecto.seed"],
-      "ecto.seed": ["run priv/repo/seeds.exs"],
+      "ecto.seed": ["run --no-start priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"]
     ]

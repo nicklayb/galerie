@@ -1,8 +1,8 @@
 defmodule GalerieWeb.Components.Ui do
   use Phoenix.Component
 
-  alias GalerieWeb.Html
   alias GalerieWeb.Components.Icon
+  alias GalerieWeb.Html
 
   def logo(assigns) do
     ~H"""

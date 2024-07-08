@@ -1,6 +1,6 @@
 defmodule GalerieWeb.Library.Controller do
-  alias Galerie.Folder
   use Phoenix.Controller, namespace: GalerieWeb
+  alias Galerie.Directory
 
   action_fallback(Error.Controller)
   plug(:put_view, GalerieWeb.Library.View)
@@ -22,11 +22,11 @@ defmodule GalerieWeb.Library.Controller do
   end
 
   defp file_path("thumb", image) do
-    Folder.thumbnail(image)
+    Directory.thumbnail(image)
   end
 
   defp file_path("tiff", image) do
-    Folder.raw_converted(image)
+    Directory.raw_converted(image)
   end
 
   defp file_path(_, image) do

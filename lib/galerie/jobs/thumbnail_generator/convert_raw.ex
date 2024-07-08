@@ -1,12 +1,12 @@
 defmodule Galerie.Jobs.ThumbnailGenerator.ConvertRaw do
-  alias Galerie.Folder
+  alias Galerie.Directory
   alias Galerie.Picture
   alias Galerie.Repo
 
   @default_quality 80
   def convert(%Picture{fullpath: fullpath} = picture, options \\ []) do
     quality = Keyword.get(options, :quality, @default_quality)
-    output_path = Folder.raw_converted_output(fullpath)
+    output_path = Directory.raw_converted_output(fullpath)
 
     fullpath
     |> autoraw(output_path, quality)
