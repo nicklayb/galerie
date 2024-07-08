@@ -16,7 +16,6 @@ Web photos library
 - TIFF-compatible files (so far, only tested with Sony's ARW).
 - JPEG
 
-
 ## How processing works
 
 Once the `Galerie.FileControl.Watcher` finds a new file:
