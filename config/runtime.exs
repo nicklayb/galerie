@@ -38,6 +38,12 @@ defmodule Env do
     |> String.to_existing_atom()
   end
 
+  def list!(key, splitter \\ "|") do
+    key
+    |> get!()
+    |> String.split(splitter)
+  end
+
   def atom(key, valid_atoms, default) do
     env_value = get(key, default)
 
@@ -111,7 +117,7 @@ config :galerie, Galerie.Mailer, mailer_from: mailer_from
 
 config :galerie, Galerie.FileControl.Supervisor,
   enabled: Env.boolean("GALERIE_FILE_CONTROL", "false"),
-  folders: Env.get!("GALERIE_FOLDERS")
+  folders: Env.list!("GALERIE_FOLDERS")
 
 case {config_env(), Env.get("MAILER_ADAPTER", "local")} do
   {:test, _} ->

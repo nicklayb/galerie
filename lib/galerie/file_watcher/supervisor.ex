@@ -33,7 +33,6 @@ defmodule Galerie.FileControl.Supervisor do
     :galerie
     |> Application.get_env(@supervisor)
     |> Keyword.fetch!(:folders)
-    |> String.split("|")
   end
 
   defp enabled? do
