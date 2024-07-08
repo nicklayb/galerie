@@ -19,8 +19,7 @@ defmodule GalerieWeb.Library.Live do
       |> assign(:filter_selected, false)
       |> assign(:last_index, 0)
       |> assign(:selected_pictures, MapSet.new())
-      |> assign(:highlighted_picture, nil)
-      |> assign(:highlighted_index, nil)
+      |> close_picture()
       |> start_async(:load_pictures, fn -> load_pictures(%{}) end)
 
     Galerie.PubSub.subscribe(Galerie.Picture)
@@ -102,9 +101,7 @@ defmodule GalerieWeb.Library.Live do
     socket =
       case Enum.find(pictures, &(&1.id == picture_id)) do
         %Galerie.Picture{} = picture ->
-          socket
-          |> assign(:highlighted_picture, picture)
-          |> assign(:highlighted_index, String.to_integer(index))
+          view_picture(socket, picture, index)
 
         _ ->
           socket
@@ -139,19 +136,16 @@ defmodule GalerieWeb.Library.Live do
         %{assigns: %{highlighted_index: highlighted_index, pictures: %Page{results: pictures}}} =
           socket
       ) do
-    new_index =
-      if highlighted_index == 0 do
-        length(pictures) - 1
-      else
-        highlighted_index - 1
-      end
-
-    picture = Enum.at(pictures, new_index)
-
     socket =
-      socket
-      |> assign(:highlighted_index, new_index)
-      |> assign(:highlighted_picture, picture)
+      if highlighted_index > 0 do
+        new_index = highlighted_index - 1
+
+        picture = Enum.at(pictures, new_index)
+
+        view_picture(socket, picture, new_index)
+      else
+        socket
+      end
 
     {:noreply, socket}
   end
@@ -173,24 +167,39 @@ defmodule GalerieWeb.Library.Live do
 
     picture = Enum.at(pictures, new_index)
 
+    socket = view_picture(socket, picture, new_index)
+
+    {:noreply, socket}
+  end
+
+  def handle_event(
+        "viewer:keyup",
+        %{"key" => "c"},
+        %{assigns: %{highlighted_index: index, highlighted_picture: picture}} =
+          socket
+      ) do
     socket =
-      socket
-      |> assign(:highlighted_index, new_index)
-      |> assign(:highlighted_picture, picture)
+      if picture_selected?(socket, picture.id) do
+        deselect_picture(socket, picture.id, index)
+      else
+        select_picture(socket, picture.id, index)
+      end
 
     {:noreply, socket}
   end
 
   def handle_event("viewer:keyup", %{"key" => "Escape"}, socket) do
-    socket =
-      socket
-      |> assign(:highlighted_index, nil)
-      |> assign(:highlighted_picture, nil)
+    socket = close_picture(socket)
 
     {:noreply, socket}
   end
 
   def handle_event("viewer:keyup", _, socket) do
+    {:noreply, socket}
+  end
+
+  def handle_event("viewer:close", _, socket) do
+    socket = close_picture(socket)
     {:noreply, socket}
   end
 
@@ -215,11 +224,17 @@ defmodule GalerieWeb.Library.Live do
     assign(socket, :pictures, Page.map_results(pictures, &Galerie.Picture.put_index/1))
   end
 
+  defp select_picture(socket, picture_id, index) when is_binary(index),
+    do: select_picture(socket, picture_id, String.to_integer(index))
+
   defp select_picture(socket, picture_id, index) do
     socket
     |> update(:selected_pictures, &MapSet.put(&1, picture_id))
-    |> assign(:last_index, String.to_integer(index))
+    |> assign(:last_index, index)
   end
+
+  defp deselect_picture(socket, picture_id, index) when is_binary(index),
+    do: deselect_picture(socket, picture_id, String.to_integer(index))
 
   defp deselect_picture(socket, picture_id, index) do
     socket
@@ -231,7 +246,7 @@ defmodule GalerieWeb.Library.Live do
         assign(socket, :filter_selected, false)
       end
     end)
-    |> assign(:last_index, String.to_integer(index))
+    |> assign(:last_index, index)
   end
 
   defp picture_selected?(%{assigns: %{selected_pictures: selected_pictures}}, picture_id) do
@@ -254,4 +269,15 @@ defmodule GalerieWeb.Library.Live do
     end)
     |> assign(:last_index, new_last_index)
   end
+
+  defp view_picture(socket, picture, index) when is_binary(index),
+    do: view_picture(socket, picture, String.to_integer(index))
+
+  defp view_picture(socket, picture, index) do
+    socket
+    |> assign(:highlighted_picture, picture)
+    |> assign(:highlighted_index, index)
+  end
+
+  defp close_picture(socket), do: view_picture(socket, nil, nil)
 end

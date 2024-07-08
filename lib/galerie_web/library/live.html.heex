@@ -6,11 +6,7 @@
     <div class="flex-1 overflow-y-auto p-4" id="library" phx-viewport-bottom={if @pictures.has_next_page and not @scroll_disabled, do: "scrolled-bottom"}>
       <%= case @pictures do %>
         <% %Page{results: pictures} -> %>
-          <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 m-auto">
-          <%= for picture <- if @filter_selected, do: Enum.filter(pictures, &(MapSet.member?(@selected_pictures, &1.id))), else: pictures do %>
-              <Picture.thumbnail picture={picture} checked={Enum.member?(@selected_pictures, picture.id)}/>
-            <% end %>
-          </div>
+          <Picture.grid pictures={pictures} filter_selected={@filter_selected} selected_pictures={@selected_pictures} />
         <% _ -> %>
       <% end %>
     </div>
@@ -26,6 +22,6 @@
     </FloatingPills.pill>
   </FloatingPills.pills>
   <%= if not is_nil(@highlighted_picture) do %>
-    <Picture.viewer picture={@highlighted_picture} index={@highlighted_index} />
+    <Picture.viewer selected_pictures={@selected_pictures} picture={@highlighted_picture} index={@highlighted_index} />
   <% end %>
 </div>
