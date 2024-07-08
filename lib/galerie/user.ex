@@ -27,14 +27,14 @@ defmodule Galerie.User do
   def changeset(%User{} = user \\ %User{}, params) do
     user
     |> Ecto.Changeset.cast(params, @castable)
-    |> Galerie.Changeset.trim(@trimable)
+    |> Galerie.Ecto.Changeset.trim(@trimable)
     |> Ecto.Changeset.update_change(:email, &String.downcase/1)
     |> Ecto.Changeset.validate_format(:email, ~r/(.+)@(.+)\.(.+)/)
     |> Ecto.Changeset.validate_required(@required)
     |> Ecto.Changeset.unique_constraint(:email)
     |> Password.validate()
     |> Ecto.Changeset.validate_confirmation(:password)
-    |> Galerie.Changeset.hash(:password)
+    |> Galerie.Ecto.Changeset.hash(:password)
   end
 
   @required ~w(password password_confirmation)a
@@ -44,7 +44,7 @@ defmodule Galerie.User do
     |> Ecto.Changeset.validate_required(@required)
     |> Password.validate()
     |> Ecto.Changeset.validate_confirmation(:password)
-    |> Galerie.Changeset.hash(:password)
+    |> Galerie.Ecto.Changeset.hash(:password)
     |> Ecto.Changeset.put_change(:reset_password_token, nil)
   end
 
@@ -52,7 +52,7 @@ defmodule Galerie.User do
   def reset_password_changeset(%User{} = user) do
     user
     |> Ecto.Changeset.cast(%{}, [])
-    |> Galerie.Changeset.generate_unique(:reset_password_token,
+    |> Galerie.Ecto.Changeset.generate_unique(:reset_password_token,
       generator: {Galerie.Generator.Base64, length: @reset_password_token_length},
       schema: {User, :reset_password_token}
     )

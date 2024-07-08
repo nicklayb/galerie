@@ -62,6 +62,7 @@ defmodule Galerie.Jobs.Processor do
       f_number: Map.get(exif, :f_number),
       lens_model: Map.get(exif, :lens_model),
       make: Map.get(exif_data, :make),
+      model: Map.get(exif_data, :model),
       datetime_original:
         format_date_time(Map.get(exif, :date_time_original), Map.get(exif, :unknown)),
       longitude: Map.get(gps, :longitude),

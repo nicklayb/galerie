@@ -21,4 +21,17 @@ defmodule Galerie.Library do
   def get_picture_by_path(path) do
     Repo.fetch_by(Picture, fullpath: path)
   end
+
+  def list_imported_paths(picture_paths) do
+    Picture
+    |> Ecto.Query.where([picture], picture.fullpath in ^picture_paths)
+    |> Ecto.Query.select([picture], picture.fullpath)
+    |> Repo.all()
+  end
+
+  def picture_imported?(fullpath) do
+    Picture
+    |> Ecto.Query.where([picture], picture.fullpath == ^fullpath)
+    |> Repo.exists?()
+  end
 end

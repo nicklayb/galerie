@@ -9,7 +9,6 @@ defmodule Galerie.PictureMetadata do
   schema("picture_metadata") do
     field(:exposure_time, :float)
     field(:f_number, :float)
-    field(:focal_length, :float)
     field(:lens_model, :string)
     field(:make, :string)
     field(:datetime_original, :naive_datetime)

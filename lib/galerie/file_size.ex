@@ -47,6 +47,18 @@ defmodule Galerie.FileSize do
     end)
   end
 
+  def to_integer({amount, nil}), do: amount
+
+  def to_integer({amount, unit}) do
+    Enum.reduce_while(@units, amount, fn
+      ^unit, value ->
+        {:halt, value * @multiplier}
+
+      _, value ->
+        {:cont, value * @multiplier}
+    end)
+  end
+
   @doc "Simplifies a number of bytes to the biggest unit"
   @spec simplify(non_neg_integer()) :: t()
   def simplify(integer) do

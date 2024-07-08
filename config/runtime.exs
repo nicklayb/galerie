@@ -60,6 +60,14 @@ end
 
 release_stage = Env.get("RELEASE_STAGE", to_string(config_env()))
 
+config :galerie, Oban,
+  repo: Galerie.ObanRepo,
+  queues: [
+    imports: Env.integer("GALERIE_QUEUE_IMPORTERS", 10),
+    processors: Env.integer("GALERIE_QUEUE_PROCESSORS", 10),
+    thumbnails: Env.integer("GALERIE_QUEUE_THUMBNAILS", 3)
+  ]
+
 config :galerie, release_stage: release_stage
 
 config :logger, level: Env.atom("LOGGER_LEVEL", "info")
@@ -101,7 +109,7 @@ mailer_from =
 
 config :galerie, Galerie.Mailer, mailer_from: mailer_from
 
-config :galerie, Galerie.Scanner.Supervisor, folders: Env.get!("GALERIE_FOLDERS")
+config :galerie, Galerie.FileControl.Supervisor, folders: Env.get!("GALERIE_FOLDERS")
 
 case {config_env(), Env.get("MAILER_ADAPTER", "local")} do
   {:test, _} ->

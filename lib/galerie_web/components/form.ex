@@ -105,7 +105,7 @@ defmodule GalerieWeb.Components.Form do
     <%= if is_list(@errors) and Enum.any?(@errors) do %>
       <div class="flex flex-col text-sm text-right text-red-400">
       <%= for error <- @errors do %>
-        <span><%= Galerie.Changeset.format_error(error) %></span>
+        <span><%= Galerie.Ecto.Changeset.format_error(error) %></span>
       <% end %>
       </div>
     <% end %>

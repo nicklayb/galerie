@@ -10,7 +10,7 @@ defmodule Galerie.Application do
       {Task.Supervisor, name: Galerie.MailerSupervisor},
       GalerieWeb.Telemetry,
       GalerieWeb.Endpoint,
-      Galerie.Scanner.Supervisor
+      Galerie.FileControl.Supervisor
     ]
 
     Supervisor.start_link(children, strategy: :one_for_one, name: Galerie.Supervisor)
