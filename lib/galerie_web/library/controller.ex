@@ -1,35 +1,23 @@
 defmodule GalerieWeb.Library.Controller do
   use Phoenix.Controller, namespace: GalerieWeb
-  alias Galerie.Directory
+  alias Galerie.Library
 
   action_fallback(Error.Controller)
   plug(:put_view, GalerieWeb.Library.View)
 
-  # TODO: The code below isn't safe, temporary solution to make it work
-  def get(conn, %{"image" => image} = params) do
-    file_location =
-      params
-      |> Map.get("type")
-      |> file_path(image)
-
-    if File.exists?(file_location) do
-      send_download(conn, {:file, file_location})
-    else
-      conn
-      |> put_status(404)
-      |> halt()
+  def get(conn, %{"id" => picture_id} = params) do
+    with {:ok, type} <- type_param(params),
+         {:ok, path} <- Library.get_picture_path(picture_id, type) do
+      send_download(conn, {:file, path})
     end
   end
 
-  defp file_path("thumb", image) do
-    Directory.thumbnail(image)
-  end
-
-  defp file_path("tiff", image) do
-    Directory.raw_converted(image)
-  end
-
-  defp file_path(_, image) do
-    image
+  defp type_param(params) do
+    case Map.get(params, "type", "jpeg") do
+      "jpeg" -> {:ok, :jpeg}
+      "thumb" -> {:ok, :thumb}
+      "original" -> {:ok, :original}
+      invalid -> {:error, {:invalid, invalid}}
+    end
   end
 end

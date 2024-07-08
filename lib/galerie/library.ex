@@ -47,4 +47,34 @@ defmodule Galerie.Library do
     |> Ecto.Query.where([picture], picture.fullpath == ^fullpath)
     |> Repo.exists?()
   end
+
+  # TODO: Cache the function below
+  def get_picture_path(picture_id, :original) do
+    picture_id
+    |> base_picture_path_query()
+    |> Ecto.Query.select([picture], picture.fullpath)
+    |> Repo.fetch_one()
+  end
+
+  def get_picture_path(picture_id, :thumb) do
+    picture_id
+    |> base_picture_path_query()
+    |> Ecto.Query.select([picture], picture.thumbnail)
+    |> Repo.fetch_one()
+  end
+
+  def get_picture_path(picture_id, :jpeg) do
+    picture_id
+    |> base_picture_path_query()
+    |> Ecto.Query.select([picture], {picture.type, picture.fullpath, picture.converted_jpeg})
+    |> Repo.fetch_one()
+    |> Result.map(fn
+      {:tiff, _, converted_jpeg} -> converted_jpeg
+      {:jpeg, fullpath, _} -> fullpath
+    end)
+  end
+
+  defp base_picture_path_query(query \\ Picture, picture_id) do
+    Ecto.Query.where(query, [picture], picture.id == ^picture_id)
+  end
 end

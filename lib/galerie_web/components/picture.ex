@@ -40,7 +40,7 @@ defmodule GalerieWeb.Components.Picture do
   def thumbnail(assigns) do
     ~H"""
     <div class={Html.class("relative transition select-none group", {@checked, "scale-90"})} phx-click="picture-click" phx-value-picture_id={@picture.id} phx-value-index={@picture.index}>
-      <img class={Html.class("h-full max-h-72 w-full z-10 rounded-md shadow-md border-4 group object-cover border-true-gray-300", {@checked, "border-pink-500"})} src={~p(/pictures/#{@picture.fullpath}?#{[type: "thumb"]})} />
+      <img class={Html.class("h-full max-h-72 w-full z-10 rounded-md shadow-md border-4 group object-cover border-true-gray-300", {@checked, "border-pink-500"})} src={~p(/pictures/#{@picture.id}?#{[type: "thumb"]})} />
 
       <div class={Html.class("w-full h-full group-hover:bg-gray-500/40 transition p-4 absolute z-20 top-0", [{not @checked, "opacity-0 group-hover:opacity-100"}])}>
         <Ui.select_marker checked={@checked}  on_select="select-picture" on_deselect="deselect-picture" phx-value-picture_id={@picture.id} phx-value-index={@picture.index} />
@@ -57,14 +57,12 @@ defmodule GalerieWeb.Components.Picture do
 
   def viewer(assigns) do
     ~H"""
-    <%= with {:ok, jpeg} <- Picture.jpeg_path(@picture) do %>
-      <div class="z-50 fixed flex flex-row top-0 left-0 w-screen h-screen bg-gray-800/90" phx-window-keyup={@on_keyup}>
-        <div class="flex-1">
-          <img class="h-full m-auto" src={~p(/pictures/#{jpeg}?#{[type: @picture.type]})} />
-        </div>
-        <.info_panel checked={MapSet.member?(@selected_pictures, @picture.id)} picture={@picture} index={@index} on_close={@on_close}/>
+    <div class="z-50 fixed flex flex-row top-0 left-0 w-screen h-screen bg-gray-800/90" phx-window-keyup={@on_keyup}>
+      <div class="flex-1">
+        <img class="h-full m-auto" src={~p(/pictures/#{@picture.id})} />
       </div>
-    <% end %>
+      <.info_panel checked={MapSet.member?(@selected_pictures, @picture.id)} picture={@picture} index={@index} on_close={@on_close}/>
+    </div>
     """
   end
 

@@ -18,7 +18,7 @@ defmodule Galerie.Repo.Migrations.CreatePicturesTable do
       add(:thumbnail, :string, null: true)
       add(:converted_jpeg, :string, null: true)
 
-      add(:folder_id, references("folders"))
+      add(:folder_id, references("folders", on_delete: :delete_all), null: false)
 
       timestamps()
     end

@@ -3,7 +3,7 @@ defmodule Galerie.Repo.Migrations.CreateFoldersTable do
 
   def change do
     create(table("folders")) do
-      add(:path, :string)
+      add(:path, :string, null: false)
 
       timestamps()
     end
