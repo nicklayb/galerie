@@ -9,7 +9,7 @@ defmodule Galerie.Jobs.Importer do
   require Logger
 
   def enqueue(path, %Folder{id: folder_id, path: folder_path}) do
-    if picture?(path) do
+    if valid_picture?(path) do
       Logger.debug(
         "[#{inspect(__MODULE__)}] [enqueueing] Picture #{path} created, enqueueing import..."
       )
@@ -62,15 +62,15 @@ defmodule Galerie.Jobs.Importer do
   defp enqueue_thumbnail_generator(%Picture{} = picture),
     do: Galerie.Jobs.ThumbnailGenerator.enqueue(picture)
 
-  defp picture?(path) do
-    tiff_picture?(path) or jpeg_picture?(path)
+  def valid_picture?(path) do
+    tiff_valid_picture?(path) or jpeg_valid_picture?(path)
   end
 
-  defp jpeg_picture?(path) do
+  defp jpeg_valid_picture?(path) do
     test_file_type?(path, &ExifParser.parse_jpeg_file/1)
   end
 
-  defp tiff_picture?(path) do
+  defp tiff_valid_picture?(path) do
     test_file_type?(path, &ExifParser.parse_tiff_file/1)
   end
 

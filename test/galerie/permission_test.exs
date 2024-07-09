@@ -21,7 +21,11 @@ defmodule Galerie.PermissionTest do
 
     test "permissions list can be converted back as integer" do
       integer = 1
-      assert integer == integer |> Permission.to_permissions() |> Permission.to_integer()
+
+      assert integer ==
+               integer
+               |> Permission.to_permissions()
+               |> Permission.to_integer()
     end
   end
 
