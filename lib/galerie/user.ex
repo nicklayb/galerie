@@ -17,11 +17,14 @@ defmodule Galerie.User do
     field(:password_confirmation, :string, virtual: true)
     field(:reset_password_token, :string)
 
+    field(:permissions, Galerie.Ecto.Types.Permissions)
+    field(:is_admin, :boolean)
+
     timestamps()
   end
 
   @required ~w(first_name last_name email password password_confirmation)a
-  @optional ~w()a
+  @optional ~w(is_admin permissions)a
   @castable @required ++ @optional
   @trimable ~w(first_name last_name email)a
   def changeset(%User{} = user \\ %User{}, params) do
@@ -66,6 +69,9 @@ defmodule Galerie.User do
   @doc "Gets user's initials"
   def initials(%User{first_name: first_name, last_name: last_name}),
     do: "#{String.first(first_name)}#{String.first(last_name)}"
+
+  def can?(%User{is_admin: true}, _), do: true
+  def can?(%User{permissions: permissions}, permission), do: permission in permissions
 end
 
 defimpl Swoosh.Email.Recipient, for: Galerie.User do

@@ -8,6 +8,8 @@ defmodule Galerie.Repo.Migrations.CreateUsersTable do
       add(:last_name, :string)
       add(:password, :string, null: false)
       add(:reset_password_token, :string)
+      add(:is_admin, :boolean, default: false)
+      add(:permissions, :integer, default: 0)
 
       timestamps()
     end

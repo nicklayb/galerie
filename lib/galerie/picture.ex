@@ -4,6 +4,7 @@ defmodule Galerie.Picture do
   alias Galerie.Picture
   alias Galerie.PictureExif
   alias Galerie.PictureMetadata
+  alias Galerie.User
 
   @picture_types ~w(tiff jpeg)a
 
@@ -24,6 +25,7 @@ defmodule Galerie.Picture do
     field(:folder_path, :string, virtual: true)
 
     belongs_to(:folder, Folder)
+    belongs_to(:user, User)
 
     has_one(:picture_exif, PictureExif)
     has_one(:picture_metadata, PictureMetadata)
@@ -32,11 +34,13 @@ defmodule Galerie.Picture do
   end
 
   @required_for_cast ~w(fullpath folder_id folder_path)a
+  @optional_for_cast ~w(user_id)a
+  @castable @required_for_cast ++ @optional_for_cast
   @required ~w(folder_id name extension original_name fullpath size)a
   @optional ~w(converted_jpeg thumbnail)a
   def create_changeset(%Picture{} = picture \\ %Picture{}, params) do
     picture
-    |> Ecto.Changeset.cast(params, @required_for_cast)
+    |> Ecto.Changeset.cast(params, @castable)
     |> Ecto.Changeset.validate_required(@required_for_cast)
     |> cast_parts()
     |> Ecto.Changeset.validate_required(@required)

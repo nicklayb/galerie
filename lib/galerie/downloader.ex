@@ -1,4 +1,9 @@
 defmodule Galerie.Downloader do
+  @moduledoc """
+  When downloading multiple files, the files are copied to a temporary directory
+  to make the zip file's path more simpler. The zip is generated in memory then
+  the temporary are deleted.
+  """
   alias Galerie.Picture
 
   # TODO: Figure a way to remove the /tmp/galerie/[uuid] prefix in files in zip
