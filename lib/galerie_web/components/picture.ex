@@ -118,6 +118,7 @@ defmodule GalerieWeb.Components.Picture do
         "cursor-pointer pl-2 py-2 first:rounded-t-lg last:rounded-b-lg transition bg-pink-400 hover:bg-pink-500"
       )
       |> update(:selected_pictures, &MapSet.to_list/1)
+      |> update(:visible, &(&1 and Enum.any?(assigns.selected_pictures)))
 
     ~H"""
     <div class={Html.class("fixed bottom-0 right-0 flex flex-col m-4 mb-16 text-white w-48 transition", {@visible, "scale-100", "scale-0"})}>

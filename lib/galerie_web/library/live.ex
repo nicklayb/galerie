@@ -127,7 +127,11 @@ defmodule GalerieWeb.Library.Live do
   end
 
   def handle_event("deselect-all", _, socket) do
-    socket = assign(socket, :selected_pictures, MapSet.new())
+    socket =
+      socket
+      |> assign(:selected_pictures, MapSet.new())
+      |> update_context_menu_visible()
+
     {:noreply, socket}
   end
 
@@ -264,6 +268,7 @@ defmodule GalerieWeb.Library.Live do
       end
     end)
     |> assign(:last_index, index)
+    |> update_context_menu_visible()
   end
 
   defp picture_selected?(%{assigns: %{selected_pictures: selected_pictures}}, picture_id) do
@@ -297,4 +302,16 @@ defmodule GalerieWeb.Library.Live do
   end
 
   defp close_picture(socket), do: view_picture(socket, nil, nil)
+
+  defp update_context_menu_visible(
+         %{assigns: %{context_menu: true, selected_pictures: selected_pictures}} = socket
+       ) do
+    if Enum.empty?(selected_pictures) do
+      assign(socket, :context_menu, false)
+    else
+      socket
+    end
+  end
+
+  defp update_context_menu_visible(socket), do: socket
 end
