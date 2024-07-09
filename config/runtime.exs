@@ -44,6 +44,17 @@ defmodule Env do
     |> String.split(splitter)
   end
 
+  def list(key, default, splitter \\ "|") do
+    key
+    |> get(default)
+    |> String.split(splitter)
+    |> then(fn
+      [] -> []
+      [""] -> []
+      other -> other
+    end)
+  end
+
   def atom(key, valid_atoms, default) do
     env_value = get(key, default)
 
@@ -117,7 +128,7 @@ config :galerie, Galerie.Mailer, mailer_from: mailer_from
 
 config :galerie, Galerie.FileControl.Supervisor,
   enabled: Env.boolean("GALERIE_FILE_CONTROL", "false"),
-  folders: Env.list!("GALERIE_FOLDERS")
+  folders: Env.list("GALERIE_FOLDERS")
 
 config :galerie, Galerie.Directory,
   thumbnail: Env.get("GALERIE_THUMBNAILS"),
