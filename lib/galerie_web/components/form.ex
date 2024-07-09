@@ -25,8 +25,9 @@ defmodule GalerieWeb.Components.Form do
   attr(:class, :string, default: "")
   attr(:name, :atom)
   attr(:field, :any)
-  attr(:rest, :global)
   attr(:label, :string, default: nil)
+  attr(:autocomplete, :string, default: "")
+  attr(:rest, :global)
 
   @class "block w-full bg-true-gray-100 rounded border-0 py-1.5 pr-20 text-true-gray-900 ring-1 ring-inset ring-true-gray-500 placeholder:text-true-gray-400 focus:ring-2 focus:ring-inset focus:ring-pink-600 sm:text-sm sm:leading-6 group-[.has-errors]:ring-red-400"
   def text_input(%{field: _field} = assigns) do
@@ -34,7 +35,7 @@ defmodule GalerieWeb.Components.Form do
 
     ~H"""
     <.element name={@field.name} label={@label} errors={@field.errors}>
-      <input type="text" id={@field.id} name={@field.name} value={@field.value} class={@class} {@rest} />
+      <input type="text" id={@field.id} name={@field.name} value={@field.value} class={@class} autocomplete={@autocomplete} {@rest} />
     </.element>
     """
   end
@@ -53,6 +54,9 @@ defmodule GalerieWeb.Components.Form do
       |> Enum.into([])
       |> Keyword.put(:class, classes)
       |> then(&assign(assigns, :attributes, &1))
+      |> then(fn assigns ->
+        update(assigns, :attributes, &Keyword.put(&1, :autocomplete, assigns.autocomplete))
+      end)
       |> assign(:errors, errors)
 
     ~H"""

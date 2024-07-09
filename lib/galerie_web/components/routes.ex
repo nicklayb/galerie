@@ -8,5 +8,5 @@ defmodule GalerieWeb.Components.Routes do
     end
   end
 
-  def static_paths, do: ~w(assets fonts images favicon.ico robots.txt)
+  def static_paths, do: ~w(css js fonts images favicon.ico robots.txt)
 end
