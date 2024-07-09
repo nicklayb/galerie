@@ -2,7 +2,7 @@ defmodule Galerie.Downloader do
   alias Galerie.Picture
 
   # TODO: Figure a way to remove the /tmp/galerie/[uuid] prefix in files in zip
-  def download(pictures, options \\ []) do
+  def download(pictures) do
     unique_id = Ecto.UUID.generate()
     temporary_folder = create_temporary_folder(unique_id)
     moved_files = copy_temporary_files(pictures, temporary_folder)

@@ -5,7 +5,7 @@ defmodule Galerie.PubSubTest do
 
   @topics %{
     Galerie.User => "users",
-    Galerie.Project => "projects"
+    Galerie.Picture => "pictures"
   }
 
   describe "topic/1" do
@@ -52,8 +52,8 @@ defmodule Galerie.PubSubTest do
 
     test "broadcasts to multiple topic wrapped message" do
       user_topic = PubSub.topic(Galerie.User)
-      project_topic = PubSub.topic(Galerie.Project)
-      topics = [Galerie.User, Galerie.Project]
+      picture_topic = PubSub.topic(Galerie.Picture)
+      topics = [Galerie.User, Galerie.Picture]
       PubSub.subscribe(topics)
       PubSub.broadcast(topics, :hello)
 
@@ -68,7 +68,7 @@ defmodule Galerie.PubSubTest do
         message: :hello,
         params: nil,
         from: :none,
-        topic: ^project_topic
+        topic: ^picture_topic
       })
     end
 
