@@ -24,6 +24,7 @@ defmodule GalerieWeb.Library.Controller do
 
   def download(conn, %{"pictures" => picture_ids}) do
     pictures = Library.get_all_pictures(picture_ids)
+
     with {:ok, binary} <- Galerie.Downloader.download(pictures) do
       send_download(conn, {:binary, binary}, filename: "download.zip")
     end
