@@ -109,10 +109,14 @@ defmodule GalerieWeb.Components.Picture do
       assigns
       |> assign(:items, [
         {:action, "add-to-album", gettext("Add to album")},
-        {:link, ~p(/download?#{[pictures: MapSet.to_list(assigns.selected_pictures)]}), gettext("Download")},
+        {:link, ~p(/download?#{[pictures: MapSet.to_list(assigns.selected_pictures)]}),
+         gettext("Download")},
         {:action, "reprocess", gettext("Reprocess")}
       ])
-      |> assign(:class, "cursor-pointer pl-2 py-2 first:rounded-t-lg last:rounded-b-lg transition bg-pink-400 hover:bg-pink-500")
+      |> assign(
+        :class,
+        "cursor-pointer pl-2 py-2 first:rounded-t-lg last:rounded-b-lg transition bg-pink-400 hover:bg-pink-500"
+      )
       |> update(:selected_pictures, &MapSet.to_list/1)
 
     ~H"""
@@ -123,7 +127,7 @@ defmodule GalerieWeb.Components.Picture do
             <span class={@class} phx-click={action}><%= label %></span>
 
           <% :link -> %>
-            <a href={action} class="cursor-pointer pl-2 py-2 first:rounded-t-lg last:rounded-b-lg transition bg-pink-400 hover:bg-pink-500"><%= label %></a>
+            <a href={action} target="_blank" class="cursor-pointer pl-2 py-2 first:rounded-t-lg last:rounded-b-lg transition bg-pink-400 hover:bg-pink-500"><%= label %></a>
         <% end %>
       <% end %>
     </div>
