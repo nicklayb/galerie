@@ -22,11 +22,20 @@ defmodule GalerieWeb.Library.Controller do
     end
   end
 
-  def download(conn, %{"pictures" => picture_ids}) do
+  def download(conn, %{"pictures" => picture_ids} = params) do
     pictures = Library.get_all_pictures(picture_ids)
 
-    with {:ok, binary} <- Galerie.Downloader.download(pictures) do
+    with {:ok, type} <- download_type_param(params),
+         {:ok, binary} <- Galerie.Downloader.download(pictures, type) do
       send_download(conn, {:binary, binary}, filename: "download.zip")
+    end
+  end
+
+  def download_type_param(params) do
+    case Map.get(params, "type", "original") do
+      "original" -> {:ok, :original}
+      "jpeg" -> {:ok, :jpeg}
+      invalid -> {:error, {:invalid, invalid}}
     end
   end
 end

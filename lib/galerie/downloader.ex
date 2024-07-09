@@ -1,16 +1,20 @@
 defmodule Galerie.Downloader do
   @moduledoc """
-  When downloading multiple files, the files are copied to a temporary directory
-  to make the zip file's path more simpler. The zip is generated in memory then
-  the temporary are deleted.
+  File downloader, manages the download of one or multiple pictures
   """
   alias Galerie.Picture
 
   # TODO: Figure a way to remove the /tmp/galerie/[uuid] prefix in files in zip
-  def download(pictures) do
+  @doc """
+  When downloading multiple files, the files are copied to a temporary directory
+  to make the zip file's path more simpler. The zip is generated in memory then
+  the temporary are deleted.
+  """
+  @spec download([Picture.t()], Picture.path_type()) :: Result.t(binary(), any())
+  def download(pictures, type) do
     unique_id = Ecto.UUID.generate()
     temporary_folder = create_temporary_folder(unique_id)
-    moved_files = copy_temporary_files(pictures, temporary_folder)
+    moved_files = copy_temporary_files(pictures, temporary_folder, type)
     zip_name = "#{unique_id}.zip"
 
     zip_name
@@ -27,25 +31,29 @@ defmodule Galerie.Downloader do
     folder_path
   end
 
-  defp copy_temporary_files(pictures, temporary_folder) do
+  defp copy_temporary_files(pictures, temporary_folder, type) do
     Enum.map(pictures, fn picture ->
       picture
-      |> copy_temporary_file(temporary_folder)
+      |> copy_temporary_file(temporary_folder, type)
       |> String.to_charlist()
     end)
   end
 
   defp copy_temporary_file(
-         %Picture{fullpath: fullpath, original_name: name, folder_id: folder_id},
-         temporary_folder
+         %Picture{folder_id: folder_id} = picture,
+         temporary_folder,
+         type
        ) do
+    picture_path = Picture.path(picture, type)
+    filename = Path.basename(picture_path)
+
     new_path =
       temporary_folder
       |> Path.join(folder_id)
       |> tap(&File.mkdir_p!/1)
-      |> Path.join(name)
+      |> Path.join(filename)
 
-    File.cp!(fullpath, new_path)
+    File.cp!(picture_path, new_path)
 
     new_path
   end

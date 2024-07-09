@@ -109,8 +109,12 @@ defmodule GalerieWeb.Components.Picture do
       assigns
       |> assign(:items, [
         {:action, "add-to-album", gettext("Add to album")},
-        {:link, ~p(/download?#{[pictures: MapSet.to_list(assigns.selected_pictures)]}),
-         gettext("Download")},
+        {:link,
+         ~p(/download?#{[pictures: MapSet.to_list(assigns.selected_pictures), type: :jpeg]}),
+         gettext("Download JPEG")},
+        {:link,
+         ~p(/download?#{[pictures: MapSet.to_list(assigns.selected_pictures), type: :original]}),
+         gettext("Download original")},
         {:action, "reprocess", gettext("Reprocess")}
       ])
       |> assign(

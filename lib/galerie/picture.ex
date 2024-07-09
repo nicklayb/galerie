@@ -6,6 +6,9 @@ defmodule Galerie.Picture do
   alias Galerie.PictureMetadata
   alias Galerie.User
 
+  @type t :: %Picture{}
+  @type path_type :: :original | :jpeg
+
   @picture_types ~w(tiff jpeg)a
 
   @primary_key {:id, :binary_id, autogenerate: true}
@@ -127,4 +130,13 @@ defmodule Galerie.Picture do
   def put_index(%Picture{} = picture, index) do
     %Picture{picture | index: index}
   end
+
+  @spec path(t(), path_type()) :: String.t()
+  def path(%Picture{fullpath: fullpath}, :original) do
+    fullpath
+  end
+
+  def path(%Picture{type: :jpeg, fullpath: fullpath}, :jpeg), do: fullpath
+
+  def path(%Picture{type: :tiff, converted_jpeg: jpeg}, :jpeg), do: jpeg
 end
