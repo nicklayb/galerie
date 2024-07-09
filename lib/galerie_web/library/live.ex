@@ -17,6 +17,7 @@ defmodule GalerieWeb.Library.Live do
       |> assign(:updating, true)
       |> assign(:new_pictures, [])
       |> assign(:filter_selected, false)
+      |> assign(:context_menu, false)
       |> assign(:last_index, 0)
       |> assign(:selected_pictures, MapSet.new())
       |> close_picture()
@@ -200,6 +201,22 @@ defmodule GalerieWeb.Library.Live do
 
   def handle_event("viewer:close", _, socket) do
     socket = close_picture(socket)
+    {:noreply, socket}
+  end
+
+  def handle_event("open-context-menu", _, socket) do
+    socket = update(socket, :context_menu, &(not &1))
+    {:noreply, socket}
+  end
+
+  def handle_event("reprocess", _, %{assigns: %{selected_pictures: selected_pictures}} = socket) do
+    Enum.each(selected_pictures, fn picture_id ->
+      Galerie.Jobs.Processor.enqueue(picture_id)
+      Galerie.Jobs.ThumbnailGenerator.enqueue(picture_id)
+    end)
+
+    socket = assign(socket, :context_menu, false)
+
     {:noreply, socket}
   end
 

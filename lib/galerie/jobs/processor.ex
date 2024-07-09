@@ -8,6 +8,10 @@ defmodule Galerie.Jobs.Processor do
   alias Galerie.Repo
 
   def enqueue(%Picture{id: picture_id}) do
+    enqueue(picture_id)
+  end
+
+  def enqueue(picture_id) do
     %{picture_id: picture_id}
     |> Galerie.Jobs.Processor.new()
     |> Oban.insert()

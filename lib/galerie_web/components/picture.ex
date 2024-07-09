@@ -100,4 +100,33 @@ defmodule GalerieWeb.Components.Picture do
     </div>
     """
   end
+
+  attr(:visible, :boolean, required: true)
+  attr(:selected_pictures, :list, required: true)
+
+  def context_menu(assigns) do
+    assigns =
+      assigns
+      |> assign(:items, [
+        {:action, "add-to-album", gettext("Add to album")},
+        {:link, ~p(/download?#{[pictures: MapSet.to_list(assigns.selected_pictures)]}), gettext("Download")},
+        {:action, "reprocess", gettext("Reprocess")}
+      ])
+      |> assign(:class, "cursor-pointer pl-2 py-2 first:rounded-t-lg last:rounded-b-lg transition bg-pink-400 hover:bg-pink-500")
+      |> update(:selected_pictures, &MapSet.to_list/1)
+
+    ~H"""
+    <div class={Html.class("fixed bottom-0 right-0 flex flex-col m-4 mb-16 text-white w-48 transition", {@visible, "scale-100", "scale-0"})}>
+      <%= for {type, action, label} <- @items do %>
+        <%= case type do %>
+          <% :action -> %>
+            <span class={@class} phx-click={action}><%= label %></span>
+
+          <% :link -> %>
+            <a href={action} class="cursor-pointer pl-2 py-2 first:rounded-t-lg last:rounded-b-lg transition bg-pink-400 hover:bg-pink-500"><%= label %></a>
+        <% end %>
+      <% end %>
+    </div>
+    """
+  end
 end

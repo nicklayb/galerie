@@ -7,6 +7,10 @@ defmodule Galerie.Jobs.ThumbnailGenerator do
   alias Galerie.Repo
 
   def enqueue(%Picture{id: picture_id}) do
+    enqueue(picture_id)
+  end
+
+  def enqueue(picture_id) do
     %{picture_id: picture_id}
     |> Galerie.Jobs.ThumbnailGenerator.new()
     |> Oban.insert()

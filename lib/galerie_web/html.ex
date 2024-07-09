@@ -11,9 +11,14 @@ defmodule GalerieWeb.Html do
   def class(initial, ""), do: initial
 
   def class(initial, {true, class}), do: class(initial, class)
+  def class(initial, {true, class, _}), do: class(initial, class)
+  def class(initial, {false, _, class}), do: class(initial, class)
 
   def class(initial, {function, class}) when is_function(function, 0),
     do: class(initial, {function.(), class})
+
+  def class(initial, {function, if_true, if_false}) when is_function(function, 0),
+    do: class(initial, {function.(), if_true, if_false})
 
   def class("", ""), do: ""
 

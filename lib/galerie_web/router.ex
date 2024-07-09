@@ -49,6 +49,8 @@ defmodule GalerieWeb.Router do
 
     # TODO: This route should be secured through authentication
     get("/pictures/:id", Library.Controller, :get)
+
+    get("/download", Library.Controller, :download)
   end
 
   scope("/", GalerieWeb) do

@@ -11,13 +11,14 @@
       <% end %>
     </div>
   </Ui.loading>
+  <Picture.context_menu selected_pictures={@selected_pictures} visible={@context_menu} />
   <FloatingPills.pills>
     <FloatingPills.pill visible={Enum.any?(@new_pictures)} text={gettext("%{count} new pictures processed", count: length(@new_pictures))} pill_class="bg-yellow-400" button_class="hover:bg-yellow-600">
       <:button phx_click="clear-new-pictures" icon={:cross} width="10" height="10"/>
     </FloatingPills.pill>
     <FloatingPills.pill visible={Enum.any?(@selected_pictures)} text={gettext("%{count} selected", count: MapSet.size(@selected_pictures))}>
       <:button phx_click="filter-selected" icon={:eye} width="15" height="15" class={if @filter_selected, do: "bg-pink-600", else: ""}/>
-      <:button phx_click="open-action-dropdown" icon={:hamburger} width="15" height="15"/>
+      <:button phx_click="open-context-menu" icon={:hamburger} width="15" height="15"/>
       <:button phx_click="deselect-all" icon={:cross} width="10" height="10"/>
     </FloatingPills.pill>
   </FloatingPills.pills>
