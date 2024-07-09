@@ -11,6 +11,8 @@ defmodule Galerie.Repo.Migrations.CreateUsersTable do
       add(:is_admin, :boolean, default: false)
       add(:permissions, :integer, default: 0)
 
+      add(:folder_id, references("folders", on_delete: :delete_all), null: true)
+
       timestamps()
     end
 

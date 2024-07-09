@@ -1,5 +1,6 @@
 defmodule Galerie.User do
   use Ecto.Schema
+  alias Galerie.Folder
   alias Galerie.User
   alias Galerie.User.Password
 
@@ -19,6 +20,8 @@ defmodule Galerie.User do
 
     field(:permissions, Galerie.Ecto.Types.Permissions)
     field(:is_admin, :boolean)
+
+    belongs_to(:folder, Folder)
 
     timestamps()
   end

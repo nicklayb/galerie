@@ -1,4 +1,5 @@
 defmodule Galerie.Accounts do
+  alias Galerie.Folder
   alias Galerie.Repo
   alias Galerie.User
 
@@ -24,15 +25,30 @@ defmodule Galerie.Accounts do
 
   @doc "Gets a user by id"
   @spec get_user_by_id(Repo.record_id()) :: Result.t(User.t(), :not_found)
-  def get_user_by_id(id), do: Repo.fetch(User, id)
+  def get_user_by_id(id) do
+    User
+    |> Repo.fetch(id)
+    |> Result.map(&Repo.preload(&1, [:folder]))
+  end
 
   @doc "Creates a user"
   @spec create_user(map()) :: Result.t(User.t(), any())
   def create_user(params) do
-    %Galerie.User{}
-    |> User.changeset(params)
-    |> Repo.insert()
-    |> Result.tap(fn user ->
+    Ecto.Multi.new()
+    |> Ecto.Multi.insert(:initial_user, User.changeset(%Galerie.User{}, params))
+    |> Ecto.Multi.insert(:folder, fn %{initial_user: user} ->
+      folder_path =
+        user
+        |> Galerie.Directory.upload("tmp.jpg")
+        |> Path.dirname()
+
+      Folder.changeset(%Folder{}, %{path: folder_path})
+    end)
+    |> Ecto.Multi.update(:user, fn %{initial_user: user, folder: %Folder{id: folder_id}} ->
+      Ecto.Changeset.cast(user, %{folder_id: folder_id}, [:folder_id])
+    end)
+    |> Repo.transaction()
+    |> Result.tap(fn %{user: user} ->
       Galerie.Mailer.deliver_async(fn ->
         Galerie.Mailer.welcome(user)
       end)

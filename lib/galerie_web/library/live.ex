@@ -5,6 +5,7 @@ defmodule GalerieWeb.Library.Live do
   alias Galerie.Repo
   alias Galerie.Repo.Page
 
+  alias GalerieWeb.Components.Dropzone
   alias GalerieWeb.Components.FloatingPills
   alias GalerieWeb.Components.Picture
   alias GalerieWeb.Components.Ui
@@ -20,12 +21,56 @@ defmodule GalerieWeb.Library.Live do
       |> assign(:context_menu, false)
       |> assign(:last_index, 0)
       |> assign(:selected_pictures, MapSet.new())
+      |> setup_upload()
       |> close_picture()
       |> start_async(:load_pictures, fn -> load_pictures(%{}) end)
 
     Galerie.PubSub.subscribe(Galerie.Picture)
 
     {:ok, socket}
+  end
+
+  @max_entries 10
+  @max_file_size Galerie.FileSize.parse("50mb")
+  defp setup_upload(socket) do
+    socket
+    |> assign(:uploading_entries, %{})
+    |> allow_upload(
+      :upload_pictures,
+      accept: [".jpg", "application/octet-stream"],
+      max_entries: @max_entries,
+      max_file_size: @max_file_size,
+      progress: &handle_progress/3,
+      auto_upload: true
+    )
+  end
+
+  @remove_after_timeout :timer.seconds(3)
+  defp handle_progress(:upload_pictures, entry, socket) do
+    socket = Phoenix.Component.update(socket, :uploading_entries, &Map.put(&1, entry.uuid, entry))
+
+    if entry.done? do
+      Phoenix.LiveView.consume_uploaded_entry(socket, entry, fn %{path: path} ->
+        if Galerie.Jobs.Importer.valid_picture?(path) do
+          destination =
+            Galerie.Directory.upload_output(socket.assigns.current_user, entry.client_name)
+
+          path
+          |> File.cp(destination)
+          |> tap(fn _ ->
+            Galerie.Jobs.Importer.enqueue(destination, socket.assigns.current_user.folder)
+          end)
+
+          {:ok, destination}
+        else
+          {:ok, ""}
+        end
+      end)
+
+      Process.send_after(self(), {:remove_uploading_entry, entry.uuid}, @remove_after_timeout)
+    end
+
+    {:noreply, socket}
   end
 
   def handle_async(:load_pictures, {:ok, page}, socket) do
@@ -224,6 +269,11 @@ defmodule GalerieWeb.Library.Live do
     {:noreply, socket}
   end
 
+  def handle_event("validate_file", %{"_target" => _} = params, socket) do
+    IO.inspect(params)
+    {:noreply, socket}
+  end
+
   def handle_info(
         %Galerie.PubSub.Message{
           message: :thumbnail_generated,
@@ -233,6 +283,15 @@ defmodule GalerieWeb.Library.Live do
       ) do
     socket =
       update(socket, :new_pictures, &[picture.id | &1])
+
+    {:noreply, socket}
+  end
+
+  def handle_info({:remove_uploading_entry, uuid}, socket) do
+    socket =
+      Phoenix.Component.update(socket, :uploading_entries, fn entries ->
+        Map.delete(entries, uuid)
+      end)
 
     {:noreply, socket}
   end

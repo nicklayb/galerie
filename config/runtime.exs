@@ -128,7 +128,7 @@ config :galerie, Galerie.Mailer, mailer_from: mailer_from
 
 config :galerie, Galerie.FileControl.Supervisor,
   enabled: Env.boolean("GALERIE_FILE_CONTROL", "false"),
-  folders: Env.list("GALERIE_FOLDERS")
+  folders: Env.list("GALERIE_FOLDERS", "")
 
 config :galerie, Galerie.Directory,
   thumbnail: Env.get("GALERIE_THUMBNAILS"),

@@ -2,15 +2,17 @@
   <div class="flex-iniital w-72">
     <div class="">Filter</div>
   </div>
-  <Ui.loading loading={@updating}>
-    <div class="flex-1 overflow-y-auto p-4" id="library" phx-viewport-bottom={if @pictures.has_next_page and not @scroll_disabled, do: "scrolled-bottom"}>
-      <%= case @pictures do %>
-        <% %Page{results: pictures} -> %>
-          <Picture.grid pictures={pictures} filter_selected={@filter_selected} selected_pictures={@selected_pictures} />
-        <% _ -> %>
-      <% end %>
-    </div>
-  </Ui.loading>
+  <Dropzone.render upload={@uploads.upload_pictures} class="overflow-y-auto" id="libraryDropzone">
+    <Ui.loading loading={@updating}>
+      <div class="flex-1 overflow-y-auto p-4" id="library" phx-viewport-bottom={if @pictures.has_next_page and not @scroll_disabled, do: "scrolled-bottom"}>
+        <%= case @pictures do %>
+          <% %Page{results: pictures} -> %>
+            <Picture.grid pictures={pictures} filter_selected={@filter_selected} selected_pictures={@selected_pictures} />
+          <% _ -> %>
+        <% end %>
+      </div>
+    </Ui.loading>
+  </Dropzone.render>
   <Picture.context_menu selected_pictures={@selected_pictures} visible={@context_menu} />
   <FloatingPills.pills>
     <FloatingPills.pill visible={Enum.any?(@new_pictures)} text={gettext("%{count} new pictures processed", count: length(@new_pictures))} pill_class="bg-yellow-400" button_class="hover:bg-yellow-600">
