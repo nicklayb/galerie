@@ -1,6 +1,7 @@
 defmodule GalerieWeb.Library.Live do
   use GalerieWeb, :live_view
 
+  alias Galerie.Jobs.Importer
   alias Galerie.Library
   alias Galerie.Repo
   alias Galerie.Repo.Page
@@ -51,26 +52,30 @@ defmodule GalerieWeb.Library.Live do
 
     if entry.done? do
       Phoenix.LiveView.consume_uploaded_entry(socket, entry, fn %{path: path} ->
-        if Galerie.Jobs.Importer.valid_picture?(path) do
-          destination =
-            Galerie.Directory.upload_output(socket.assigns.current_user, entry.client_name)
-
-          path
-          |> File.cp(destination)
-          |> tap(fn _ ->
-            Galerie.Jobs.Importer.enqueue(destination, socket.assigns.current_user.folder)
-          end)
-
-          {:ok, destination}
-        else
-          {:ok, ""}
-        end
+        entry_consumed(socket, entry, path)
       end)
 
       Process.send_after(self(), {:remove_uploading_entry, entry.uuid}, @remove_after_timeout)
     end
 
     {:noreply, socket}
+  end
+
+  defp entry_consumed(socket, entry, path) do
+    if Importer.valid_picture?(path) do
+      destination =
+        Galerie.Directory.upload_output(socket.assigns.current_user, entry.client_name)
+
+      path
+      |> File.cp(destination)
+      |> tap(fn _ ->
+        Importer.enqueue(destination, socket.assigns.current_user.folder)
+      end)
+
+      {:ok, destination}
+    else
+      {:ok, ""}
+    end
   end
 
   def handle_async(:load_pictures, {:ok, page}, socket) do
@@ -269,8 +274,7 @@ defmodule GalerieWeb.Library.Live do
     {:noreply, socket}
   end
 
-  def handle_event("validate_file", %{"_target" => _} = params, socket) do
-    IO.inspect(params)
+  def handle_event("validate_file", %{"_target" => _}, socket) do
     {:noreply, socket}
   end
 
