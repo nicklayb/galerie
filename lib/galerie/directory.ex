@@ -1,7 +1,9 @@
 defmodule Galerie.Directory do
+  alias Galerie.User
+
   def raw_converted(fullpath) do
-    priv_dir()
-    |> Path.join("raw_converted")
+    :raw_converted
+    |> configured()
     |> Path.join(fullpath)
     |> then(&(&1 <> ".jpg"))
   end
@@ -13,8 +15,8 @@ defmodule Galerie.Directory do
   end
 
   def thumbnail(path) do
-    priv_dir()
-    |> Path.join("thumbnails")
+    :thumbnail
+    |> configured()
     |> Path.join(path)
     |> then(&(&1 <> ".jpg"))
   end
@@ -23,6 +25,43 @@ defmodule Galerie.Directory do
     path
     |> thumbnail()
     |> tap(&create_directory_if_missing/1)
+  end
+
+  def upload(%User{id: user_id}, file_name), do: upload(user_id, file_name)
+
+  def upload(user_id, file_name) do
+    :upload
+    |> configured()
+    |> Path.join(user_id)
+    |> Path.join(file_name)
+  end
+
+  def upload_output(user_or_id, file_name) do
+    user_or_id
+    |> upload(file_name)
+    |> tap(&create_directory_if_missing/1)
+  end
+
+  defp configured(type) do
+    config = Application.get_env(:galerie, Galerie.Directory)
+
+    case Keyword.get(config, type) do
+      nil -> default(type)
+      "" -> default(type)
+      folder -> folder
+    end
+  end
+
+  defp default(:thumbnail) do
+    Path.join(priv_dir(), "thumbnails")
+  end
+
+  defp default(:raw_converted) do
+    Path.join(priv_dir(), "raw_converted")
+  end
+
+  defp default(:upload) do
+    Path.join(priv_dir(), "uploads")
   end
 
   defp create_directory_if_missing(path) do

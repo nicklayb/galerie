@@ -119,6 +119,11 @@ config :galerie, Galerie.FileControl.Supervisor,
   enabled: Env.boolean("GALERIE_FILE_CONTROL", "false"),
   folders: Env.list!("GALERIE_FOLDERS")
 
+config :galerie, Galerie.Directory,
+  thumbnail: Env.get("GALERIE_THUMBNAILS"),
+  raw_converted: Env.get("GALERIE_RAW_CONVERTED"),
+  upload: Env.get("GALERIE_UPLOADS")
+
 case {config_env(), Env.get("MAILER_ADAPTER", "local")} do
   {:test, _} ->
     config :galerie, Galerie.Mailer, adapter: Swoosh.Adapters.Test

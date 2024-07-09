@@ -1,8 +1,8 @@
 defmodule GalerieWeb.Components.FloatingPills do
   use Phoenix.Component
 
-  alias GalerieWeb.Html
   alias GalerieWeb.Components.Icon
+  alias GalerieWeb.Html
 
   slot(:inner_block)
 

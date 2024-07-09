@@ -7,8 +7,7 @@ defmodule Galerie.Permission do
   import Bitwise, only: [{:<<<, 2}]
 
   @permissions [
-    :upload_pictures,
-    :do_stuff
+    :upload_pictures
   ]
 
   @type permission :: :upload_pictures | :do_stuff
@@ -47,6 +46,8 @@ defmodule Galerie.Permission do
       end
     end)
   end
+
+  def to_permissions(integer) when is_integer(integer), do: []
 
   @spec permissions() :: t()
   def permissions, do: @permissions
