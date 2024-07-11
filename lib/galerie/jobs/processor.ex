@@ -60,7 +60,7 @@ defmodule Galerie.Jobs.Processor do
     exif = Map.get(exif_data, :exif, %{})
     gps = Map.Extra.get_with_default(exif_data, :gps, %{})
 
-    {orientation, height, width} = get_orientation(picture)
+    {orientation, height, width} = get_orientation(picture, exif_data)
 
     params = %{
       orientation: orientation,
@@ -73,8 +73,8 @@ defmodule Galerie.Jobs.Processor do
       camera_model: Map.get(exif_data, :model),
       datetime_original:
         format_date_time(Map.get(exif, :datetime_original), Map.get(exif, :time_offset)),
-      longitude: to_decimal(Map.get(gps, :gps_longitude)),
-      latitude: to_decimal(Map.get(gps, :gps_latitude)),
+      longitude: get_gps(gps, :longitude),
+      latitude: get_gps(gps, :latitude),
       picture_id: picture_id
     }
 
@@ -85,6 +85,21 @@ defmodule Galerie.Jobs.Processor do
       &"[#{inspect(__MODULE__)}] [metadata] [#{&1.picture_id}] [processed]",
       &"[#{inspect(__MODULE__)}] [metadata] [#{picture_id}] [failed] #{inspect(&1)}"
     )
+  end
+
+  defp get_gps(%{} = gps, side) do
+    side_measure = Map.get(gps, String.to_existing_atom("gps_#{side}"))
+    side_ref = Map.get(gps, String.to_existing_atom("gps_#{side}_ref"))
+
+    case {side_measure, side_ref} do
+      {[_, _, _] = side_measure, side} ->
+        direction = if side in ["W", "S"], do: -1, else: 1
+
+        to_decimal(side_measure) * direction
+
+      _ ->
+        nil
+    end
   end
 
   defp to_decimal([degree, minutes, seconds]) do
@@ -171,7 +186,26 @@ defmodule Galerie.Jobs.Processor do
     end
   end
 
-  defp get_orientation(%Picture{} = picture) do
+  defp get_orientation(%Picture{}, %{
+         orientation: orientation,
+         exif: %{
+           exif_image_height: height,
+           exif_image_width: width
+         }
+       }) do
+    cond do
+      width == height ->
+        {:square, height, width}
+
+      orientation =~ "90" or orientation =~ "270" ->
+        {:portrait, width, height}
+
+      true ->
+        {:landscape, height, width}
+    end
+  end
+
+  defp get_orientation(%Picture{} = picture, _) do
     image =
       picture
       |> Picture.path(:jpeg)

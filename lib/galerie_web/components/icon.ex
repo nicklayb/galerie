@@ -135,4 +135,28 @@ defmodule GalerieWeb.Components.Icon do
     </svg>
     """
   end
+
+  attr(:height, :string, default: "4")
+  attr(:width, :string, default: "4")
+  attr(:class, :string, default: "")
+
+  def left_chevron(assigns) do
+    ~H"""
+    <svg class={@class} height={@height} width={@width} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M15 6L9 12L15 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    """
+  end
+
+  attr(:height, :string, default: "4")
+  attr(:width, :string, default: "4")
+  attr(:class, :string, default: "")
+
+  def right_chevron(assigns) do
+    ~H"""
+    <svg class={@class} height={@height} width={@width} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M9 6L15 12L9 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    """
+  end
 end
