@@ -105,7 +105,7 @@ defmodule Galerie.Picture do
   defp extract_type(path) do
     {key, _} =
       Enum.find(
-        [tiff: &ExifParser.parse_tiff_file/1, jpeg: &ExifParser.parse_jpeg_file/1],
+        [tiff: &ExifParser.parse_tiff_file/1, jpeg: &Image.open/1],
         fn {_, function} ->
           path
           |> then(function)
@@ -115,13 +115,6 @@ defmodule Galerie.Picture do
 
     key
   end
-
-  def jpeg_path(%Picture{type: :tiff, converted_jpeg: converted_jpeg})
-      when is_binary(converted_jpeg),
-      do: {:ok, converted_jpeg}
-
-  def jpeg_path(%Picture{type: :tiff}), do: {:error, :no_jpeg_available}
-  def jpeg_path(%Picture{fullpath: fullpath}), do: {:ok, fullpath}
 
   def put_index(pictures) do
     Enum.with_index(pictures, &put_index/2)

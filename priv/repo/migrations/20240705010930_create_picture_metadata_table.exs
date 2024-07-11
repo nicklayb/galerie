@@ -2,7 +2,7 @@ defmodule Galerie.Repo.Migrations.CreatePictureMetadataTable do
   use Ecto.Migration
 
   @enum_name :picture_orientation
-  @create_query "CREATE TYPE #{@enum_name} AS ENUM ('landscape', 'portrait')"
+  @create_query "CREATE TYPE #{@enum_name} AS ENUM ('landscape', 'portrait', 'square')"
   @drop_query "DROP TYPE #{@enum_name}"
   def change do
     execute(@create_query, @drop_query)

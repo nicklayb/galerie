@@ -52,22 +52,18 @@ defmodule Galerie.Jobs.Importer do
   end
 
   defp enqueue_post_steps(%Picture{} = picture) do
-    picture
-    |> tap(&enqueue_processor/1)
-    |> tap(&enqueue_thumbnail_generator/1)
+    enqueue_thumbnail_generator(picture)
   end
-
-  defp enqueue_processor(%Picture{} = picture), do: Galerie.Jobs.Processor.enqueue(picture)
 
   defp enqueue_thumbnail_generator(%Picture{} = picture),
-    do: Galerie.Jobs.ThumbnailGenerator.enqueue(picture)
+    do: Galerie.Jobs.Thumbnail.enqueue(picture)
 
   def valid_picture?(path) do
-    tiff_valid_picture?(path) or jpeg_valid_picture?(path)
+    tiff_valid_picture?(path) or basic_valid_picture?(path)
   end
 
-  defp jpeg_valid_picture?(path) do
-    test_file_type?(path, &ExifParser.parse_jpeg_file/1)
+  defp basic_valid_picture?(path) do
+    test_file_type?(path, &Image.open/1)
   end
 
   defp tiff_valid_picture?(path) do

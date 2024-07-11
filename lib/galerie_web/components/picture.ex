@@ -80,23 +80,25 @@ defmodule GalerieWeb.Components.Picture do
           <Icon.cross width="14" height="14" />
         </span>
       </div>
-      <div class="px-4 pt-2 text-sm"><%= @picture.picture_metadata.datetime_original %></div>
-      <div class="px-4 pt-2 flex flex-row text-sm justify-between">
-        <div class="">
-          <%= @picture.picture_metadata.width %>
-          <span class="mx-0.5">x</span>
-          <%= @picture.picture_metadata.height %>
-        </div>
-        <%= if @picture.picture_metadata.f_number > 0 do %>
+      <%= if @picture.picture_metadata do %>
+        <div class="px-4 pt-2 text-sm"><%= @picture.picture_metadata.datetime_original %></div>
+        <div class="px-4 pt-2 flex flex-row text-sm justify-between">
           <div class="">
-            <%= gettext("f/%{focal}", focal: @picture.picture_metadata.f_number) %>
+            <%= @picture.picture_metadata.width %>
+            <span class="mx-0.5">x</span>
+            <%= @picture.picture_metadata.height %>
           </div>
-        <% end %>
-        <div class="flex flex-row items-center">
-          <Icon.aperture width="18" height="18" class="mr-1" />
-          <%= 1 / @picture.picture_metadata.exposure_time %>
+          <%= if @picture.picture_metadata.f_number > 0 do %>
+            <div class="">
+              <%= gettext("f/%{focal}", focal: @picture.picture_metadata.f_number) %>
+            </div>
+          <% end %>
+          <div class="flex flex-row items-center">
+            <Icon.aperture width="18" height="18" class="mr-1" />
+            <%= 1 / @picture.picture_metadata.exposure_time %>
+          </div>
         </div>
-      </div>
+      <% end %>
     </div>
     """
   end

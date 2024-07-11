@@ -3,7 +3,7 @@ defmodule Galerie.PictureMetadata do
   alias Galerie.Picture
   alias Galerie.PictureMetadata
 
-  @orientations ~w(landscape portrait)a
+  @orientations ~w(landscape portrait square)a
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
   schema("picture_metadata") do

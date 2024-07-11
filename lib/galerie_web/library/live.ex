@@ -266,7 +266,6 @@ defmodule GalerieWeb.Library.Live do
   def handle_event("reprocess", _, %{assigns: %{selected_pictures: selected_pictures}} = socket) do
     Enum.each(selected_pictures, fn picture_id ->
       Galerie.Jobs.Processor.enqueue(picture_id)
-      Galerie.Jobs.ThumbnailGenerator.enqueue(picture_id)
     end)
 
     socket = assign(socket, :context_menu, false)
