@@ -21,6 +21,18 @@ create-db:
 reset-db: remove-files
 	mix ecto.reset
 
+reset-samples:
+	mkdir -p _temp_files
+	mv ./samples/DSC00397.JPG ./_temp_files/DSC00397.JPG
+	mv ./samples/DSC00413.JPG ./_temp_files/DSC00413.JPG
+	mv ./samples/DSC00461.jpg ./_temp_files/DSC00461.jpg
+	mv ./samples/DSC01569.ARW ./_temp_files/DSC01569.ARW
+	mv ./samples/DSC01653.ARW ./_temp_files/DSC01653.ARW
+	mv ./samples/DSC01804.ARW ./_temp_files/DSC01804.ARW
+	rm -rf samples/*
+	mv ./_temp_files/* ./samples/
+	rm -rf _temp_files
+
 boot-db:
 	docker-compose up -d db
 
