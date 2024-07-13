@@ -179,7 +179,7 @@ defmodule GalerieWeb.Library.Live do
       ) do
     socket =
       case Enum.find(pictures, &(&1.id == picture_id)) do
-        %Galerie.Picture{} = picture ->
+        %Galerie.Library.PictureItem{} = picture ->
           view_picture(socket, picture, index)
 
         _ ->
@@ -347,7 +347,7 @@ defmodule GalerieWeb.Library.Live do
   end
 
   defp assign_pictures(socket, pictures) do
-    pictures = Page.map_results(pictures, &Galerie.Picture.put_index/1)
+    pictures = Page.map_results(pictures, &Galerie.Library.PictureItem.put_index/1)
     end_index = length(pictures.results) - 1
 
     socket

@@ -1,5 +1,5 @@
 defmodule Galerie.Repo.Page do
-  defstruct [:results, :query, :has_next_page, :limit, :offset]
+  defstruct [:results, :query, :has_next_page, :limit, :offset, :sort_by, :index]
 
   alias Galerie.Repo.Page
 
@@ -11,11 +11,11 @@ defmodule Galerie.Repo.Page do
           offset: non_neg_integer()
         }
 
-  def new(results, %Page{query: query, limit: limit, offset: offset}) do
-    new(results, query, limit, offset)
+  def new(results, %Page{query: query, sort_by: sort_by, limit: limit, offset: offset}) do
+    new(results, query, limit, offset, sort_by)
   end
 
-  def new(results, query, limit, offset) do
+  def new(results, query, limit, offset, sort_by) do
     has_next_page = Enum.count(results) > limit
 
     %Page{
@@ -23,7 +23,8 @@ defmodule Galerie.Repo.Page do
       query: query,
       has_next_page: has_next_page,
       limit: limit,
-      offset: offset
+      offset: offset,
+      sort_by: sort_by
     }
   end
 

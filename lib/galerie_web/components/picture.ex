@@ -5,6 +5,7 @@ defmodule GalerieWeb.Components.Picture do
 
   import GalerieWeb.Gettext
 
+  alias Galerie.Library.PictureItem
   alias Galerie.Picture
   alias Galerie.Repo
   alias GalerieWeb.Components.Icon
@@ -34,7 +35,7 @@ defmodule GalerieWeb.Components.Picture do
     """
   end
 
-  attr(:picture, Picture, required: true)
+  attr(:picture, PictureItem, required: true)
   attr(:checked, :boolean, default: false)
 
   def thumbnail(assigns) do
@@ -49,7 +50,7 @@ defmodule GalerieWeb.Components.Picture do
     """
   end
 
-  attr(:picture, Picture, required: true)
+  attr(:picture, PictureItem, required: true)
   attr(:index, :integer, required: true)
   attr(:selected_pictures, :list, default: [])
   attr(:has_next, :boolean, required: true)
@@ -58,6 +59,13 @@ defmodule GalerieWeb.Components.Picture do
   attr(:on_close, :string, default: "viewer:close")
 
   def viewer(assigns) do
+    pictures = Galerie.Library.get_grouped_pictures(assigns.picture)
+
+    assigns =
+      assigns
+      |> assign(:picture, hd(pictures))
+      |> assign(:pictures, pictures)
+
     ~H"""
     <div class="z-50 fixed flex flex-row top-0 left-0 w-screen h-screen bg-gray-800/90" phx-window-keyup={@on_keyup}>
       <div class="flex-1 flex flex-row text-white text-lg">
@@ -65,7 +73,7 @@ defmodule GalerieWeb.Components.Picture do
         <div class="py-2"><img class="h-full m-auto" src={~p(/pictures/#{@picture.id})} /></div>
         <.side_arrow disabled={not @has_next} icon={:right_chevron} on_keyup={@on_keyup} key="ArrowRight"/>
       </div>
-      <.info_panel checked={MapSet.member?(@selected_pictures, @picture.id)} picture={@picture} index={@index} on_close={@on_close}/>
+      <.info_panel checked={MapSet.member?(@selected_pictures, @picture.id)} picture={@picture} index={@index} on_close={@on_close} pictures={@pictures}/>
     </div>
     """
   end
@@ -98,24 +106,49 @@ defmodule GalerieWeb.Components.Picture do
         </span>
       </div>
       <%= if @picture.picture_metadata do %>
-        <div class="px-4 pt-2 text-sm"><%= @picture.picture_metadata.datetime_original %></div>
-        <div class="px-4 pt-2 flex flex-row text-sm justify-between">
-          <div class="">
-            <%= @picture.picture_metadata.width %>
-            <span class="mx-0.5">x</span>
-            <%= @picture.picture_metadata.height %>
-          </div>
-          <%= if @picture.picture_metadata.f_number > 0 do %>
+        <.info_section title={gettext("Informations")}>
+          <div><%= @picture.picture_metadata.datetime_original %></div>
+          <div class="pt-2 flex flex-row justify-between">
             <div class="">
-              <%= gettext("f/%{focal}", focal: @picture.picture_metadata.f_number) %>
+              <%= @picture.picture_metadata.width %>
+              <span class="mx-0.5">x</span>
+              <%= @picture.picture_metadata.height %>
             </div>
-          <% end %>
-          <div class="flex flex-row items-center">
-            <Icon.aperture width="18" height="18" class="mr-1" />
-            <%= 1 / @picture.picture_metadata.exposure_time %>
+            <%= if @picture.picture_metadata.f_number > 0 do %>
+              <div class="">
+                <%= gettext("f/%{focal}", focal: @picture.picture_metadata.f_number) %>
+              </div>
+            <% end %>
+            <div class="flex flex-row items-center">
+              <Icon.aperture width="18" height="18" class="mr-1" />
+              <%= 1 / @picture.picture_metadata.exposure_time %>
+            </div>
           </div>
-        </div>
+        </.info_section>
       <% end %>
+      <%= if List.Extra.at_least?(@pictures, 2) do %>
+        <.info_section title={gettext("Versions (%{count})", count: length(@pictures))}>
+          <div class="flex flex-col">
+            <%= for picture <- @pictures do %>
+              <div class="flex-1 px-1 first:rounded-t-md last:rounded-b-md first:border-b-0 border border-gray-300"><%= picture.original_name %></div>
+            <% end %>
+          </div>
+        </.info_section>
+      <% end %>
+    </div>
+    """
+  end
+
+  attr(:title, :string, required: true)
+  slot(:inner_block, required: true)
+
+  defp info_section(assigns) do
+    ~H"""
+    <div class="mt-2">
+      <div class="py-1 px-4 bg-gray-200 mb-2"><%= @title %></div>
+      <div class="px-4">
+        <%= render_slot(@inner_block) %>
+      </div>
     </div>
     """
   end

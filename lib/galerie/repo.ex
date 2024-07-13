@@ -48,15 +48,23 @@ defmodule Galerie.Repo do
 
     queryable
     |> Ecto.Query.subquery()
-    |> Ecto.Query.order_by(^sort_by)
+    |> order_paginated_query(sort_by)
     |> Ecto.Query.limit(^(limit + 1))
     |> Ecto.Query.offset(^offset)
     |> all()
-    |> Page.new(queryable, limit, offset)
+    |> Page.new(queryable, limit, offset, sort_by)
   end
 
-  def next(%Page{query: query, limit: limit, offset: offset}) do
-    paginate(query, %{offset: offset + limit, limit: limit})
+  defp order_paginated_query(query, order_by) when is_function(order_by, 1) do
+    order_by.(query)
+  end
+
+  defp order_paginated_query(query, order_by) do
+    Ecto.Query.order_by(query, ^order_by)
+  end
+
+  def next(%Page{query: query, limit: limit, offset: offset, sort_by: sort_by}) do
+    paginate(query, %{offset: offset + limit, limit: limit, sort_by: sort_by})
   end
 
   def map_paginated_results(%Page{results: results} = page, function) do

@@ -1,9 +1,34 @@
 defmodule Galerie.Library do
   alias Galerie.Folder
+  alias Galerie.Library.PictureItem
   alias Galerie.Picture
   alias Galerie.Repo
 
   require Ecto.Query
+
+  def get_grouped_pictures(%PictureItem{} = picture_item) do
+    picture_item
+    |> grouped_pictures_query()
+    |> Repo.all()
+  end
+
+  def get_grouped_picture(%PictureItem{} = picture_item) do
+    picture_item
+    |> grouped_pictures_query()
+    |> Repo.first()
+  end
+
+  defp grouped_pictures_query(%PictureItem{folder_id: folder_id, group_name: group_name}) do
+    Picture
+    |> Ecto.Query.where(
+      [picture],
+      picture.folder_id == ^folder_id and picture.group_name == ^group_name
+    )
+    |> Ecto.Query.join(:left, [picture], metadata in assoc(picture, :picture_metadata),
+      as: :metadata
+    )
+    |> Ecto.Query.preload([picture, metadata: metadata], picture_metadata: metadata)
+  end
 
   @spec get_all_pictures([String.t()]) :: [Picture.t()]
   def get_all_pictures(picture_ids) do
@@ -13,14 +38,13 @@ defmodule Galerie.Library do
   end
 
   @spec list_pictures(Keyword.t()) :: Repo.Page.t()
-  def list_pictures(_) do
-    Picture
-    |> Ecto.Query.join(:left, [picture], metadata in assoc(picture, :picture_metadata),
-      as: :metadata
+  def list_pictures(options \\ []) do
+    PictureItem.from()
+    |> Ecto.Query.order_by(
+      [picture_item, metadata: metadata],
+      {:desc, metadata.datetime_original}
     )
-    |> Ecto.Query.order_by({:desc, :inserted_at})
-    |> Ecto.Query.where([picture], not is_nil(picture.thumbnail))
-    |> Repo.paginate(%{limit: 16, sort_by: {:desc, :inserted_at}})
+    |> Repo.paginate(%{limit: 16, sort_by: {:desc, :datetime_original}})
   end
 
   @spec get_picture(String.t()) :: Result.t(Picture.t(), :not_found)
