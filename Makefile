@@ -18,7 +18,7 @@ setup-assets:
 create-db:
 	mix ecto.create
 
-reset-db:
+reset-db: remove-files
 	mix ecto.reset
 
 boot-db:
@@ -60,3 +60,13 @@ fresh-start: destroy-docker clean setup
 deps:
 	mix deps.get
 
+remove-files: remove-thumbnail-files remove-converted-files remove-uploaded-files
+
+remove-thumbnail-files:
+	rm -rf ./priv/thumbnails/*
+
+remove-converted-files:
+	rm -rf ./priv/raw_converted/*
+
+remove-uploaded-files:
+	rm -rf ./priv/uploads/*

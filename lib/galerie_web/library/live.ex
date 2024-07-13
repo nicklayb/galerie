@@ -13,15 +13,22 @@ defmodule GalerieWeb.Library.Live do
 
   import GalerieWeb.Gettext
 
+  @defaults %{
+    updating: true,
+    new_pictures: [],
+    filter_selected: false,
+    context_menu: false,
+    last_index: 0,
+    end_index: 0,
+    has_next_page: false,
+    has_previous_page: false,
+    selected_pictures: MapSet.new()
+  }
+
   def mount(_params, _session, socket) do
     socket =
       socket
-      |> assign(:updating, true)
-      |> assign(:new_pictures, [])
-      |> assign(:filter_selected, false)
-      |> assign(:context_menu, false)
-      |> assign(:last_index, 0)
-      |> assign(:selected_pictures, MapSet.new())
+      |> assign(@defaults)
       |> setup_upload()
       |> close_picture()
       |> start_async(:load_pictures, fn -> load_pictures(%{}) end)
@@ -84,6 +91,27 @@ defmodule GalerieWeb.Library.Live do
       |> assign_pictures(page)
       |> assign(:updating, false)
       |> assign(:scroll_disabled, false)
+
+    {:noreply, socket}
+  end
+
+  def handle_async(:load_next_pictures, {:ok, page}, socket) do
+    socket =
+      socket
+      |> assign_pictures(page)
+      |> assign(:updating, false)
+      |> assign(:scroll_disabled, false)
+      |> then(fn %{
+                   assigns: %{
+                     pictures: %Page{results: pictures},
+                     highlighted_index: highlighted_index
+                   }
+                 } = socket ->
+        new_index = highlighted_index + 1
+        picture = Enum.at(pictures, new_index)
+
+        view_picture(socket, picture, new_index)
+      end)
 
     {:noreply, socket}
   end
@@ -188,11 +216,17 @@ defmodule GalerieWeb.Library.Live do
   def handle_event(
         "viewer:keyup",
         %{"key" => "ArrowLeft"},
-        %{assigns: %{highlighted_index: highlighted_index, pictures: %Page{results: pictures}}} =
+        %{
+          assigns: %{
+            highlighted_index: highlighted_index,
+            has_previous_page: has_previous_page?,
+            pictures: %Page{results: pictures}
+          }
+        } =
           socket
       ) do
     socket =
-      if highlighted_index > 0 do
+      if has_previous_page? do
         new_index = highlighted_index - 1
 
         picture = Enum.at(pictures, new_index)
@@ -208,21 +242,30 @@ defmodule GalerieWeb.Library.Live do
   def handle_event(
         "viewer:keyup",
         %{"key" => "ArrowRight"},
-        %{assigns: %{highlighted_index: highlighted_index, pictures: %Page{results: pictures}}} =
+        %{
+          assigns: %{
+            highlighted_index: highlighted_index,
+            has_next_page: has_next_page?,
+            end_index: end_index,
+            pictures: %Page{results: pictures}
+          }
+        } =
           socket
       ) do
-    total_pictures = length(pictures)
+    socket =
+      cond do
+        has_next_page? and highlighted_index == end_index ->
+          load_next_page(socket)
 
-    new_index =
-      if highlighted_index >= total_pictures - 1 do
-        0
-      else
-        highlighted_index + 1
+        has_next_page? ->
+          new_index = highlighted_index + 1
+          picture = Enum.at(pictures, new_index)
+
+          view_picture(socket, picture, new_index)
+
+        true ->
+          socket
       end
-
-    picture = Enum.at(pictures, new_index)
-
-    socket = view_picture(socket, picture, new_index)
 
     {:noreply, socket}
   end
@@ -304,7 +347,12 @@ defmodule GalerieWeb.Library.Live do
   end
 
   defp assign_pictures(socket, pictures) do
-    assign(socket, :pictures, Page.map_results(pictures, &Galerie.Picture.put_index/1))
+    pictures = Page.map_results(pictures, &Galerie.Picture.put_index/1)
+    end_index = length(pictures.results) - 1
+
+    socket
+    |> assign(:pictures, pictures)
+    |> assign(:end_index, end_index)
   end
 
   defp select_picture(socket, picture_id, index) when is_binary(index),
@@ -361,6 +409,14 @@ defmodule GalerieWeb.Library.Live do
     socket
     |> assign(:highlighted_picture, picture)
     |> assign(:highlighted_index, index)
+    |> then(fn socket ->
+      has_previous_page = not first_index?(socket)
+      has_next_page = not last_index?(socket)
+
+      socket
+      |> assign(:has_next_page, has_next_page)
+      |> assign(:has_previous_page, has_previous_page)
+    end)
   end
 
   defp close_picture(socket), do: view_picture(socket, nil, nil)
@@ -376,4 +432,25 @@ defmodule GalerieWeb.Library.Live do
   end
 
   defp update_context_menu_visible(socket), do: socket
+
+  defp first_index?(%{assigns: %{highlighted_index: index}}), do: index == 0
+
+  defp last_index?(%{assigns: %{pictures: %Page{has_next_page: true}}}), do: false
+
+  defp last_index?(%{assigns: %{highlighted_index: index, end_index: end_index}}) do
+    index == end_index
+  end
+
+  defp load_next_page(
+         %{
+           assigns:
+             %{
+               highlighted_index: index,
+               end_index: index,
+               pictures: %Page{has_next_page: true}
+             } = assigns
+         } = socket
+       ) do
+    start_async(socket, :load_next_pictures, fn -> load_next_page(assigns) end)
+  end
 end

@@ -52,6 +52,8 @@ defmodule GalerieWeb.Components.Picture do
   attr(:picture, Picture, required: true)
   attr(:index, :integer, required: true)
   attr(:selected_pictures, :list, default: [])
+  attr(:has_next, :boolean, required: true)
+  attr(:has_previous, :boolean, required: true)
   attr(:on_keyup, :string, default: "viewer:keyup")
   attr(:on_close, :string, default: "viewer:close")
 
@@ -59,11 +61,24 @@ defmodule GalerieWeb.Components.Picture do
     ~H"""
     <div class="z-50 fixed flex flex-row top-0 left-0 w-screen h-screen bg-gray-800/90" phx-window-keyup={@on_keyup}>
       <div class="flex-1 flex flex-row text-white text-lg">
-        <div class="content-center transition cursor-pointer bg-gray-900/0 hover:bg-gray-900/40" phx-click={@on_keyup} phx-value-key="ArrowLeft"><Icon.left_chevron width="40" height="40" /></div>
+        <.side_arrow disabled={not @has_previous} icon={:left_chevron} on_keyup={@on_keyup} key="ArrowLeft"/>
         <div class="py-2"><img class="h-full m-auto" src={~p(/pictures/#{@picture.id})} /></div>
-        <div class="content-center transition cursor-pointer bg-gray-900/0 hover:bg-gray-900/40" phx-click={@on_keyup} phx-value-key="ArrowRight"><Icon.right_chevron width="40" height="40" /></div>
+        <.side_arrow disabled={not @has_next} icon={:right_chevron} on_keyup={@on_keyup} key="ArrowRight"/>
       </div>
       <.info_panel checked={MapSet.member?(@selected_pictures, @picture.id)} picture={@picture} index={@index} on_close={@on_close}/>
+    </div>
+    """
+  end
+
+  attr(:key, :string, required: true)
+  attr(:on_keyup, :string, required: true)
+  attr(:disabled, :boolean, required: true)
+  attr(:icon, :atom, required: true)
+
+  defp side_arrow(assigns) do
+    ~H"""
+    <div class={Html.class("content-center transition text-gray-400 bg-gray-900/0", {not @disabled, "text-white cursor-pointer hover:bg-gray-900/40"})} phx-click={@on_keyup} phx-value-key={@key}>
+      <Icon.icon icon={@icon} width="40" height="40" />
     </div>
     """
   end

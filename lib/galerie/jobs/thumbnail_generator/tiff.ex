@@ -1,11 +1,13 @@
-defmodule Galerie.Jobs.ThumbnailGenerator do
-  use Oban.Worker, queue: :thumbnails
+defmodule Galerie.Jobs.ThumbnailGenerator.Tiff do
+  use Oban.Worker, queue: :tiff_thumbnails
 
   alias Galerie.Picture
 
+  @job __MODULE__
+
   def enqueue(%Picture{id: picture_id}) do
     %{picture_id: picture_id}
-    |> Galerie.Jobs.ThumbnailGenerator.new()
+    |> @job.new()
     |> Oban.insert()
   end
 

@@ -14,9 +14,12 @@ defmodule Galerie.Library do
   @spec list_pictures(Keyword.t()) :: Repo.Page.t()
   def list_pictures(_) do
     Picture
+    |> Ecto.Query.join(:left, [picture], metadata in assoc(picture, :picture_metadata),
+      as: :metadata
+    )
     |> Ecto.Query.order_by({:desc, :inserted_at})
     |> Ecto.Query.where([picture], not is_nil(picture.thumbnail))
-    |> Repo.paginate(%{limit: 30, sort: {:desc, :inserted_at}})
+    |> Repo.paginate(%{limit: 16, sort_by: {:desc, :inserted_at}})
   end
 
   @spec get_picture(String.t()) :: Result.t(Picture.t(), :not_found)

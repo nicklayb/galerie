@@ -9,8 +9,8 @@ ISO=$(exiftool "$INPUT" -t -ISO | cut -f2)
 
 echo "Converting $INPUT to $OUTPUT..." >&2
 
-dcraw -w -c -v -b ${4:-1} -H 0 -T "$INPUT" | \
-  convert - -verbose \
+dcraw -w -c -b ${4:-1} -H 0 -T "$INPUT" | \
+  magick - \
     -wavelet-denoise $ISO \
     -modulate '100,120' \
     -contrast-stretch '0.3x0%' \

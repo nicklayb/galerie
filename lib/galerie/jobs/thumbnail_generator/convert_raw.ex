@@ -29,26 +29,6 @@ defmodule Galerie.Jobs.ThumbnailGenerator.ConvertRaw do
   end
 
   defp autoraw(input, output, quality) do
-    autoraw_binary = autoraw_binary()
-
-    case System.cmd(autoraw_binary, [input, output, to_string(quality)]) do
-      {_, 0} ->
-        {:ok, output}
-
-      {body, code} ->
-        {:error, {code, body}}
-    end
-  end
-
-  defp autoraw_binary do
-    :galerie
-    |> Application.get_env(Galerie.Jobs.ThumbnailGenerator.ConvertRaw, [])
-    |> Keyword.get(:autoraw_binary, default_binary_location())
-  end
-
-  defp default_binary_location do
-    :galerie
-    |> :code.priv_dir()
-    |> Path.join("scripts/autoraw")
+    Galerie.Ports.Autoraw.execute(input, output, quality: quality)
   end
 end
