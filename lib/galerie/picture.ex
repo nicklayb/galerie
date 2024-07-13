@@ -1,5 +1,7 @@
 defmodule Galerie.Picture do
   use Ecto.Schema
+
+  alias Galerie.Album
   alias Galerie.Folder
   alias Galerie.Picture
   alias Galerie.PictureExif
@@ -18,6 +20,7 @@ defmodule Galerie.Picture do
     field(:extension, :string)
     field(:original_name, :string)
     field(:fullpath, :string)
+    field(:group_name, :string)
     field(:type, Ecto.Enum, values: @picture_types)
     field(:size, :integer)
 
@@ -32,6 +35,8 @@ defmodule Galerie.Picture do
 
     has_one(:picture_exif, PictureExif)
     has_one(:picture_metadata, PictureMetadata)
+
+    many_to_many(:albums, Album, join_through: "albums_pictures")
 
     timestamps()
   end
@@ -60,7 +65,13 @@ defmodule Galerie.Picture do
     fullpath = Ecto.Changeset.get_change(changeset, :fullpath)
     folder_path = Ecto.Changeset.get_change(changeset, :folder_path)
 
-    %{name: name, type: type, extension: extension, original_name: original_name} =
+    %{
+      name: name,
+      type: type,
+      extension: extension,
+      original_name: original_name,
+      group_name: group_name
+    } =
       extract_parts(fullpath, folder_path)
 
     %File.Stat{size: file_size} = File.stat!(fullpath)
@@ -70,7 +81,8 @@ defmodule Galerie.Picture do
       extension: extension,
       original_name: original_name,
       type: type,
-      size: file_size
+      size: file_size,
+      group_name: group_name
     })
   end
 
@@ -92,13 +104,17 @@ defmodule Galerie.Picture do
       |> String.split(".")
       |> Enum.reverse()
 
+    group_name =
+      String.trim_trailing(original_name, "." <> extension)
+
     type = extract_type(path)
 
     %{
       extension: extension,
       original_name: original_name,
       name: String.replace(filename, ".#{extension}", ""),
-      type: type
+      type: type,
+      group_name: group_name
     }
   end
 

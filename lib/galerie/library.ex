@@ -5,6 +5,7 @@ defmodule Galerie.Library do
 
   require Ecto.Query
 
+  @spec get_all_pictures([String.t()]) :: [Picture.t()]
   def get_all_pictures(picture_ids) do
     Picture
     |> Ecto.Query.where([picture], picture.id in ^picture_ids)

@@ -13,6 +13,7 @@ defmodule Galerie.Repo.Migrations.CreatePicturesTable do
       add(:original_name, :string, null: false)
       add(:size, :bigint, null: false)
       add(:fullpath, :string, null: false)
+      add(:group_name, :string, null: false)
       add(:type, :picture_type)
 
       add(:thumbnail, :string, null: true)
@@ -24,6 +25,10 @@ defmodule Galerie.Repo.Migrations.CreatePicturesTable do
       timestamps()
     end
 
+    create(index("pictures", :group_name))
+    create(index("pictures", :original_name))
+    create(index("pictures", :folder_id))
+    create(index("pictures", :user_id))
     create(unique_index("pictures", :fullpath))
     create(unique_index("pictures", [:original_name, :folder_id]))
   end

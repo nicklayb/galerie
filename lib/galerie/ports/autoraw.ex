@@ -13,6 +13,7 @@ defmodule Galerie.Ports.Autoraw do
 
   @type option :: {:quality, non_neg_integer()}
 
+  # TODO: Figure a way to ensure the Autoraw scripts are killed with the Elixir app.
   @spec execute(String.t(), String.t(), [option()]) :: Result.t(String.t(), any())
   def execute(input, output, options \\ []) do
     quality = Keyword.fetch!(options, :quality)
