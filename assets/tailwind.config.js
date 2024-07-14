@@ -17,6 +17,11 @@ module.exports = {
         "true-gray-900": "#171717",
       },
     },
+    rotate: {
+      "90": "90deg",
+      "180": "180deg",
+      "270": "270deg"
+    }
   },
   plugins: [require("@tailwindcss/forms")],
 };

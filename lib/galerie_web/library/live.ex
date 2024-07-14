@@ -453,4 +453,8 @@ defmodule GalerieWeb.Library.Live do
        ) do
     start_async(socket, :load_next_pictures, fn -> load_next_page(assigns) end)
   end
+
+  defp load_next_page(socket) do
+    socket
+  end
 end

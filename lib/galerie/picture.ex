@@ -148,4 +148,15 @@ defmodule Galerie.Picture do
   def path(%Picture{type: :jpeg, fullpath: fullpath}, :jpeg), do: fullpath
 
   def path(%Picture{type: :tiff, converted_jpeg: jpeg}, :jpeg), do: jpeg
+
+  def rotation(%Picture{picture_exif: %PictureExif{exif: %{"orientation" => orientation}}}) do
+    cond do
+      orientation =~ "90" -> 90
+      orientation =~ "180" -> 180
+      orientation =~ "270" -> 270
+      true -> 0
+    end
+  end
+
+  def rotation(_), do: 0
 end

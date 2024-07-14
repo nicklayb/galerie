@@ -17,7 +17,7 @@ dcraw -w -c -b ${4:-1} -H 0 -T "$INPUT" | \
     -level '0%,100%,1.2' \
     -sigmoidal-contrast '2.50,50%' \
     -adaptive-sharpen '0x4.0' \
-    -quality $QUALITY -auto-orient \
+    -quality $QUALITY \
   "$OUTPUT"
 
 echo "Rewriting Exif..." >&2
