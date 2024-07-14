@@ -5,8 +5,8 @@ defmodule GalerieWeb.Components.Picture do
 
   import GalerieWeb.Gettext
 
-  alias Galerie.Pictures.PictureItem
   alias Galerie.Pictures.Picture
+  alias Galerie.Pictures.PictureItem
   alias Galerie.Repo
   alias GalerieWeb.Components.Icon
   alias GalerieWeb.Components.Ui

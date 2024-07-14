@@ -1,8 +1,8 @@
 defmodule Galerie.Accounts.User do
   use Ecto.Schema
-  alias Galerie.Folder
   alias Galerie.Accounts.User
   alias Galerie.Accounts.User.Password
+  alias Galerie.Folder
 
   require Logger
 

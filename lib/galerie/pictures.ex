@@ -1,7 +1,7 @@
 defmodule Galerie.Pictures do
   alias Galerie.Folder
-  alias Galerie.Pictures.PictureItem
   alias Galerie.Pictures.Picture
+  alias Galerie.Pictures.PictureItem
   alias Galerie.Repo
 
   require Ecto.Query

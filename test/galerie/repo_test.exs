@@ -1,7 +1,7 @@
 defmodule Galerie.RepoTest do
   use Galerie.DataCase
-  alias Galerie.Repo
   alias Galerie.Accounts.User
+  alias Galerie.Repo
 
   describe "first/1" do
     test "gets first record in db" do

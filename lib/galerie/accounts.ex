@@ -1,7 +1,7 @@
 defmodule Galerie.Accounts do
+  alias Galerie.Accounts.User
   alias Galerie.Folder
   alias Galerie.Repo
-  alias Galerie.Accounts.User
 
   @doc "Logins a user"
   @spec login(User.email(), User.password()) :: Result.t(User.t(), :not_found)
