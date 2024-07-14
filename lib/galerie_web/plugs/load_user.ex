@@ -1,5 +1,5 @@
 defmodule GalerieWeb.Plugs.LoadUser do
-  alias Galerie.User
+  alias Galerie.Accounts.User
   alias GalerieWeb.Authentication
 
   require Logger

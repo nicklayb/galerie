@@ -1,6 +1,6 @@
-defmodule Galerie.PermissionTest do
+defmodule Galerie.Accounts.PermissionTest do
   use Galerie.BaseCase
-  alias Galerie.Permission
+  alias Galerie.Accounts.Permission
 
   import Bitwise, only: [{:<<<, 2}]
 

@@ -107,7 +107,7 @@ if config_env() == :test do
   config :galerie, Galerie.ObanRepo, database: "galerie_oban_test"
 end
 
-config :galerie, Galerie.User.Password,
+config :galerie, Galerie.Accounts.User.Password,
   enforce_rules: Env.boolean("ENFORCE_PASSWORD_RULES", "true")
 
 app_host = Env.uri("APP_HOST", "http://localhost:4000")

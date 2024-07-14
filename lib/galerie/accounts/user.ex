@@ -1,8 +1,8 @@
-defmodule Galerie.User do
+defmodule Galerie.Accounts.User do
   use Ecto.Schema
   alias Galerie.Folder
-  alias Galerie.User
-  alias Galerie.User.Password
+  alias Galerie.Accounts.User
+  alias Galerie.Accounts.User.Password
 
   require Logger
 
@@ -77,8 +77,8 @@ defmodule Galerie.User do
   def can?(%User{permissions: permissions}, permission), do: permission in permissions
 end
 
-defimpl Swoosh.Email.Recipient, for: Galerie.User do
-  def format(%Galerie.User{email: email} = user) do
-    {Galerie.User.fullname(user), email}
+defimpl Swoosh.Email.Recipient, for: Galerie.Accounts.User do
+  def format(%Galerie.Accounts.User{email: email} = user) do
+    {Galerie.Accounts.User.fullname(user), email}
   end
 end

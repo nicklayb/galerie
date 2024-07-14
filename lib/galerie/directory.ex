@@ -1,5 +1,5 @@
 defmodule Galerie.Directory do
-  alias Galerie.User
+  alias Galerie.Accounts.User
 
   def raw_converted(fullpath) do
     :raw_converted

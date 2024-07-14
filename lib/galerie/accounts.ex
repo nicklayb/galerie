@@ -1,7 +1,7 @@
 defmodule Galerie.Accounts do
   alias Galerie.Folder
   alias Galerie.Repo
-  alias Galerie.User
+  alias Galerie.Accounts.User
 
   @doc "Logins a user"
   @spec login(User.email(), User.password()) :: Result.t(User.t(), :not_found)
@@ -35,7 +35,7 @@ defmodule Galerie.Accounts do
   @spec create_user(map()) :: Result.t(User.t(), any())
   def create_user(params) do
     Ecto.Multi.new()
-    |> Ecto.Multi.insert(:initial_user, User.changeset(%Galerie.User{}, params))
+    |> Ecto.Multi.insert(:initial_user, User.changeset(%User{}, params))
     |> Ecto.Multi.insert(:folder, fn %{initial_user: user} ->
       folder_path =
         user

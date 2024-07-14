@@ -167,7 +167,7 @@ defmodule Galerie.Ecto.ChangesetTest do
       assert %Ecto.Changeset{changes: %{uuid: ^uuid}} =
                Changeset.generate_unique(changeset, :uuid,
                  generator: {MockGenerator, value: uuid},
-                 schema: {Galerie.User, :email}
+                 schema: {Galerie.Accounts.User, :email}
                )
     end
   end

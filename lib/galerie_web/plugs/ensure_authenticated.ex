@@ -1,5 +1,5 @@
 defmodule GalerieWeb.Plugs.EnsureAuthenticated do
-  alias Galerie.User
+  alias Galerie.Accounts.User
 
   use GalerieWeb.Components.Routes
 

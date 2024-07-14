@@ -9,7 +9,7 @@ defmodule GalerieTest.Support.Fixture do
 
   def enforce_password_rules(context) do
     enforce_rules = Map.get(context, :enforce_rules, true)
-    MockConfig.mock_config(:galerie, Galerie.User.Password, enforce_rules: enforce_rules)
+    MockConfig.mock_config(:galerie, Galerie.Accounts.User.Password, enforce_rules: enforce_rules)
     :ok
   end
 end

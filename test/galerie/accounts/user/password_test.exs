@@ -1,6 +1,6 @@
-defmodule Galerie.User.PasswordTest do
+defmodule Galerie.Accounts.User.PasswordTest do
   use Galerie.BaseCase
-  alias Galerie.User.Password
+  alias Galerie.Accounts.User.Password
 
   setup [:enforce_password_rules]
 

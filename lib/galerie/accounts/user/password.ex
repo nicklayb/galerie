@@ -1,4 +1,4 @@
-defmodule Galerie.User.Password do
+defmodule Galerie.Accounts.User.Password do
   @moduledoc """
   Module to enforce password rules
   """
@@ -61,6 +61,6 @@ defmodule Galerie.User.Password do
   end
 
   defp enforces_password_rules? do
-    Application.fetch_env!(:galerie, Galerie.User.Password)[:enforce_rules]
+    Application.fetch_env!(:galerie, Galerie.Accounts.User.Password)[:enforce_rules]
   end
 end

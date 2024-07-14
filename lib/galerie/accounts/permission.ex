@@ -1,4 +1,4 @@
-defmodule Galerie.Permission do
+defmodule Galerie.Accounts.Permission do
   @moduledoc """
   Permissions scheme for the non-admin users. It uses a binary format (similar to unix rwx).
 

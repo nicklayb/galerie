@@ -1,9 +1,9 @@
-defmodule Galerie.Album do
+defmodule Galerie.Albums.Album do
   use Ecto.Schema
 
-  alias Galerie.Album
-  alias Galerie.Picture
-  alias Galerie.User
+  alias Galerie.Accounts.User
+  alias Galerie.Albums.Album
+  alias Galerie.Pictures.Picture
 
   schema("albums") do
     field(:name, :string)

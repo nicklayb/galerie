@@ -4,7 +4,7 @@ defmodule Galerie.Mailer do
   import Swoosh.Email
 
   import GalerieWeb.Gettext
-  alias Galerie.User
+  alias Galerie.Accounts.User
 
   @task_supervisor_name Galerie.MailerSupervisor
 

@@ -4,7 +4,7 @@ defmodule Galerie.PubSubTest do
   alias Galerie.PubSub
 
   @topics %{
-    Galerie.User => "users",
+    Galerie.Accounts.User => "users",
     Galerie.Pictures.Picture => "pictures"
   }
 
@@ -38,9 +38,9 @@ defmodule Galerie.PubSubTest do
 
   describe "broadcast/2 | subscribe/1" do
     test "broadcasts a wrapped message" do
-      string_topic = PubSub.topic(Galerie.User)
-      PubSub.subscribe(Galerie.User)
-      PubSub.broadcast(Galerie.User, :hello)
+      string_topic = PubSub.topic(Galerie.Accounts.User)
+      PubSub.subscribe(Galerie.Accounts.User)
+      PubSub.broadcast(Galerie.Accounts.User, :hello)
 
       assert_receive(%PubSub.Message{
         message: :hello,
@@ -51,9 +51,9 @@ defmodule Galerie.PubSubTest do
     end
 
     test "broadcasts to multiple topic wrapped message" do
-      user_topic = PubSub.topic(Galerie.User)
+      user_topic = PubSub.topic(Galerie.Accounts.User)
       picture_topic = PubSub.topic(Galerie.Pictures.Picture)
-      topics = [Galerie.User, Galerie.Pictures.Picture]
+      topics = [Galerie.Accounts.User, Galerie.Pictures.Picture]
       PubSub.subscribe(topics)
       PubSub.broadcast(topics, :hello)
 

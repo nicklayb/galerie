@@ -7,7 +7,7 @@ defmodule GalerieWeb.Authentication.Controller do
   import GalerieWeb.Gettext
 
   alias Galerie.Accounts
-  alias Galerie.User
+  alias Galerie.Accounts.User
   alias GalerieWeb.Authentication
 
   action_fallback(Error.Controller)

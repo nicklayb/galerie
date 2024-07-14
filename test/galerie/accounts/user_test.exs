@@ -1,7 +1,7 @@
-defmodule Galerie.UserTest do
+defmodule Galerie.Accounts.UserTest do
   use Galerie.DataCase
 
-  alias Galerie.User
+  alias Galerie.Accounts.User
 
   setup [:initialize_changeset]
 

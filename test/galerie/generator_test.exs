@@ -22,7 +22,9 @@ defmodule Galerie.GeneratorTest do
       uuid = Ecto.UUID.generate()
 
       assert uuid ==
-               Generator.unique({MockGenerator, value: uuid}, schema: {Galerie.User, :email})
+               Generator.unique({MockGenerator, value: uuid},
+                 schema: {Galerie.Accounts.User, :email}
+               )
     end
 
     test "tries multiple time if a value already exists" do
@@ -32,7 +34,7 @@ defmodule Galerie.GeneratorTest do
 
       assert third ==
                Generator.unique({MockGenerator, value: sequence},
-                 schema: {Galerie.User, :email}
+                 schema: {Galerie.Accounts.User, :email}
                )
     end
 
@@ -44,7 +46,7 @@ defmodule Galerie.GeneratorTest do
 
       assert_raise(RuntimeError, fn ->
         Generator.unique({MockGenerator, value: sequence},
-          schema: {Galerie.User, :email},
+          schema: {Galerie.Accounts.User, :email},
           max_tries: 3
         )
       end)

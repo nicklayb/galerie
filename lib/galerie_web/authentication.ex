@@ -1,6 +1,6 @@
 defmodule GalerieWeb.Authentication do
   alias Galerie.Accounts
-  alias Galerie.User
+  alias Galerie.Accounts.User
 
   @session_key "user_id"
 

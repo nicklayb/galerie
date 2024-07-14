@@ -1,13 +1,13 @@
 defmodule Galerie.Pictures.Picture do
   use Ecto.Schema
 
-  alias Galerie.Album
+  alias Galerie.Accounts.User
+  alias Galerie.Albums.Album
   alias Galerie.Directory.FileName
   alias Galerie.Folder
   alias Galerie.Pictures.Picture
   alias Galerie.Pictures.PictureExif
   alias Galerie.Pictures.PictureMetadata
-  alias Galerie.User
 
   @type t :: %Picture{}
   @type path_type :: :original | :jpeg

@@ -16,7 +16,7 @@ defmodule GalerieTest.Support.Factory do
   def build(:user) do
     id = next_integer(:user_id)
 
-    %Galerie.User{
+    %Galerie.Accounts.User{
       id: id(),
       first_name: "John",
       last_name: "Doe",

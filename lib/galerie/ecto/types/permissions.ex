@@ -6,7 +6,7 @@ defmodule Galerie.Ecto.Types.Permissions do
   """
   use Ecto.Type
 
-  alias Galerie.Permission
+  alias Galerie.Accounts.Permission
 
   def type, do: :integer
 
