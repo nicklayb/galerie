@@ -1,4 +1,4 @@
-defmodule Galerie.Library.PictureItem do
+defmodule Galerie.Pictures.PictureItem do
   defstruct [
     :id,
     :name,
@@ -11,8 +11,8 @@ defmodule Galerie.Library.PictureItem do
     :inserted_at
   ]
 
-  alias Galerie.Picture
-  alias Galerie.Library.PictureItem
+  alias Galerie.Pictures.Picture
+  alias Galerie.Pictures.PictureItem
 
   require Ecto.Query
 

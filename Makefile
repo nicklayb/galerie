@@ -18,6 +18,8 @@ setup-assets:
 create-db:
 	mix ecto.create
 
+reset: reset-samples remove-files reset-db
+
 reset-db: remove-files
 	mix ecto.reset
 

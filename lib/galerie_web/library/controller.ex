@@ -1,6 +1,6 @@
 defmodule GalerieWeb.Library.Controller do
   use Phoenix.Controller, namespace: GalerieWeb
-  alias Galerie.Library
+  alias Galerie.Pictures
 
   action_fallback(GalerieWeb.Error.Controller)
   plug(:put_view, GalerieWeb.Library.View)
@@ -8,7 +8,7 @@ defmodule GalerieWeb.Library.Controller do
   def get(conn, %{"id" => picture_id} = params) do
     with {:ok, picture_id} <- Galerie.Ecto.check_uuid(picture_id),
          {:ok, type} <- type_param(params),
-         {:ok, path} <- Library.get_picture_path(picture_id, type) do
+         {:ok, path} <- Pictures.get_picture_path(picture_id, type) do
       send_download(conn, {:file, path})
     end
   end
@@ -23,7 +23,7 @@ defmodule GalerieWeb.Library.Controller do
   end
 
   def download(conn, %{"pictures" => picture_ids} = params) do
-    pictures = Library.get_all_pictures(picture_ids)
+    pictures = Pictures.get_all_pictures(picture_ids)
 
     with {:ok, type} <- download_type_param(params),
          {:ok, binary} <- Galerie.Downloader.download(pictures, type) do

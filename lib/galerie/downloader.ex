@@ -2,7 +2,7 @@ defmodule Galerie.Downloader do
   @moduledoc """
   File downloader, manages the download of one or multiple pictures
   """
-  alias Galerie.Picture
+  alias Galerie.Pictures.Picture
 
   # TODO: Figure a way to remove the /tmp/galerie/[uuid] prefix in files in zip
   @doc """

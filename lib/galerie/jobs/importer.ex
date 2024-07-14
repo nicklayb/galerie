@@ -2,8 +2,8 @@ defmodule Galerie.Jobs.Importer do
   use Oban.Worker, queue: :imports
 
   alias Galerie.Folder
-  alias Galerie.Library
-  alias Galerie.Picture
+  alias Galerie.Pictures
+  alias Galerie.Pictures.Picture
   alias Galerie.Repo
 
   require Logger
@@ -27,7 +27,7 @@ defmodule Galerie.Jobs.Importer do
   def perform(%Oban.Job{
         args: %{"path" => path, "folder_path" => folder_path, "folder_id" => folder_id}
       }) do
-    case Library.get_picture_by_path(path) do
+    case Pictures.get_picture_by_path(path) do
       {:error, :not_found} ->
         %Picture{}
         |> Picture.create_changeset(%{

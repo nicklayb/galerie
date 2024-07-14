@@ -1,7 +1,7 @@
-defmodule Galerie.PictureMetadata do
+defmodule Galerie.Pictures.PictureMetadata do
   use Ecto.Schema
-  alias Galerie.Picture
-  alias Galerie.PictureMetadata
+  alias Galerie.Pictures.Picture
+  alias Galerie.Pictures.PictureMetadata
 
   @orientations ~w(landscape portrait square)a
   @primary_key {:id, :binary_id, autogenerate: true}
@@ -17,6 +17,7 @@ defmodule Galerie.PictureMetadata do
     field(:latitude, :float)
     field(:width, :integer)
     field(:height, :integer)
+    field(:rotation, :integer)
     field(:orientation, Ecto.Enum, values: @orientations)
 
     belongs_to(:picture, Picture)
@@ -25,7 +26,7 @@ defmodule Galerie.PictureMetadata do
   end
 
   @required ~w(width height orientation picture_id)a
-  @optional ~w(exposure_time f_number lens_model camera_make camera_model datetime_original longitude latitude)a
+  @optional ~w(exposure_time f_number lens_model camera_make camera_model datetime_original longitude latitude rotation)a
   @castable @required ++ @optional
   def changeset(%PictureMetadata{} = picture_metadata \\ %PictureMetadata{}, params) do
     picture_metadata

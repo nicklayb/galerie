@@ -5,8 +5,8 @@ defmodule GalerieWeb.Components.Picture do
 
   import GalerieWeb.Gettext
 
-  alias Galerie.Library.PictureItem
-  alias Galerie.Picture
+  alias Galerie.Pictures.PictureItem
+  alias Galerie.Pictures.Picture
   alias Galerie.Repo
   alias GalerieWeb.Components.Icon
   alias GalerieWeb.Components.Ui
@@ -59,7 +59,7 @@ defmodule GalerieWeb.Components.Picture do
   attr(:on_close, :string, default: "viewer:close")
 
   def viewer(assigns) do
-    pictures = Galerie.Library.get_grouped_pictures(assigns.picture)
+    pictures = Galerie.Pictures.get_grouped_pictures(assigns.picture)
 
     picture =
       pictures

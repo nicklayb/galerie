@@ -1,11 +1,12 @@
-defmodule Galerie.Picture do
+defmodule Galerie.Pictures.Picture do
   use Ecto.Schema
 
   alias Galerie.Album
+  alias Galerie.Directory.FileName
   alias Galerie.Folder
-  alias Galerie.Picture
-  alias Galerie.PictureExif
-  alias Galerie.PictureMetadata
+  alias Galerie.Pictures.Picture
+  alias Galerie.Pictures.PictureExif
+  alias Galerie.Pictures.PictureMetadata
   alias Galerie.User
 
   @type t :: %Picture{}
@@ -65,14 +66,14 @@ defmodule Galerie.Picture do
     fullpath = Ecto.Changeset.get_change(changeset, :fullpath)
     folder_path = Ecto.Changeset.get_change(changeset, :folder_path)
 
-    %{
+    %FileName{
       name: name,
-      type: type,
       extension: extension,
       original_name: original_name,
       group_name: group_name
-    } =
-      extract_parts(fullpath, folder_path)
+    } = FileName.cast(fullpath, folder_path)
+
+    type = extract_type(fullpath)
 
     %File.Stat{size: file_size} = File.stat!(fullpath)
 
@@ -87,36 +88,6 @@ defmodule Galerie.Picture do
   end
 
   defp cast_parts(%Ecto.Changeset{} = changeset), do: changeset
-
-  defp extract_parts(path, folder_path) do
-    original_name =
-      path
-      |> String.replace(folder_path, "", global: false)
-      |> String.trim_leading("/")
-
-    [filename | _] =
-      path
-      |> Path.split()
-      |> Enum.reverse()
-
-    [extension | _] =
-      filename
-      |> String.split(".")
-      |> Enum.reverse()
-
-    group_name =
-      String.trim_trailing(original_name, "." <> extension)
-
-    type = extract_type(path)
-
-    %{
-      extension: extension,
-      original_name: original_name,
-      name: String.replace(filename, ".#{extension}", ""),
-      type: type,
-      group_name: group_name
-    }
-  end
 
   defp extract_type(path) do
     {key, _} =
@@ -149,14 +120,7 @@ defmodule Galerie.Picture do
 
   def path(%Picture{type: :tiff, converted_jpeg: jpeg}, :jpeg), do: jpeg
 
-  def rotation(%Picture{picture_exif: %PictureExif{exif: %{"orientation" => orientation}}}) do
-    cond do
-      orientation =~ "90" -> 90
-      orientation =~ "180" -> 180
-      orientation =~ "270" -> 270
-      true -> 0
-    end
-  end
+  def rotation(%Picture{picture_metadata: %PictureMetadata{rotation: rotation}}), do: rotation
 
   def rotation(_), do: 0
 end

@@ -2,14 +2,14 @@ defmodule Galerie.Jobs.ThumbnailGenerator.Generator do
   use Oban.Worker, queue: :thumbnails
 
   alias Galerie.Directory
-  alias Galerie.Library
-  alias Galerie.Picture
+  alias Galerie.Pictures
+  alias Galerie.Pictures.Picture
   alias Galerie.Repo
 
   def perform(%Oban.Job{args: %{"picture_id" => picture_id}}) do
     result =
       picture_id
-      |> Library.get_picture()
+      |> Pictures.get_picture()
       |> Result.and_then(&convert_raw/1)
       |> Result.and_then(&generate_thumbnail/1)
       |> Result.tap(fn picture ->

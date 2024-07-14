@@ -2,7 +2,7 @@ defmodule Galerie.FileControl.Watcher do
   use GenServer
 
   alias Galerie.Folder
-  alias Galerie.Library
+  alias Galerie.Pictures
   require Logger
 
   def start_link(args) do
@@ -22,7 +22,7 @@ defmodule Galerie.FileControl.Watcher do
 
   def init(args) do
     folder_path = Keyword.fetch!(args, :folder)
-    folder = Galerie.Library.get_or_create_folder!(folder_path)
+    folder = Galerie.Pictures.get_or_create_folder!(folder_path)
 
     send(self(), :synchronize)
 
@@ -74,7 +74,7 @@ defmodule Galerie.FileControl.Watcher do
   defp synchronize(%Folder{path: path} = folder) do
     files = list_files(path)
 
-    existing = Library.list_imported_paths(files)
+    existing = Pictures.list_imported_paths(files)
 
     Enum.map(files -- existing, &enqueue_importer(&1, folder))
   end

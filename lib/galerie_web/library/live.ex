@@ -2,7 +2,7 @@ defmodule GalerieWeb.Library.Live do
   use GalerieWeb, :live_view
 
   alias Galerie.Jobs.Importer
-  alias Galerie.Library
+  alias Galerie.Pictures
   alias Galerie.Repo
   alias Galerie.Repo.Page
 
@@ -33,7 +33,7 @@ defmodule GalerieWeb.Library.Live do
       |> close_picture()
       |> start_async(:load_pictures, fn -> load_pictures(%{}) end)
 
-    Galerie.PubSub.subscribe(Galerie.Picture)
+    Galerie.PubSub.subscribe(Galerie.Pictures.Picture)
 
     {:ok, socket}
   end
@@ -123,7 +123,7 @@ defmodule GalerieWeb.Library.Live do
   end
 
   defp load_pictures(_) do
-    Library.list_pictures([])
+    Pictures.list_pictures([])
   end
 
   def handle_event("scrolled-bottom", _params, socket) do
@@ -179,7 +179,7 @@ defmodule GalerieWeb.Library.Live do
       ) do
     socket =
       case Enum.find(pictures, &(&1.id == picture_id)) do
-        %Galerie.Library.PictureItem{} = picture ->
+        %Galerie.Pictures.PictureItem{} = picture ->
           view_picture(socket, picture, index)
 
         _ ->
@@ -323,7 +323,7 @@ defmodule GalerieWeb.Library.Live do
   def handle_info(
         %Galerie.PubSub.Message{
           message: :thumbnail_generated,
-          params: %Galerie.Picture{} = picture
+          params: %Galerie.Pictures.Picture{} = picture
         },
         socket
       ) do
@@ -347,7 +347,7 @@ defmodule GalerieWeb.Library.Live do
   end
 
   defp assign_pictures(socket, pictures) do
-    pictures = Page.map_results(pictures, &Galerie.Library.PictureItem.put_index/1)
+    pictures = Page.map_results(pictures, &Galerie.Pictures.PictureItem.put_index/1)
     end_index = length(pictures.results) - 1
 
     socket

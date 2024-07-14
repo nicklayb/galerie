@@ -1,10 +1,11 @@
 defmodule Galerie.Jobs.Processor do
   use Oban.Worker, queue: :processors
 
-  alias Galerie.Library
-  alias Galerie.Picture
-  alias Galerie.PictureExif
-  alias Galerie.PictureMetadata
+  alias Galerie.Jobs.Processor.ExifToMetadata
+  alias Galerie.Pictures
+  alias Galerie.Pictures.Picture
+  alias Galerie.Pictures.PictureExif
+  alias Galerie.Pictures.PictureMetadata
   alias Galerie.Repo
 
   def enqueue(%Picture{id: picture_id}) do
@@ -19,7 +20,7 @@ defmodule Galerie.Jobs.Processor do
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"picture_id" => picture_id}}) do
-    case Library.get_picture(picture_id) do
+    case Pictures.get_picture(picture_id) do
       {:ok, %Picture{} = picture} ->
         picture
         |> Repo.preload([:picture_exif, :picture_metadata])
@@ -57,26 +58,7 @@ defmodule Galerie.Jobs.Processor do
          %Picture{id: picture_id} = picture,
          exif_data
        ) do
-    exif = Map.get(exif_data, :exif, %{})
-    gps = Map.Extra.get_with_default(exif_data, :gps, %{})
-
-    {orientation, height, width} = get_orientation(picture, exif_data)
-
-    params = %{
-      orientation: orientation,
-      width: width,
-      height: height,
-      exposure_time: parse_exposure_time(Map.get(exif, :exposure_time)),
-      f_number: Map.get(exif, :f_number),
-      lens_model: Map.get(exif, :lens_model),
-      camera_make: Map.get(exif_data, :make),
-      camera_model: Map.get(exif_data, :model),
-      datetime_original:
-        format_date_time(Map.get(exif, :datetime_original), Map.get(exif, :time_offset)),
-      longitude: get_gps(gps, :longitude),
-      latitude: get_gps(gps, :latitude),
-      picture_id: picture_id
-    }
+    params = ExifToMetadata.parse(picture, exif_data)
 
     picture_metadata
     |> PictureMetadata.changeset(params)
@@ -85,40 +67,6 @@ defmodule Galerie.Jobs.Processor do
       &"[#{inspect(__MODULE__)}] [metadata] [#{&1.picture_id}] [processed]",
       &"[#{inspect(__MODULE__)}] [metadata] [#{picture_id}] [failed] #{inspect(&1)}"
     )
-  end
-
-  defp get_gps(%{} = gps, side) do
-    side_measure = Map.get(gps, String.to_existing_atom("gps_#{side}"))
-    side_ref = Map.get(gps, String.to_existing_atom("gps_#{side}_ref"))
-
-    case {side_measure, side_ref} do
-      {[_, _, _] = side_measure, side} ->
-        direction = if side in ["W", "S"], do: -1, else: 1
-
-        to_decimal(side_measure) * direction
-
-      _ ->
-        nil
-    end
-  end
-
-  defp to_decimal([degree, minutes, seconds]) do
-    degree + minutes / 60 + seconds / 3600
-  end
-
-  defp to_decimal(_), do: nil
-
-  defp parse_exposure_time(nil), do: nil
-
-  @fraction_regex ~r/([0-9+])\/([0-9+])/
-  defp parse_exposure_time(string) when is_binary(string) do
-    case Regex.scan(@fraction_regex, string) do
-      [[_, numerator, demonimator]] ->
-        String.to_integer(numerator) / String.to_integer(demonimator)
-
-      _ ->
-        String.to_integer(string)
-    end
   end
 
   defp upsert_exif(nil, picture_id, exif), do: upsert_exif(%PictureExif{}, picture_id, exif)
@@ -132,27 +80,6 @@ defmodule Galerie.Jobs.Processor do
       &"[#{inspect(__MODULE__)}] [exif] [#{&1.picture_id}] [processed]",
       &"[#{inspect(__MODULE__)}] [exif] [#{picture_id}] [failed] #{inspect(&1)}"
     )
-  end
-
-  defp format_date_time(nil, _timezone), do: nil
-
-  @datetime_regex ~r/([0-9]{4})[-:]([0-9]{2})[-:]([0-9]{2}) ?([0-9]{2}):([0-9]{2}):([0-9]{2})/
-  defp format_date_time(string, timezone) when is_binary(string) do
-    case Regex.scan(@datetime_regex, string) do
-      [[_, year, month, day, hour, minute, second]] ->
-        [year, month, day, hour, minute, second]
-        |> Enum.map(&String.to_integer/1)
-        |> then(&apply(NaiveDateTime, :new, &1))
-        |> Result.with_default(nil)
-        |> format_date_time(timezone)
-
-      _ ->
-        nil
-    end
-  end
-
-  defp format_date_time(%NaiveDateTime{} = date_time, timezone) do
-    shift_timezone(date_time, timezone)
   end
 
   defp extract_exif(%Picture{fullpath: fullpath, type: :jpeg}) do
@@ -170,64 +97,6 @@ defmodule Galerie.Jobs.Processor do
   end
 
   defp normalize(exif), do: exif
-
-  @timezone_regex ~r/([-+])([0-9]{2}):?([0-9]{2})/
-  defp shift_timezone(%NaiveDateTime{} = naive_datetime, timezone) do
-    case Regex.scan(@timezone_regex, timezone) do
-      [[_, sign, hours, minutes]] ->
-        sign = if sign == "-", do: 1, else: -1
-
-        Enum.reduce([hour: hours, minute: minutes], naive_datetime, fn {unit, part}, acc ->
-          NaiveDateTime.add(acc, String.to_integer(part) * sign, unit)
-        end)
-
-      _ ->
-        naive_datetime
-    end
-  end
-
-  defp get_orientation(%Picture{}, %{
-         orientation: orientation,
-         exif: %{
-           exif_image_height: height,
-           exif_image_width: width
-         }
-       }) do
-    cond do
-      width == height ->
-        {:square, height, width}
-
-      orientation =~ "90" or orientation =~ "270" ->
-        {:portrait, width, height}
-
-      true ->
-        {:landscape, height, width}
-    end
-  end
-
-  defp get_orientation(%Picture{} = picture, _) do
-    image =
-      picture
-      |> Picture.path(:jpeg)
-      |> Image.open!()
-
-    width = Image.width(image)
-    height = Image.height(image)
-
-    orientation =
-      cond do
-        width > height ->
-          :landscape
-
-        height > width ->
-          :portrait
-
-        true ->
-          :square
-      end
-
-    {orientation, height, width}
-  end
 
   defimpl Jason.Encoder, for: [Image.Exif.Gps] do
     def encode(struct, opts) do

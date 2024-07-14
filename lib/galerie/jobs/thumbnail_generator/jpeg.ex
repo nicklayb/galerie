@@ -1,7 +1,7 @@
 defmodule Galerie.Jobs.ThumbnailGenerator.Jpeg do
   use Oban.Worker, queue: :thumbnails
 
-  alias Galerie.Picture
+  alias Galerie.Pictures.Picture
 
   @job __MODULE__
 

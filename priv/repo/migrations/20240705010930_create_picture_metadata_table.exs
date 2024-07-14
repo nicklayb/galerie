@@ -18,6 +18,7 @@ defmodule Galerie.Repo.Migrations.CreatePictureMetadataTable do
       add(:latitude, :float)
       add(:width, :integer)
       add(:height, :integer)
+      add(:rotation, :integer, null: false, default: 0)
       add(:orientation, @enum_name)
       
       timestamps()

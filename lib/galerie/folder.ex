@@ -2,7 +2,7 @@ defmodule Galerie.Folder do
   use Ecto.Schema
 
   alias Galerie.Folder
-  alias Galerie.Picture
+  alias Galerie.Pictures.Picture
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id

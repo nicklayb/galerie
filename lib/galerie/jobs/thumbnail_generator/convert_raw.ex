@@ -1,6 +1,6 @@
 defmodule Galerie.Jobs.ThumbnailGenerator.ConvertRaw do
   alias Galerie.Directory
-  alias Galerie.Picture
+  alias Galerie.Pictures.Picture
   alias Galerie.Repo
 
   @default_quality 80

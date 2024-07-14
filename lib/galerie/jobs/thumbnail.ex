@@ -1,5 +1,5 @@
 defmodule Galerie.Jobs.Thumbnail do
-  alias Galerie.Picture
+  alias Galerie.Pictures.Picture
 
   def enqueue(%Picture{type: :tiff} = picture) do
     Galerie.Jobs.ThumbnailGenerator.Tiff.enqueue(picture)

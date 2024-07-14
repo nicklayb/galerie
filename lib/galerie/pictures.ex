@@ -1,7 +1,7 @@
-defmodule Galerie.Library do
+defmodule Galerie.Pictures do
   alias Galerie.Folder
-  alias Galerie.Library.PictureItem
-  alias Galerie.Picture
+  alias Galerie.Pictures.PictureItem
+  alias Galerie.Pictures.Picture
   alias Galerie.Repo
 
   require Ecto.Query
@@ -37,14 +37,17 @@ defmodule Galerie.Library do
     |> Repo.all()
   end
 
+  @default_limit 16
   @spec list_pictures(Keyword.t()) :: Repo.Page.t()
   def list_pictures(options \\ []) do
+    limit = Keyword.get(options, :limit, @default_limit)
+
     PictureItem.from()
     |> Ecto.Query.order_by(
       [picture_item, metadata: metadata],
       {:desc, metadata.datetime_original}
     )
-    |> Repo.paginate(%{limit: 16, sort_by: {:desc, :datetime_original}})
+    |> Repo.paginate(%{limit: limit, sort_by: {:desc, :datetime_original}})
   end
 
   @spec get_picture(String.t()) :: Result.t(Picture.t(), :not_found)
