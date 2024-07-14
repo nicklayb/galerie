@@ -1,15 +1,11 @@
 defmodule Galerie.Accounts.User do
-  use Ecto.Schema
+  use Galerie, :schema
   alias Galerie.Accounts.User
   alias Galerie.Accounts.User.Password
-  alias Galerie.Folder
+  alias Galerie.Folders.Folder
 
   require Logger
 
-  @type t :: %User{}
-
-  @primary_key {:id, :binary_id, autogenerate: true}
-  @foreign_key_type :binary_id
   schema("users") do
     field(:email, :string)
     field(:first_name, :string)

@@ -76,4 +76,17 @@ defmodule Galerie.Repo do
   def unwrap_transaction({:ok, result}, key), do: {:ok, Map.get(result, key)}
 
   def unwrap_transaction(result, _), do: result
+
+  def reload_assoc(%struct{} = schema, assoc_or_assocs) do
+    new_struct = struct!(struct, [])
+    assocs = List.wrap(assoc_or_assocs)
+
+    assocs
+    |> Enum.reduce(schema, fn assoc, schema ->
+      unloaded = Map.fetch!(new_struct, assoc)
+
+      Map.put(schema, assoc, unloaded)
+    end)
+    |> preload(assocs)
+  end
 end

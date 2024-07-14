@@ -1,10 +1,8 @@
 defmodule Galerie.Pictures.PictureExif do
-  use Ecto.Schema
+  use Galerie, :schema
   alias Galerie.Pictures.Picture
   alias Galerie.Pictures.PictureExif
 
-  @primary_key {:id, :binary_id, autogenerate: true}
-  @foreign_key_type :binary_id
   schema("picture_exif") do
     field(:exif, :map)
 

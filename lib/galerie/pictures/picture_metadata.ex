@@ -1,11 +1,9 @@
 defmodule Galerie.Pictures.PictureMetadata do
-  use Ecto.Schema
+  use Galerie, :schema
   alias Galerie.Pictures.Picture
   alias Galerie.Pictures.PictureMetadata
 
   @orientations ~w(landscape portrait square)a
-  @primary_key {:id, :binary_id, autogenerate: true}
-  @foreign_key_type :binary_id
   schema("picture_metadata") do
     field(:exposure_time, :float)
     field(:f_number, :float)

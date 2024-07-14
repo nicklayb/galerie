@@ -32,4 +32,9 @@ defmodule Enum.Extra do
       Map.put(acc, key_getter.(item), item)
     end)
   end
+
+  @spec field(Enumerable.t(), atom() | String.t()) :: Enumerable.t()
+  def field(enumerable, field) do
+    Enum.map(enumerable, &Map.get(&1, field))
+  end
 end

@@ -1,6 +1,6 @@
 defmodule Galerie.Accounts do
   alias Galerie.Accounts.User
-  alias Galerie.Folder
+  alias Galerie.Folders.Folder
   alias Galerie.Repo
 
   @doc "Logins a user"

@@ -1,16 +1,17 @@
 defmodule Galerie.Albums.Album do
-  use Ecto.Schema
+  use Galerie, :schema
 
   alias Galerie.Accounts.User
   alias Galerie.Albums.Album
-  alias Galerie.Pictures.Picture
+  alias Galerie.Albums.AlbumPicture
 
   schema("albums") do
     field(:name, :string)
 
     belongs_to(:user, User)
 
-    many_to_many(:pictures, Picture, join_through: "albums_pictures")
+    has_many(:albums_pictures, AlbumPicture)
+    has_many(:pictures, through: [:albums_pictures, :picture])
   end
 
   @required ~w(name user_id)a

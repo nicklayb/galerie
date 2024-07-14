@@ -1,7 +1,7 @@
 defmodule Galerie.FileControl.Watcher do
   use GenServer
 
-  alias Galerie.Folder
+  alias Galerie.Folders.Folder
   alias Galerie.Pictures
   require Logger
 
@@ -22,7 +22,7 @@ defmodule Galerie.FileControl.Watcher do
 
   def init(args) do
     folder_path = Keyword.fetch!(args, :folder)
-    folder = Galerie.Pictures.get_or_create_folder!(folder_path)
+    folder = Galerie.Folders.get_or_create_folder!(folder_path)
 
     send(self(), :synchronize)
 

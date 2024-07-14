@@ -1,5 +1,4 @@
 defmodule Galerie.Pictures do
-  alias Galerie.Folder
   alias Galerie.Pictures.Picture
   alias Galerie.Pictures.PictureItem
   alias Galerie.Repo
@@ -58,18 +57,6 @@ defmodule Galerie.Pictures do
   @spec get_picture(String.t()) :: Result.t(Picture.t(), :not_found)
   def get_picture_by_path(path) do
     Repo.fetch_by(Picture, fullpath: path)
-  end
-
-  def get_or_create_folder!(folder_path) do
-    case Repo.fetch_by(Folder, path: folder_path) do
-      {:ok, %Folder{} = folder} ->
-        folder
-
-      _ ->
-        %{path: folder_path}
-        |> Folder.changeset()
-        |> Repo.insert!()
-    end
   end
 
   def list_imported_paths(picture_paths) do

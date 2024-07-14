@@ -1,21 +1,18 @@
 defmodule Galerie.Pictures.Picture do
-  use Ecto.Schema
+  use Galerie, :schema
 
   alias Galerie.Accounts.User
   alias Galerie.Albums.Album
   alias Galerie.Directory.FileName
-  alias Galerie.Folder
+  alias Galerie.Folders.Folder
   alias Galerie.Pictures.Picture
   alias Galerie.Pictures.PictureExif
   alias Galerie.Pictures.PictureMetadata
 
-  @type t :: %Picture{}
   @type path_type :: :original | :jpeg
 
   @picture_types ~w(tiff jpeg)a
 
-  @primary_key {:id, :binary_id, autogenerate: true}
-  @foreign_key_type :binary_id
   schema("pictures") do
     field(:name, :string)
     field(:extension, :string)

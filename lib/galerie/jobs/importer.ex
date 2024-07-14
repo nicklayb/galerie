@@ -1,7 +1,7 @@
 defmodule Galerie.Jobs.Importer do
   use Oban.Worker, queue: :imports
 
-  alias Galerie.Folder
+  alias Galerie.Folders.Folder
   alias Galerie.Pictures
   alias Galerie.Pictures.Picture
   alias Galerie.Repo

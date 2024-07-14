@@ -1,11 +1,9 @@
-defmodule Galerie.Folder do
-  use Ecto.Schema
+defmodule Galerie.Folders.Folder do
+  use Galerie, :schema
 
-  alias Galerie.Folder
+  alias Galerie.Folders.Folder
   alias Galerie.Pictures.Picture
 
-  @primary_key {:id, :binary_id, autogenerate: true}
-  @foreign_key_type :binary_id
   schema("folders") do
     field(:path, :string)
 
