@@ -7,6 +7,7 @@ defmodule GalerieWeb.Components.Picture do
 
   alias Galerie.Pictures.Picture
   alias Galerie.Pictures.PictureItem
+  alias Galerie.Pictures.PictureMetadata
   alias Galerie.Repo
   alias GalerieWeb.Components.Icon
   alias GalerieWeb.Components.Ui
@@ -101,59 +102,102 @@ defmodule GalerieWeb.Components.Picture do
 
     ~H"""
     <div class="flex flex-col flex-initial w-96 bg-white">
-      <div class="flex flex-row justify-between items-center px-4 py-2">
+      <div class="flex flex-row justify-between items-center px-2 py-2">
         <span class="text-md flex items-center">
           <Ui.select_marker checked={@checked} class="mr-2" on_select="select-picture" on_deselect="deselect-picture" phx-value-picture_id={@picture.id} phx-value-index={@picture.index} />
           <%= @picture.name %>
         </span>
-        <span class="top-0 right-0 cursor-pointer" phx-click={@on_close}>
+        <span class="top-0 right-0 cursor-pointer pr-1" phx-click={@on_close}>
           <Icon.cross width="14" height="14" />
         </span>
       </div>
-      <%= if @picture.picture_metadata do %>
-        <.info_section title={gettext("Informations")}>
-          <div><%= @picture.picture_metadata.datetime_original %></div>
-          <div class="pt-2 flex flex-row justify-between">
-            <div class="">
-              <%= @picture.picture_metadata.width %>
+      <div>
+        <%= with %PictureMetadata{} = metadata <- @picture.picture_metadata do %>
+          <.info_section title={gettext("Informations")}>
+            <:info_item title={gettext("Taken on")}>
+              <%= metadata.datetime_original %>
+            </:info_item>
+            <:info_item title={gettext("Camera")}>
+              <%= metadata.camera_make %> <%= metadata.camera_model %>
+            </:info_item>
+            <:info_item title={gettext("F stop")} visible={metadata.f_number > 0}>
+              <%= gettext("f/%{focal}", focal: metadata.f_number) %>
+            </:info_item>
+            <:info_item title={gettext("Dimensions")}>
+              <%= metadata.width %>
               <span class="mx-0.5">x</span>
-              <%= @picture.picture_metadata.height %>
-            </div>
-            <%= if @picture.picture_metadata.f_number > 0 do %>
-              <div class="">
-                <%= gettext("f/%{focal}", focal: @picture.picture_metadata.f_number) %>
-              </div>
-            <% end %>
-            <div class="flex flex-row items-center">
+              <%= metadata.height %>
+            </:info_item>
+            <:info_item title={gettext("Exposure")}>
               <Icon.aperture width="18" height="18" class="mr-1" />
-              <%= 1 / @picture.picture_metadata.exposure_time %>
-            </div>
-          </div>
-        </.info_section>
-      <% end %>
-      <%= if List.Extra.at_least?(@pictures, 2) do %>
+              <%= 1 / metadata.exposure_time %>
+            </:info_item>
+            <:info_item title={gettext("GPS")} visible={metadata.longitude}>
+              <.google_map_link longitude={metadata.longitude} latitude={metadata.latitude} />
+            </:info_item>
+            <:info_item title={gettext("Lens")} visible={metadata.lens_model}>
+              <%= metadata.lens_model %>
+            </:info_item>
+          </.info_section>
+        <% end %>
         <.info_section title={gettext("Versions (%{count})", count: length(@pictures))}>
-          <div class="flex flex-col">
-            <%= for picture <- @pictures do %>
-              <div class="flex-1 px-1 first:rounded-t-md last:rounded-b-md first:border-b-0 border border-gray-300"><%= picture.original_name %></div>
-            <% end %>
-          </div>
+          <%= for picture <- @pictures do %>
+            <.info_section_item title={picture.original_name}>
+              <Ui.link href={~p(/pictures/#{picture.id}?#{[type: "original"]})}>
+                <Icon.download height="20" width="20"/>
+              </Ui.link>
+            </.info_section_item>
+          <% end %>
         </.info_section>
+      </div>
+    </div>
+    """
+  end
+
+  defp google_map_link(assigns) do
+    ~H"""
+    <Ui.link href={"https://maps.google.com/?q=#{@latitude},#{@longitude}"}>
+      <%= gettext("Google Maps") %>
+    </Ui.link>
+    """
+  end
+
+  attr(:title, :string, required: true)
+  slot(:inner_block, required: false)
+
+  slot(:info_item, required: false) do
+    attr(:title, :string, required: true)
+    attr(:visible, :boolean)
+  end
+
+  defp info_section(assigns) do
+    assigns = update(assigns, :info_item, fn items -> Enum.sort_by(items, & &1.title) end)
+
+    ~H"""
+    <div class="mt-2 first:mt-0">
+      <div class="py-1 pl-2 bg-gray-200"><%= @title %></div>
+      <%= if Enum.any?(@inner_block) do %>
+        <%= render_slot(@inner_block) %>
+      <% end %>
+      <%= for item <- @info_item do %>
+        <%= if Map.get(item, :visible, true) do %>
+          <.info_section_item title={item.title}>
+            <%= render_slot(item) %>
+          </.info_section_item>
+        <% end %>
       <% end %>
     </div>
     """
   end
 
   attr(:title, :string, required: true)
-  slot(:inner_block, required: true)
+  slot(:inner_block, required: false)
 
-  defp info_section(assigns) do
+  defp info_section_item(assigns) do
     ~H"""
-    <div class="mt-2">
-      <div class="py-1 px-4 bg-gray-200 mb-2"><%= @title %></div>
-      <div class="px-4">
-        <%= render_slot(@inner_block) %>
-      </div>
+    <div class="flex flex-row justify-between text-sm py-0.5 border-b border-gray-100">
+      <div class="flex pl-2"><%= @title %></div>
+      <div class="flex pr-2"><%= render_slot(@inner_block) %></div>
     </div>
     """
   end
@@ -204,6 +248,5 @@ defmodule GalerieWeb.Components.Picture do
 
   defp rotation(90), do: "rotate-270"
   defp rotation(180), do: "rotate-180"
-  defp rotation(270), do: "rotate-90"
   defp rotation(_), do: nil
 end

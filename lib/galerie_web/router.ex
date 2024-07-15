@@ -60,9 +60,6 @@ defmodule GalerieWeb.Router do
     get("/login", Authentication.Controller, :login)
     post("/login", Authentication.Controller, :post_login)
 
-    get("/register", Authentication.Controller, :register)
-    post("/register", Authentication.Controller, :post_register)
-
     get("/forgot_password", Authentication.Controller, :forgot_password)
     post("/forgot_password", Authentication.Controller, :post_forgot_password)
 

@@ -4,6 +4,22 @@ defmodule GalerieWeb.Components.Ui do
   alias GalerieWeb.Components.Icon
   alias GalerieWeb.Html
 
+  attr(:href, :string, required: true)
+  attr(:class, :string, default: "")
+  slot(:inner_block, required: true)
+  attr(:rest, :global)
+
+  @default_class "text-pink-600"
+  def link(assigns) do
+    assigns = update(assigns, :class, &Html.class(@default_class, &1))
+
+    ~H"""
+    <a href={@href} class={@class} {@rest}>
+      <%= render_slot(@inner_block) %>
+    </a>
+    """
+  end
+
   def logo(assigns) do
     ~H"""
     <h1 class="text-4xl font-bold uppercase tracking-wide">Galerie</h1>
