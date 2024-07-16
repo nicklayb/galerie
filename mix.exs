@@ -80,7 +80,6 @@ defmodule Galerie.MixProject do
         "assets.copy",
         "phx.digest"
       ],
-      "assets.copy": ["cmd mix assets.copy"],
       "assets.copy": "cmd --cd assets npm run copy-static",
       "assets.setup": [
         "deps.get",

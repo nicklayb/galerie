@@ -84,3 +84,6 @@ remove-converted-files:
 
 remove-uploaded-files:
 	rm -rf ./priv/uploads/*
+
+run-bash:
+	docker run --rm -it --entrypoint bash --mount type=bind,source=./samples,destination=/samples $(DOCKER_IMAGE)

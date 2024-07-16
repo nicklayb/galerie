@@ -1,16 +1,24 @@
 # STEP 1 - Build release compiler container
-FROM elixir:1.11-alpine AS builder
+FROM elixir:1.16-alpine AS builder
 
 ENV APP_NAME=galerie \
     APP_VERSION=0.1.0 \
     MIX_ENV=prod
 
-WORKDIR /galerie
-
 # Install build requirements
 RUN apk update && \
     apk upgrade --no-cache && \
-    apk add --no-cache openssl-dev make build-base gcc git nodejs npm
+    apk add --no-cache \
+            openssl-dev \
+            make \
+            build-base \
+            gcc \
+            git \
+            nodejs \
+            npm 
+
+
+WORKDIR /galerie
 
 RUN mix local.rebar --force && \
     mix local.hex --force
@@ -28,23 +36,33 @@ RUN mkdir -p /opt/build && \
     mix release && \
     cp -r _build/${MIX_ENV}/rel /opt/build
 
+FROM nboisvert/dcraw:latest as dcraw
+
 # STEP 2 - Build application container
-FROM alpine:3.9
+FROM alpine:3.20
 
 ARG APP_NAME
 ENV APP_NAME=${APP_NAME}
 
 ENV ROOT_FOLDER=/opt
 
+WORKDIR ${ROOT_FOLDER}
+
 # Update kernel and install runtime dependencies
 RUN apk --no-cache update && \
     apk --no-cache upgrade && \
-    apk --no-cache add bash openssl
-
-WORKDIR ${ROOT_FOLDER}
+    apk --no-cache add bash openssl wget \
+            build-base \
+            gcc \
+            imagemagick \
+            exiftool \
+            jasper
 
 # Copy the OTP binary from the build step
 COPY --from=builder /opt/build .
+COPY --from=dcraw /opt/dcraw/bin/dcraw/ /opt/bin/dcraw
+
+ENV PATH="/opt/bin/:${PATH}"
 
 RUN ls .
 
