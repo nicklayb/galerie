@@ -17,12 +17,9 @@ defmodule Galerie.Pictures do
     |> Repo.first()
   end
 
-  defp grouped_pictures_query(%PictureItem{folder_id: folder_id, group_name: group_name}) do
+  defp grouped_pictures_query(%PictureItem{group_id: group_id}) do
     Picture
-    |> Ecto.Query.where(
-      [picture],
-      picture.folder_id == ^folder_id and picture.group_name == ^group_name
-    )
+    |> Ecto.Query.where([picture], picture.group_id == ^group_id)
     |> Ecto.Query.join(:left, [picture], metadata in assoc(picture, :metadata), as: :metadata)
     |> Ecto.Query.preload([picture, metadata: metadata], metadata: metadata)
   end
@@ -41,7 +38,7 @@ defmodule Galerie.Pictures do
 
     PictureItem.from()
     |> Ecto.Query.order_by(
-      [picture_item, metadata: metadata],
+      [metadata: metadata],
       {:desc, metadata.datetime_original}
     )
     |> Repo.paginate(%{limit: limit, sort_by: {:desc, :datetime_original}})

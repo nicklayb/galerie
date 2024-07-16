@@ -25,4 +25,11 @@ defmodule Galerie.Pictures.Picture.Group do
     |> Ecto.Changeset.cast(params, @castable)
     |> Ecto.Changeset.validate_required(@required)
   end
+
+  @required ~w(main_picture_id)a
+  def main_picture_changeset(%Group{} = group \\ %Group{}, params) do
+    group
+    |> Ecto.Changeset.cast(params, @required)
+    |> Ecto.Changeset.validate_required(@required)
+  end
 end

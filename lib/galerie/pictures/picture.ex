@@ -62,6 +62,13 @@ defmodule Galerie.Pictures.Picture do
     |> Ecto.Changeset.validate_required(@required)
   end
 
+  @required ~w(group_id)a
+  def group_changeset(%Picture{} = picture \\ %Picture{}, params) do
+    picture
+    |> Ecto.Changeset.cast(params, @required)
+    |> Ecto.Changeset.validate_required(@required)
+  end
+
   defp cast_parts(%Ecto.Changeset{valid?: true} = changeset) do
     fullpath = Ecto.Changeset.get_change(changeset, :fullpath)
     folder_path = Ecto.Changeset.get_change(changeset, :folder_path)

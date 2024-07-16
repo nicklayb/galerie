@@ -76,7 +76,7 @@ defmodule Galerie.Jobs.Importer do
                                                    picture_group: %Group{id: group_id},
                                                    picture: %Picture{} = picture
                                                  } ->
-      Picture.changeset(picture, %{picture_group_id: group_id})
+      Picture.group_changeset(picture, %{group_id: group_id})
     end)
     |> Ecto.Multi.run(:group_with_main_picture, fn repo,
                                                    %{
@@ -88,7 +88,7 @@ defmodule Galerie.Jobs.Importer do
                                                    } ->
       if is_nil(main_picture_id) do
         picture_group
-        |> Group.changeset(%{main_picture_id: picture_id})
+        |> Group.main_picture_changeset(%{main_picture_id: picture_id})
         |> repo.update()
       else
         {:ok, picture_group}
