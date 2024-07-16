@@ -4,6 +4,7 @@ defmodule Galerie.Jobs.Importer do
   alias Galerie.Folders.Folder
   alias Galerie.Pictures
   alias Galerie.Pictures.Picture
+  alias Galerie.Pictures.PictureGroup
   alias Galerie.Repo
 
   require Logger
@@ -29,13 +30,12 @@ defmodule Galerie.Jobs.Importer do
       }) do
     case Pictures.get_picture_by_path(path) do
       {:error, :not_found} ->
-        %Picture{}
-        |> Picture.create_changeset(%{
+        %{
           fullpath: path,
           folder_path: folder_path,
           folder_id: folder_id
-        })
-        |> Repo.insert()
+        }
+        |> insert_picture()
         |> Result.tap(&Galerie.PubSub.broadcast(Picture, {:imported, &1}))
         |> Result.log(
           &"[#{inspect(__MODULE__)}] [imported] [#{&1.id}] [#{&1.type}] #{path}",
@@ -49,6 +49,53 @@ defmodule Galerie.Jobs.Importer do
         enqueue_post_steps(picture)
         :ok
     end
+  end
+
+  defp insert_picture(params) do
+    Ecto.Multi.new()
+    |> Ecto.Multi.insert(:picture, Picture.create_changeset(params))
+    |> Ecto.Multi.run(:picture_group, fn repo,
+                                         %{
+                                           picture: %Picture{
+                                             name: name,
+                                             group_name: group_name,
+                                             folder_id: folder_id
+                                           }
+                                         } ->
+      case repo.get_by(PictureGroup, group_name: group_name) do
+        %PictureGroup{} = group ->
+          {:ok, group}
+
+        nil ->
+          %{group_name: group_name, name: name, folder_id: folder_id}
+          |> PictureGroup.changeset()
+          |> repo.insert()
+      end
+    end)
+    |> Ecto.Multi.update(:picture_with_group, fn %{
+                                                   picture_group: %PictureGroup{id: group_id},
+                                                   picture: %Picture{} = picture
+                                                 } ->
+      Picture.changeset(picture, %{picture_group_id: group_id})
+    end)
+    |> Ecto.Multi.run(:group_with_main_picture, fn repo,
+                                                   %{
+                                                     picture_group:
+                                                       %PictureGroup{
+                                                         main_picture_id: main_picture_id
+                                                       } = picture_group,
+                                                     picture: %Picture{id: picture_id}
+                                                   } ->
+      if is_nil(main_picture_id) do
+        picture_group
+        |> PictureGroup.changeset(%{main_picture_id: picture_id})
+        |> repo.update()
+      else
+        {:ok, picture_group}
+      end
+    end)
+    |> Repo.transaction()
+    |> Repo.unwrap_transaction(:picture_with_group)
   end
 
   defp enqueue_post_steps(%Picture{} = picture) do
