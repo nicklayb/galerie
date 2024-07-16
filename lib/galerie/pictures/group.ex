@@ -1,9 +1,9 @@
-defmodule Galerie.Pictures.PictureGroup do
+defmodule Galerie.Pictures.Picture.Group do
   use Galerie, :schema
 
   alias Galerie.Folders.Folder
   alias Galerie.Pictures.Picture
-  alias Galerie.Pictures.PictureGroup
+  alias Galerie.Pictures.Picture.Group
 
   schema("picture_groups") do
     field(:name, :string)
@@ -20,8 +20,8 @@ defmodule Galerie.Pictures.PictureGroup do
   @required ~w(name group_name folder_id)a
   @optional ~w(main_picture_id)a
   @castable @required ++ @optional
-  def changeset(%PictureGroup{} = picture_group \\ %PictureGroup{}, params) do
-    picture_group
+  def changeset(%Group{} = group \\ %Group{}, params) do
+    group
     |> Ecto.Changeset.cast(params, @castable)
     |> Ecto.Changeset.validate_required(@required)
   end

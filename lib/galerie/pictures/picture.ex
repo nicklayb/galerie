@@ -6,9 +6,9 @@ defmodule Galerie.Pictures.Picture do
   alias Galerie.Directory.FileName
   alias Galerie.Folders.Folder
   alias Galerie.Pictures.Picture
-  alias Galerie.Pictures.PictureExif
-  alias Galerie.Pictures.PictureGroup
-  alias Galerie.Pictures.PictureMetadata
+  alias Galerie.Pictures.Picture.Exif
+  alias Galerie.Pictures.Picture.Group
+  alias Galerie.Pictures.Picture.Metadata
 
   @type path_type :: :original | :jpeg
 
@@ -32,10 +32,10 @@ defmodule Galerie.Pictures.Picture do
     belongs_to(:folder, Folder)
     belongs_to(:user, User)
 
-    belongs_to(:picture_group, PictureGroup)
+    belongs_to(:group, Group)
 
-    has_one(:picture_exif, PictureExif)
-    has_one(:picture_metadata, PictureMetadata)
+    has_one(:exif, Exif)
+    has_one(:metadata, Metadata)
 
     many_to_many(:albums, Album, join_through: "albums_pictures")
 
@@ -46,7 +46,7 @@ defmodule Galerie.Pictures.Picture do
   @optional_for_cast ~w(user_id)a
   @castable @required_for_cast ++ @optional_for_cast
   @required ~w(folder_id name extension original_name fullpath size)a
-  @optional ~w(converted_jpeg picture_group_id thumbnail)a
+  @optional ~w(converted_jpeg group_id thumbnail)a
   def create_changeset(%Picture{} = picture \\ %Picture{}, params) do
     picture
     |> Ecto.Changeset.cast(params, @castable)
@@ -120,7 +120,7 @@ defmodule Galerie.Pictures.Picture do
 
   def path(%Picture{type: :tiff, converted_jpeg: jpeg}, :jpeg), do: jpeg
 
-  def rotation(%Picture{picture_metadata: %PictureMetadata{rotation: rotation}}), do: rotation
+  def rotation(%Picture{metadata: %Metadata{rotation: rotation}}), do: rotation
 
   def rotation(_), do: 0
 end

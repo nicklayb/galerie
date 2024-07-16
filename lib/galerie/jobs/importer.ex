@@ -4,7 +4,7 @@ defmodule Galerie.Jobs.Importer do
   alias Galerie.Folders.Folder
   alias Galerie.Pictures
   alias Galerie.Pictures.Picture
-  alias Galerie.Pictures.PictureGroup
+  alias Galerie.Pictures.Picture.Group
   alias Galerie.Repo
 
   require Logger
@@ -62,18 +62,18 @@ defmodule Galerie.Jobs.Importer do
                                              folder_id: folder_id
                                            }
                                          } ->
-      case repo.get_by(PictureGroup, group_name: group_name) do
-        %PictureGroup{} = group ->
+      case repo.get_by(Group, group_name: group_name) do
+        %Group{} = group ->
           {:ok, group}
 
         nil ->
           %{group_name: group_name, name: name, folder_id: folder_id}
-          |> PictureGroup.changeset()
+          |> Group.changeset()
           |> repo.insert()
       end
     end)
     |> Ecto.Multi.update(:picture_with_group, fn %{
-                                                   picture_group: %PictureGroup{id: group_id},
+                                                   picture_group: %Group{id: group_id},
                                                    picture: %Picture{} = picture
                                                  } ->
       Picture.changeset(picture, %{picture_group_id: group_id})
@@ -81,14 +81,14 @@ defmodule Galerie.Jobs.Importer do
     |> Ecto.Multi.run(:group_with_main_picture, fn repo,
                                                    %{
                                                      picture_group:
-                                                       %PictureGroup{
+                                                       %Group{
                                                          main_picture_id: main_picture_id
                                                        } = picture_group,
                                                      picture: %Picture{id: picture_id}
                                                    } ->
       if is_nil(main_picture_id) do
         picture_group
-        |> PictureGroup.changeset(%{main_picture_id: picture_id})
+        |> Group.changeset(%{main_picture_id: picture_id})
         |> repo.update()
       else
         {:ok, picture_group}

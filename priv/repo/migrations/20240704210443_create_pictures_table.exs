@@ -21,7 +21,7 @@ defmodule Galerie.Repo.Migrations.CreatePicturesTable do
       add(:folder_id, references("folders", on_delete: :delete_all), null: false)
       add(:user_id, references("users", on_delete: :delete_all), null: true)
 
-      add(:picture_group_id, references("picture_groups", on_delete: :delete_all), null: true)
+      add(:group_id, references("picture_groups", on_delete: :delete_all), null: true)
 
       timestamps()
     end

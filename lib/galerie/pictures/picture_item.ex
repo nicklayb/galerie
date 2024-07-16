@@ -18,9 +18,7 @@ defmodule Galerie.Pictures.PictureItem do
 
   def from do
     Picture
-    |> Ecto.Query.join(:left, [picture], metadata in assoc(picture, :picture_metadata),
-      as: :metadata
-    )
+    |> Ecto.Query.join(:left, [picture], metadata in assoc(picture, :metadata), as: :metadata)
     |> Ecto.Query.select([picture, metadata: metadata], %PictureItem{
       id: picture.id,
       name: picture.name,

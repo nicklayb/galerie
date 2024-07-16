@@ -7,7 +7,7 @@ defmodule GalerieWeb.Components.Picture do
 
   alias Galerie.Pictures.Picture
   alias Galerie.Pictures.PictureItem
-  alias Galerie.Pictures.PictureMetadata
+  alias Galerie.Pictures.Picture.Metadata
   alias Galerie.Repo
   alias GalerieWeb.Components.Icon
   alias GalerieWeb.Components.Ui
@@ -65,7 +65,7 @@ defmodule GalerieWeb.Components.Picture do
     picture =
       pictures
       |> hd()
-      |> Repo.preload([:picture_exif])
+      |> Repo.preload([:exif])
 
     assigns =
       assigns
@@ -98,7 +98,7 @@ defmodule GalerieWeb.Components.Picture do
   end
 
   defp info_panel(assigns) do
-    assigns = update(assigns, :picture, &Repo.preload(&1, [:picture_exif, :picture_metadata]))
+    assigns = update(assigns, :picture, &Repo.preload(&1, [:exif, :metadata]))
 
     ~H"""
     <div class="flex flex-col flex-initial w-96 bg-white">
@@ -112,7 +112,7 @@ defmodule GalerieWeb.Components.Picture do
         </span>
       </div>
       <div>
-        <%= with %PictureMetadata{} = metadata <- @picture.picture_metadata do %>
+        <%= with %Metadata{} = metadata <- @picture.metadata do %>
           <.info_section title={gettext("Informations")}>
             <:info_item title={gettext("Taken on")}>
               <%= metadata.datetime_original %>

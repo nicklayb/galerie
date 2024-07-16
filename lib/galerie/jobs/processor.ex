@@ -4,8 +4,8 @@ defmodule Galerie.Jobs.Processor do
   alias Galerie.Jobs.Processor.ExifToMetadata
   alias Galerie.Pictures
   alias Galerie.Pictures.Picture
-  alias Galerie.Pictures.PictureExif
-  alias Galerie.Pictures.PictureMetadata
+  alias Galerie.Pictures.Picture.Exif
+  alias Galerie.Pictures.Picture.Metadata
   alias Galerie.Repo
 
   def enqueue(%Picture{id: picture_id}) do
@@ -23,7 +23,7 @@ defmodule Galerie.Jobs.Processor do
     case Pictures.get_picture(picture_id) do
       {:ok, %Picture{} = picture} ->
         picture
-        |> Repo.preload([:picture_exif, :picture_metadata])
+        |> Repo.preload([:exif, :metadata])
         |> process()
 
       _ ->
@@ -34,8 +34,8 @@ defmodule Galerie.Jobs.Processor do
   defp process(
          %Picture{
            id: picture_id,
-           picture_exif: picture_exif,
-           picture_metadata: picture_metadata
+           exif: picture_exif,
+           metadata: picture_metadata
          } = picture
        ) do
     exif =
@@ -51,17 +51,17 @@ defmodule Galerie.Jobs.Processor do
   end
 
   defp upsert_metadata(nil, picture, exif),
-    do: upsert_metadata(%PictureMetadata{}, picture, exif)
+    do: upsert_metadata(%Metadata{}, picture, exif)
 
   defp upsert_metadata(
-         %PictureMetadata{} = picture_metadata,
+         %Metadata{} = picture_metadata,
          %Picture{id: picture_id} = picture,
          exif_data
        ) do
     params = ExifToMetadata.parse(picture, exif_data)
 
     picture_metadata
-    |> PictureMetadata.changeset(params)
+    |> Metadata.changeset(params)
     |> Repo.insert_or_update()
     |> Result.log(
       &"[#{inspect(__MODULE__)}] [metadata] [#{&1.picture_id}] [processed]",
@@ -69,11 +69,11 @@ defmodule Galerie.Jobs.Processor do
     )
   end
 
-  defp upsert_exif(nil, picture_id, exif), do: upsert_exif(%PictureExif{}, picture_id, exif)
+  defp upsert_exif(nil, picture_id, exif), do: upsert_exif(%Exif{}, picture_id, exif)
 
-  defp upsert_exif(%PictureExif{} = picture_exif, picture_id, exif) do
+  defp upsert_exif(%Exif{} = picture_exif, picture_id, exif) do
     picture_exif
-    |> PictureExif.changeset(%{picture_id: picture_id, exif: exif})
+    |> Exif.changeset(%{picture_id: picture_id, exif: exif})
     |> Repo.insert_or_update()
     |> Result.tap(&Galerie.PubSub.broadcast(Picture, {:processed, &1}))
     |> Result.log(

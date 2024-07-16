@@ -23,10 +23,8 @@ defmodule Galerie.Pictures do
       [picture],
       picture.folder_id == ^folder_id and picture.group_name == ^group_name
     )
-    |> Ecto.Query.join(:left, [picture], metadata in assoc(picture, :picture_metadata),
-      as: :metadata
-    )
-    |> Ecto.Query.preload([picture, metadata: metadata], picture_metadata: metadata)
+    |> Ecto.Query.join(:left, [picture], metadata in assoc(picture, :metadata), as: :metadata)
+    |> Ecto.Query.preload([picture, metadata: metadata], metadata: metadata)
   end
 
   @spec get_all_pictures([String.t()]) :: [Picture.t()]

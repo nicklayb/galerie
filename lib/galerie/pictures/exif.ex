@@ -1,7 +1,7 @@
-defmodule Galerie.Pictures.PictureExif do
+defmodule Galerie.Pictures.Picture.Exif do
   use Galerie, :schema
   alias Galerie.Pictures.Picture
-  alias Galerie.Pictures.PictureExif
+  alias Galerie.Pictures.Picture.Exif
 
   schema("picture_exif") do
     field(:exif, :map)
@@ -12,8 +12,8 @@ defmodule Galerie.Pictures.PictureExif do
   end
 
   @required ~w(exif picture_id)a
-  def changeset(%PictureExif{} = picture_exif \\ %PictureExif{}, params) do
-    picture_exif
+  def changeset(%Exif{} = exif \\ %Exif{}, params) do
+    exif
     |> Ecto.Changeset.cast(params, @required)
     |> Ecto.Changeset.validate_required(@required)
   end
