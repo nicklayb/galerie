@@ -123,11 +123,11 @@ defmodule GalerieWeb.Library.Live do
   defp load_pictures(%{pictures: %Page{} = previous_page}) do
     new_page = Repo.next(previous_page)
 
-    Page.merge(previous_page, new_page)
+    Page.merge(previous_page, new_page, &SelectableList.append/2)
   end
 
   defp load_pictures(_) do
-    Pictures.list_pictures([])
+    Repo.Page.map_results(Pictures.list_pictures(), &SelectableList.new/1)
   end
 
   def handle_event("scrolled-bottom", _params, socket) do

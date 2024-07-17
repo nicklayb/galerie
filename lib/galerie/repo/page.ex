@@ -4,7 +4,7 @@ defmodule Galerie.Repo.Page do
   alias Galerie.Repo.Page
 
   @type t :: %Page{
-          results: [any()],
+          results: any(),
           query: Ecto.Queryable.t(),
           has_next_page: boolean(),
           limit: non_neg_integer(),
@@ -28,9 +28,13 @@ defmodule Galerie.Repo.Page do
     }
   end
 
-  @spec merge(t(), t()) :: t()
-  def merge(%Page{results: previous_results}, %Page{results: new_results} = right) do
-    %Page{right | results: previous_results ++ new_results}
+  @spec merge(t(), t(), ([any()], any() -> any())) :: t()
+  def merge(
+        %Page{results: previous_results},
+        %Page{results: new_results} = right,
+        merge_function \\ &Kernel.++/2
+      ) do
+    %Page{right | results: merge_function.(previous_results, new_results)}
   end
 
   @spec map_every_results(t(), ([any()] -> [any()])) :: t()

@@ -20,8 +20,6 @@ defmodule SelectableList do
 
   defguardp is_index_valid(selectable_list, index) when is_map_key(selectable_list.items, index)
 
-  defp new, do: %SelectableList{}
-
   @spec highlight(t(), index()) :: t()
   def highlight(%SelectableList{} = selectable_list, index)
       when is_index_valid(selectable_list, index) do
