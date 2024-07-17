@@ -35,7 +35,8 @@ defmodule Galerie.FileControl.Watcher do
       ) do
     Logger.debug("[#{inspect(__MODULE__)}] [#{inspect(events)}] #{path}")
 
-    if Enum.member?(events, :closed) or Enum.member?(events, :moved_to) do
+    if not Enum.member?(events, :is_dir) and
+         (Enum.member?(events, :closed) or Enum.member?(events, :moved_to)) do
       enqueue_importer(path, folder)
     end
 

@@ -16,7 +16,7 @@ defmodule GalerieWeb.Components.Picture do
   def grid(%{pictures: pictures} = assigns) do
     filtered_pictures =
       if assigns.filter_selected do
-        Enum.filter(pictures, &MapSet.member?(assigns.selected_pictures, &1.id))
+        SelectableList.selected_items(pictures)
       else
         pictures
       end
@@ -25,23 +25,24 @@ defmodule GalerieWeb.Components.Picture do
 
     ~H"""
     <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 m-auto">
-      <%= for picture <- @filtered_pictures do %>
-        <.thumbnail picture={picture} checked={Enum.member?(@selected_pictures, picture.id)}/>
+      <%= for {index, picture} <- @filtered_pictures do %>
+        <.thumbnail picture={picture} checked={SelectableList.index_selected?(@pictures, index)} index={index}/>
       <% end %>
     </div>
     """
   end
 
   attr(:picture, PictureItem, required: true)
+  attr(:index, :integer, required: true)
   attr(:checked, :boolean, default: false)
 
   def thumbnail(assigns) do
     ~H"""
-    <div class={Html.class("relative transition cursor-pointer select-none group", {@checked, "scale-90"})} phx-click="picture-click" phx-value-picture_id={@picture.id} phx-value-index={@picture.index}>
+    <div class={Html.class("relative transition cursor-pointer select-none group", {@checked, "scale-90"})} phx-click="picture-click" phx-value-picture_id={@picture.id} phx-value-index={@index}>
       <img class={Html.class("h-full max-h-72 w-full rounded-md shadow-md border-4 group object-cover border-true-gray-300", {@checked, "border-pink-500"})} src={~p(/pictures/#{@picture.id}?#{[type: "thumb"]})} />
 
       <div class={Html.class("w-full h-full group-hover:bg-gray-500/40 transition p-4 absolute z-10 top-0", [{not @checked, "opacity-0 group-hover:opacity-100"}])}>
-        <Ui.select_marker checked={@checked}  on_select="select-picture" on_deselect="deselect-picture" phx-value-picture_id={@picture.id} phx-value-index={@picture.index} />
+        <Ui.select_marker checked={@checked}  on_select="select-picture" on_deselect="deselect-picture" phx-value-picture_id={@picture.id} phx-value-index={@index} />
       </div>
     </div>
     """

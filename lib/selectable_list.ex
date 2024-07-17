@@ -20,6 +20,10 @@ defmodule SelectableList do
 
   defguardp is_index_valid(selectable_list, index) when is_map_key(selectable_list.items, index)
 
+  @spec highlighted?(t()) :: boolean()
+  def highlighted?(%SelectableList{highlighted_index: highlighted_index}),
+    do: is_integer(highlighted_index)
+
   @spec highlight(t(), index()) :: t()
   def highlight(%SelectableList{} = selectable_list, index)
       when is_index_valid(selectable_list, index) do
@@ -27,6 +31,9 @@ defmodule SelectableList do
   end
 
   def highlight(%SelectableList{} = selectable_list, _), do: selectable_list
+
+  def unhighlight(%SelectableList{} = selectable_list),
+    do: %SelectableList{selectable_list | highlighted_index: nil}
 
   def last_highlighted?(%SelectableList{highlighted_index: hightlighted_index, count: count}),
     do: hightlighted_index == count - 1
@@ -88,6 +95,11 @@ defmodule SelectableList do
 
   def toggle_until(%SelectableList{} = selectable_list, new_index) do
     select_by_index(selectable_list, new_index)
+  end
+
+  @spec any_selected?(t()) :: boolean()
+  def any_selected?(%SelectableList{selected_indexes: selected_indexes}) do
+    Enum.any?(selected_indexes)
   end
 
   def selected?(%SelectableList{} = selectable_list, function_or_item) do
@@ -177,11 +189,11 @@ defmodule SelectableList do
     end
   end
 
-  @spec selected_items(t()) :: [t()]
+  @spec selected_items(t()) :: [{index(), any()}]
   def selected_items(%SelectableList{items: items, selected_indexes: selected_indexes}) do
     selected_indexes
     |> Enum.sort()
-    |> Enum.map(&Map.fetch!(items, &1))
+    |> Enum.map(&{&1, Map.fetch!(items, &1)})
   end
 
   @spec prepend(t(), [any()]) :: t()
@@ -274,6 +286,7 @@ defimpl Enumerable, for: SelectableList do
   def reduce(%SelectableList{items: items}, acc, fun) do
     items
     |> :maps.to_list()
+    |> Enum.sort_by(fn {index, _} -> index end)
     |> Enumerable.List.reduce(acc, fun)
   end
 end

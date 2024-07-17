@@ -7,7 +7,7 @@
       <div class="flex-1 p-4 h-full overflow-y-auto" id="library" phx-viewport-bottom={if @pictures.has_next_page and not @scroll_disabled, do: "scrolled-bottom"}>
         <%= case @pictures do %>
           <% %Page{results: pictures} -> %>
-            <Picture.grid pictures={pictures} filter_selected={@filter_selected} selected_pictures={@selected_pictures} />
+            <Picture.grid pictures={pictures} filter_selected={@filter_selected} />
           <% _ -> %>
         <% end %>
       </div>
@@ -24,14 +24,9 @@
       <:button phx_click="deselect-all" icon={:cross} width="10" height="10"/>
     </FloatingPills.pill>
   </FloatingPills.pills>
-  <%= if not is_nil(@highlighted_picture) do %>
-    <.live_component module={Picture.Viewer}
-              id="pictureViewer"
-      selected_pictures={@selected_pictures}
-      picture={@highlighted_picture}
-      index={@highlighted_index}
-      has_previous={@has_previous_page}
-      has_next={@has_next_page}
-    />
+  <%= case @pictures do %>
+    <% %Page{has_next_page: has_next_page, results: %SelectableList{highlighted_index: highlighted_index} = results} when is_integer(highlighted_index) -> %>
+      <.live_component module={Picture.Viewer} id="pictureViewer" results={results} has_next_page={has_next_page} />
+    <% _ -> %>
   <% end %>
 </div>

@@ -12,7 +12,7 @@ defmodule Galerie.Pictures do
   def valid_file_type?(fullpath) do
     fullpath
     |> file_type()
-    |> is_atom()
+    |> then(&(not is_nil(&1)))
   end
 
   @spec file_type(String.t()) :: Picture.file_type() | nil

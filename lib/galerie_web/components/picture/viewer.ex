@@ -24,11 +24,11 @@ defmodule GalerieWeb.Components.Picture.Viewer do
     {:ok, socket}
   end
 
-  def update(%{picture: %PictureItem{} = picture_item} = assigns, socket) do
+  def update(%{results: results} = assigns, socket) do
     socket =
       socket
       |> assign(assigns)
-      |> assign_pictures(picture_item)
+      |> assign_pictures(results)
 
     {:ok, socket}
   end
@@ -46,7 +46,7 @@ defmodule GalerieWeb.Components.Picture.Viewer do
         <div class="py-2"><img class={Html.class("h-full m-auto", rotation(@picture))} src={~p(/pictures/#{@picture.id})} /></div>
         <.side_arrow disabled={not @has_next} icon={:right_chevron} on_keyup={@on_keyup} key="ArrowRight"/>
       </div>
-      <.info_panel checked={MapSet.member?(@selected_pictures, @picture.id)} picture={@picture} index={@index} on_close={@on_close} pictures={@pictures} />
+      <.info_panel checked={@checked} picture={@picture} index={@results.highlighted_index} on_close={@on_close} pictures={@pictures} />
     </div>
     """
   end
@@ -178,6 +178,19 @@ defmodule GalerieWeb.Components.Picture.Viewer do
   defp rotation(90), do: "rotate-270"
   defp rotation(180), do: "rotate-180"
   defp rotation(_), do: nil
+
+  defp assign_pictures(socket, %SelectableList{} = pictures) do
+    picture_item = SelectableList.highlighted_item(pictures)
+
+    socket
+    |> assign(:has_previous, not SelectableList.first_highlighted?(pictures))
+    |> assign(
+      :has_next,
+      socket.assigns.has_next_page or not SelectableList.last_highlighted?(pictures)
+    )
+    |> assign(:checked, SelectableList.index_selected?(pictures, pictures.highlighted_index))
+    |> assign_pictures(picture_item)
+  end
 
   defp assign_pictures(socket, %PictureItem{} = picture_item) do
     pictures = Galerie.Pictures.get_grouped_pictures(picture_item)
