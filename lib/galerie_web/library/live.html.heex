@@ -25,7 +25,8 @@
     </FloatingPills.pill>
   </FloatingPills.pills>
   <%= if not is_nil(@highlighted_picture) do %>
-    <Picture.viewer 
+    <.live_component module={Picture.Viewer}
+              id="pictureViewer"
       selected_pictures={@selected_pictures}
       picture={@highlighted_picture}
       index={@highlighted_index}

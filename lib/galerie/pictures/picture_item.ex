@@ -9,6 +9,7 @@ defmodule Galerie.Pictures.PictureItem do
     :thumbnail,
     :datetime_original,
     :orientation,
+    :main_picture_id,
     :inserted_at
   ]
 
@@ -32,6 +33,7 @@ defmodule Galerie.Pictures.PictureItem do
       thumbnail: picture.thumbnail,
       datetime_original: metadata.datetime_original,
       orientation: metadata.orientation,
+      main_picture_id: group.main_picture_id,
       inserted_at: picture.inserted_at
     })
     |> Ecto.Query.where([picture: picture], not is_nil(picture.thumbnail))

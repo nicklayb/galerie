@@ -1,9 +1,29 @@
 defmodule Galerie.Pictures do
   alias Galerie.Pictures.Picture
   alias Galerie.Pictures.PictureItem
+  alias Galerie.Pictures.UseCase
   alias Galerie.Repo
 
   require Ecto.Query
+
+  @file_types [tiff: &ExifParser.parse_tiff_file/1, jpeg: &Image.open/1]
+
+  @spec valid_file_type?(String.t()) :: boolean()
+  def valid_file_type?(fullpath) do
+    fullpath
+    |> file_type()
+    |> is_atom()
+  end
+
+  @spec file_type(String.t()) :: Picture.file_type() | nil
+  def file_type(fullpath) do
+    Enum.find_value(@file_types, fn {type, function} ->
+      case function.(fullpath) do
+        {:ok, _} -> type
+        _ -> nil
+      end
+    end)
+  end
 
   def get_grouped_pictures(%PictureItem{} = picture_item) do
     picture_item
@@ -91,6 +111,10 @@ defmodule Galerie.Pictures do
       {:tiff, _, converted_jpeg} -> converted_jpeg
       {:jpeg, fullpath, _} -> fullpath
     end)
+  end
+
+  def insert_picture(params) do
+    UseCase.InsertPicture.run(params)
   end
 
   defp base_picture_path_query(query \\ Picture, picture_id) do

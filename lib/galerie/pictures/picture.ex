@@ -5,6 +5,7 @@ defmodule Galerie.Pictures.Picture do
   alias Galerie.Albums.Album
   alias Galerie.Directory.FileName
   alias Galerie.Folders.Folder
+  alias Galerie.Pictures
   alias Galerie.Pictures.Picture
   alias Galerie.Pictures.Picture.Exif
   alias Galerie.Pictures.Picture.Group
@@ -51,7 +52,7 @@ defmodule Galerie.Pictures.Picture do
     picture
     |> Ecto.Changeset.cast(params, @castable)
     |> Ecto.Changeset.validate_required(@required_for_cast)
-    |> cast_parts()
+    |> Galerie.Ecto.Changeset.update_valid(&cast_parts/1)
     |> Ecto.Changeset.validate_required(@required)
   end
 
@@ -69,7 +70,7 @@ defmodule Galerie.Pictures.Picture do
     |> Ecto.Changeset.validate_required(@required)
   end
 
-  defp cast_parts(%Ecto.Changeset{valid?: true} = changeset) do
+  defp cast_parts(%Ecto.Changeset{} = changeset) do
     fullpath = Ecto.Changeset.get_change(changeset, :fullpath)
     folder_path = Ecto.Changeset.get_change(changeset, :folder_path)
 
@@ -80,7 +81,7 @@ defmodule Galerie.Pictures.Picture do
       group_name: group_name
     } = FileName.cast(fullpath, folder_path)
 
-    type = extract_type(fullpath)
+    type = Pictures.file_type(fullpath)
 
     %File.Stat{size: file_size} = File.stat!(fullpath)
 
@@ -92,22 +93,6 @@ defmodule Galerie.Pictures.Picture do
       size: file_size,
       group_name: group_name
     })
-  end
-
-  defp cast_parts(%Ecto.Changeset{} = changeset), do: changeset
-
-  defp extract_type(path) do
-    {key, _} =
-      Enum.find(
-        [tiff: &ExifParser.parse_tiff_file/1, jpeg: &Image.open/1],
-        fn {_, function} ->
-          path
-          |> then(function)
-          |> Result.succeeded?()
-        end
-      )
-
-    key
   end
 
   def put_index(pictures) do

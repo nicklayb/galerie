@@ -35,23 +35,6 @@ defmodule GalerieWeb.Authentication.Controller do
     end
   end
 
-  def register(conn, _params) do
-    render(conn, "register.html", changeset: register_changeset())
-  end
-
-  def post_register(conn, %{"register_form" => register_form}) do
-    case Accounts.create_user(register_form) do
-      {:ok, %User{} = user} ->
-        conn
-        |> Plug.Conn.clear_session()
-        |> Authentication.login_user(user)
-        |> Phoenix.Controller.redirect(to: ~p(/app))
-
-      {:error, {:user, %Ecto.Changeset{} = changeset, _}} ->
-        render(conn, "register.html", changeset: changeset)
-    end
-  end
-
   def forgot_password(conn, _params) do
     render(conn, "forgot_password.html", changeset: forgot_password_changeset())
   end
@@ -136,9 +119,5 @@ defmodule GalerieWeb.Authentication.Controller do
 
   defp reset_password_changeset(user, params \\ %{}) do
     User.update_password_changeset(user, params)
-  end
-
-  defp register_changeset(params \\ %{}) do
-    User.changeset(params)
   end
 end

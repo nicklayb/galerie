@@ -69,19 +69,23 @@ defmodule GalerieWeb.Library.Live do
   end
 
   defp entry_consumed(socket, entry, path) do
-    if Importer.valid_picture?(path) do
+    if Pictures.valid_file_type?(path) do
       destination =
         Galerie.Directory.upload_output(socket.assigns.current_user, entry.client_name)
 
       path
-      |> File.cp(destination)
-      |> tap(fn _ ->
+      |> copy_file(destination)
+      |> Result.tap(fn destination ->
         Importer.enqueue(destination, socket.assigns.current_user.folder)
       end)
-
-      {:ok, destination}
     else
-      {:ok, ""}
+      {:ok, nil}
+    end
+  end
+
+  defp copy_file(source, destination) do
+    with :ok <- File.cp(source, destination) do
+      {:ok, destination}
     end
   end
 
