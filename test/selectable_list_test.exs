@@ -3,7 +3,6 @@ defmodule SelectableLisTest do
 
   @chars ~w(a b c d e f g)a
   @count length(@chars)
-  @last_index @count - 1
 
   setup [:create_selectable_list]
 
@@ -104,6 +103,57 @@ defmodule SelectableLisTest do
     end
   end
 
+  describe "prepend/2" do
+    test "prepends items and bumps indexes", %{selectable_list: selectable_list} do
+      selectable_list =
+        selectable_list
+        |> SelectableList.highlight(3)
+        |> SelectableList.select_by_index(4)
+        |> SelectableList.select_by_index(5)
+
+      assert %SelectableList{
+               items: %{
+                 0 => :a,
+                 1 => :b,
+                 2 => :c,
+                 3 => :d,
+                 4 => :e,
+                 5 => :f,
+                 6 => :g
+               },
+               count: 7,
+               selected_indexes: MapSet.new([4, 5]),
+               highlighted_index: 3,
+               last_touched_index: 5
+             } == selectable_list
+
+      assert [:e, :f] = SelectableList.selected_items(selectable_list)
+
+      prepended_selectable_list = SelectableList.prepend(selectable_list, ~w(qwer asdf zxcv)a)
+
+      assert [:e, :f] = SelectableList.selected_items(prepended_selectable_list)
+
+      assert %SelectableList{
+               items: %{
+                 0 => :qwer,
+                 1 => :asdf,
+                 2 => :zxcv,
+                 3 => :a,
+                 4 => :b,
+                 5 => :c,
+                 6 => :d,
+                 7 => :e,
+                 8 => :f,
+                 9 => :g
+               },
+               count: 10,
+               selected_indexes: MapSet.new([7, 8]),
+               highlighted_index: 6,
+               last_touched_index: 8
+             } == prepended_selectable_list
+    end
+  end
+
   describe "select_by_index/2" do
     test "selects items if they are in the items", %{
       selectable_list: %{selected_indexes: selected_indexes} = selectable_list
@@ -118,7 +168,7 @@ defmodule SelectableLisTest do
       refute MapSet.member?(selected_indexes, 3)
 
       assert %SelectableList{selected_indexes: selected_indexes} =
-               selectable_list = SelectableList.select_by_index(selectable_list, 3)
+               SelectableList.select_by_index(selectable_list, 3)
 
       assert MapSet.member?(selected_indexes, 1)
       assert MapSet.member?(selected_indexes, 3)
@@ -156,7 +206,7 @@ defmodule SelectableLisTest do
                selectable_list = SelectableList.highlight_next(selectable_list)
 
       assert %SelectableList{highlighted_index: 6} =
-               selectable_list = SelectableList.highlight_next(selectable_list)
+               SelectableList.highlight_next(selectable_list)
     end
   end
 
@@ -178,7 +228,7 @@ defmodule SelectableLisTest do
                selectable_list = SelectableList.highlight_previous(selectable_list)
 
       assert %SelectableList{highlighted_index: 0} =
-               selectable_list = SelectableList.highlight_previous(selectable_list)
+               SelectableList.highlight_previous(selectable_list)
     end
   end
 

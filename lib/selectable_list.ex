@@ -67,7 +67,8 @@ defmodule SelectableList do
 
   @spec new([any()]) :: t()
   def new(items) do
-    put(new(), items)
+    {count, items_with_index} = with_index(items)
+    %SelectableList{items: items_with_index, count: count}
   end
 
   @spec toggle_until(t(), index()) :: t()
@@ -185,6 +186,39 @@ defmodule SelectableList do
     |> Enum.map(&Map.fetch!(items, &1))
   end
 
+  @spec prepend(t(), [any()]) :: t()
+  def prepend(
+        %SelectableList{
+          items: items,
+          last_touched_index: last_touched_index,
+          highlighted_index: highlighted_index,
+          selected_indexes: selected_indexes,
+          count: count
+        } = selectable_list,
+        new_items
+      ) do
+    {new_items_count, new_items_with_index} = with_index(new_items)
+
+    bumped_items =
+      Enum.reduce(items, %{}, fn {index, item}, acc ->
+        Map.put(acc, index + new_items_count, item)
+      end)
+
+    bumped_selected_indexes =
+      Enum.reduce(selected_indexes, MapSet.new(), fn index, acc ->
+        MapSet.put(acc, index + new_items_count)
+      end)
+
+    %SelectableList{
+      selectable_list
+      | count: count + new_items_count,
+        items: Map.merge(new_items_with_index, bumped_items),
+        selected_indexes: bumped_selected_indexes,
+        highlighted_index: highlighted_index + new_items_count,
+        last_touched_index: last_touched_index + new_items_count
+    }
+  end
+
   @spec append(t(), [any()]) :: t()
   def append(%SelectableList{items: items, count: count} = selectable_list, new_items) do
     {new_count, new_item_with_index} = with_index(new_items, count)
@@ -194,12 +228,6 @@ defmodule SelectableList do
       | items: Map.merge(items, new_item_with_index),
         count: new_count
     }
-  end
-
-  @spec put(t(), [any()]) :: t()
-  def put(%SelectableList{} = selectable_list, items) do
-    {count, items_with_index} = with_index(items)
-    %SelectableList{selectable_list | items: items_with_index, count: count}
   end
 
   def slice(%SelectableList{items: items}, start_index, count) do
