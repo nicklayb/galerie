@@ -8,7 +8,7 @@ defmodule Galerie.Repo.Migrations.CreatePictureMetadataTable do
     execute(@create_query, @drop_query)
     create(table("picture_metadata")) do
       add(:picture_id, references("pictures", on_delete: :delete_all), null: false)
-      add(:exposure_time, :float)
+      add(:exposure_time, :fraction)
       add(:f_number, :float)
       add(:lens_model, :string)
       add(:camera_make, :string)

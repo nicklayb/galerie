@@ -97,7 +97,13 @@ defmodule GalerieWeb.Components.Picture.Viewer do
             </:info_item>
             <:info_item title={gettext("Exposure")}>
               <Icon.aperture width="18" height="18" class="mr-1" />
-              <%= 1 / metadata.exposure_time %>
+              <%= case metadata.exposure_time do %>
+                <% %Fraction{denominator: 1, numerator: numerator} -> %>
+                  <%= numerator %>
+
+              <% %Fraction{} = fraction -> %>
+                  <%= fraction.numerator %> / <%= fraction.denominator %>
+              <% end %>
             </:info_item>
             <:info_item title={gettext("GPS")} visible={metadata.longitude}>
               <.google_map_link longitude={metadata.longitude} latitude={metadata.latitude} />

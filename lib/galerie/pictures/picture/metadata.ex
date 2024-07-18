@@ -5,7 +5,7 @@ defmodule Galerie.Pictures.Picture.Metadata do
 
   @orientations ~w(landscape portrait square)a
   schema("picture_metadata") do
-    field(:exposure_time, :float)
+    field(:exposure_time, Galerie.Ecto.Types.Fraction)
     field(:f_number, :float)
     field(:lens_model, :string)
     field(:camera_make, :string)
