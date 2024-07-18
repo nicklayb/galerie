@@ -7,6 +7,8 @@ defmodule Galerie.Jobs.Importer do
 
   require Logger
 
+  @spec enqueue(String.t(), Folder.t()) ::
+          {:ok, Oban.Job.t()} | {:error, Oban.Job.changeset() | term()}
   def enqueue(path, %Folder{id: folder_id, path: folder_path}) do
     if Pictures.valid_file_type?(path) do
       Logger.debug(

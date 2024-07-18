@@ -35,8 +35,7 @@ defmodule Galerie.FileControl.Watcher do
       ) do
     Logger.debug("[#{inspect(__MODULE__)}] [#{inspect(events)}] #{path}")
 
-    if not Enum.member?(events, :is_dir) and
-         (Enum.member?(events, :closed) or Enum.member?(events, :moved_to)) do
+    if new_file_event?(events) do
       enqueue_importer(path, folder)
     end
 
@@ -67,6 +66,22 @@ defmodule Galerie.FileControl.Watcher do
     Logger.info("[#{inspect(__MODULE__)}] [#{path}] [stopped] #{reason}")
     :ok
   end
+
+  defp new_file_event?(events) do
+    cond do
+      :is_dir in events ->
+        false
+
+      :closed in events ->
+        true
+
+      :moved_to in events ->
+        true
+
+      true ->
+        false
+      end
+    end
 
   defp enqueue_importer(path, %Folder{} = folder) do
     Galerie.Jobs.Importer.enqueue(path, folder)

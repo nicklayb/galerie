@@ -6,13 +6,15 @@ defmodule Galerie.Application do
       [
         Galerie.Repo,
         Galerie.ObanRepo,
-        {Oban, Application.fetch_env!(:galerie, Oban)},
         {Phoenix.PubSub, name: Galerie.PubSub},
+        {Oban, Application.fetch_env!(:galerie, Oban)},
         {Task.Supervisor, name: Galerie.MailerSupervisor},
         GalerieWeb.Telemetry,
         GalerieWeb.Endpoint,
         Galerie.FileControl.Supervisor
       ]
+
+    Galerie.ObanRepo.Reporter.attach()
 
     Supervisor.start_link(children, strategy: :one_for_one, name: Galerie.Supervisor)
   end

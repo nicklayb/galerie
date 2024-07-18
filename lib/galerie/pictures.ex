@@ -51,7 +51,7 @@ defmodule Galerie.Pictures do
     |> Repo.all()
   end
 
-  @default_limit 16
+  @default_limit 40
   @spec list_pictures(Keyword.t()) :: Repo.Page.t()
   def list_pictures(options \\ []) do
     limit = Keyword.get(options, :limit, @default_limit)

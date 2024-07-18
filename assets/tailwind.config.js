@@ -21,7 +21,12 @@ module.exports = {
       "90": "90deg",
       "180": "180deg",
       "270": "270deg"
-    }
+    },    
+    screens: {
+      'tablet': '640px',
+      'laptop': '1024px',
+      'desktop': '1280px',
+    },
   },
   plugins: [require("@tailwindcss/forms")],
 };

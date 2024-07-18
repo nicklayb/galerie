@@ -51,6 +51,22 @@ defmodule Galerie.PubSub do
     |> subscribe()
   end
 
+  @doc "Unsubscribes to one or more topics"
+  @spec unsubscribe(topic() | [topic()] | String.t()) :: :ok
+  def unsubscribe(topics) when is_list(topics) do
+    Enum.each(topics, &unsubscribe/1)
+  end
+
+  def unsubscribe(topic) when is_binary(topic) do
+    Phoenix.PubSub.unsubscribe(Galerie.PubSub, topic)
+  end
+
+  def unsubscribe(topic) do
+    topic
+    |> topic()
+    |> unsubscribe()
+  end
+
   @doc "Dispatches a wrapped message to the receipients"
   @spec dispatch([pid()], pid(), {String.t(), message()}) :: :ok
   def dispatch(entries, from, {topic, message}) do

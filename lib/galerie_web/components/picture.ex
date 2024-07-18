@@ -25,7 +25,7 @@ defmodule GalerieWeb.Components.Picture do
     assigns = assign(assigns, :filtered_pictures, filtered_pictures)
 
     ~H"""
-    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 m-auto">
+    <div class="grid grid-cols-1 tablet:grid-cols-2 laptop:grid-cols-4 desktop:grid-cols-6 gap-4 m-auto mb-2">
       <%= for {index, picture} <- @filtered_pictures do %>
         <.thumbnail picture={picture} checked={SelectableList.index_selected?(@pictures, index)} index={index}/>
       <% end %>
@@ -38,11 +38,15 @@ defmodule GalerieWeb.Components.Picture do
 
   def selection_bar(assigns) do
     ~H"""
-    <div class="p-2 h-10 flex items-center">
-      <span><%= gettext("%{count} selected", count: Enum.count(@selectable_list.selected_indexes)) %></span>
-      <%= if SelectableList.any_selected?(@selectable_list) do %>
-        <%= render_slot(@inner_block) %>
-      <% end %>
+    <div class="p-2 h-10 flex items-center justify-between">
+      <div class="flex-1 flex">
+        <%= if SelectableList.any_selected?(@selectable_list) do %>
+          <%= render_slot(@inner_block) %>
+        <% end %>
+      </div>
+      <div class="flex-initial">
+        <%= gettext("%{count} selected", count: Enum.count(@selectable_list.selected_indexes)) %>
+      </div>
     </div>
     """
   end

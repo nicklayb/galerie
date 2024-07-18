@@ -1,9 +1,17 @@
-<div class="flex flex-row overflow-y-hidden">
-  <div class="flex-iniital w-72">
-    <div class="">Filter</div>
+<div class="flex flex-row overflow-y-hidden w-full">
+  <div class="flex-initial w-72 flex flex-col justify-between">
+    <div class="flex-1">Filter</div>
+    <div class="flex flex-col flex-initial text-xs">
+      <%= for {job, count} <- @jobs, count > 0 do %>
+        <div class="flex justify-between py-1 px-1">
+          <span><%= GalerieWeb.Gettext.Jobs.translate_job_state(job) %></span>
+          <span><%= count %></span>
+        </div>
+      <% end %>
+    </div>
   </div>
   <Ui.loading loading={@updating}>
-    <div class="">
+    <div class="w-full flex flex-col px-2">
       <Picture.selection_bar selectable_list={@pictures.results}>
         <Picture.selection_button action="selection_bar:clear" class="rounded-full w-8">
           <Icon.cross class="m-auto" width="12" height="12" />
@@ -20,8 +28,8 @@
           <%= gettext("JPG") %>
         </Picture.selection_button>
       </Picture.selection_bar>
-      <Dropzone.render upload={@uploads.upload_pictures} class="overflow-y-hidden h-full" id="libraryDropzone">
-        <div class="flex-1 pt-2 px-2 h-full overflow-y-auto" id="library" phx-viewport-bottom={if @pictures.has_next_page and not @scroll_disabled, do: "scrolled-bottom"}>
+      <Dropzone.render upload={@uploads.upload_pictures} class="overflow-y-hidden flex-1 h-full" id="libraryDropzone">
+        <div class="flex-1 h-full overflow-y-auto" id="library" phx-viewport-bottom={if @pictures.has_next_page and not @scroll_disabled, do: "scrolled-bottom"}>
           <%= case @pictures do %>
             <% %Page{results: pictures} -> %>
               <Picture.grid pictures={pictures} filter_selected={@filter_selected} />

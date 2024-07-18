@@ -19,13 +19,7 @@ defmodule GalerieWeb.Library.Live do
     pictures: nil,
     new_pictures: [],
     filter_selected: false,
-    context_menu: false,
-    highlighted_picture: nil,
-    last_index: 0,
-    end_index: 0,
-    has_next_page: false,
-    has_previous_page: false,
-    selected_pictures: MapSet.new()
+    jobs: %{}
   }
 
   def mount(_params, _session, socket) do
@@ -34,6 +28,7 @@ defmodule GalerieWeb.Library.Live do
       |> assign(@defaults)
       |> setup_upload()
       |> start_async(:load_pictures, fn -> load_pictures(%{}) end)
+    |> start_async(:load_jobs, fn -> {true, Galerie.ObanRepo.pending_jobs()} end)
 
     Galerie.PubSub.subscribe(Galerie.Pictures.Picture)
 
@@ -91,6 +86,19 @@ defmodule GalerieWeb.Library.Live do
     end
   end
 
+  def handle_async(:load_jobs, {:ok, {on_mount?, jobs}}, socket) do
+    jobs =
+      Enum.reduce(jobs, %{}, fn {key, count}, acc ->
+        Map.put(acc, String.to_existing_atom(key), count)
+      end)
+
+    if on_mount? do
+      Galerie.PubSub.subscribe("oban:job")
+    end
+
+    {:noreply, assign(socket, :jobs, jobs)}
+  end
+
   def handle_async(:load_pictures, {:ok, page}, socket) do
     socket =
       socket
@@ -138,7 +146,7 @@ defmodule GalerieWeb.Library.Live do
     {:noreply, socket}
   end
 
-  def handle_event("filter-selected", _, socket) do
+  def handle_event("selection_bar:filter-selected", _, socket) do
     socket = update(socket, :filter_selected, &(not &1))
 
     {:noreply, socket}
@@ -186,14 +194,6 @@ defmodule GalerieWeb.Library.Live do
     socket =
       socket
       |> update_pictures(&SelectableList.deselect_by_index(&1, index))
-      |> then(fn socket ->
-        if SelectableList.any_selected?(socket.assigns.pictures) do
-          socket
-        else
-          assign(socket, :filter_selected, false)
-        end
-      end)
-      |> update_context_menu_visible()
 
     {:noreply, socket}
   end
@@ -241,21 +241,6 @@ defmodule GalerieWeb.Library.Live do
     {:noreply, socket}
   end
 
-  def handle_event("open-context-menu", _, socket) do
-    socket = update(socket, :context_menu, &(not &1))
-    {:noreply, socket}
-  end
-
-  def handle_event("reprocess", _, %{assigns: %{selected_pictures: selected_pictures}} = socket) do
-    Enum.each(selected_pictures, fn picture_id ->
-      Galerie.Jobs.Processor.enqueue(picture_id)
-    end)
-
-    socket = assign(socket, :context_menu, false)
-
-    {:noreply, socket}
-  end
-
   def handle_event("validate_file", %{"_target" => _}, socket) do
     {:noreply, socket}
   end
@@ -282,14 +267,40 @@ defmodule GalerieWeb.Library.Live do
     {:noreply, socket}
   end
 
+  def handle_info(%Galerie.PubSub.Message{message: :job_stop}, socket) do
+    socket = update_jobs(socket, %{executing: -1})
+    {:noreply, socket}
+  end
+
+  def handle_info(%Galerie.PubSub.Message{message: :job_insert}, socket) do
+    socket = update_jobs(socket, %{available: 1})
+    {:noreply, socket}
+  end
+
+  def handle_info(%Galerie.PubSub.Message{message: :job_exception}, socket) do
+    socket = update_jobs(socket, %{retryable: 1, executing: -1})
+    {:noreply, socket}
+  end
+
+  def handle_info(%Galerie.PubSub.Message{message: :job_start}, socket) do
+    socket = update_jobs(socket, %{executing: 1, available: -1})
+    {:noreply, socket}
+  end
+
   def handle_info(%Galerie.PubSub.Message{}, socket) do
     {:noreply, socket}
   end
 
+  defp update_jobs(socket, updates) do
+    update(socket, :jobs, fn current_jobs ->
+      Enum.reduce(updates, current_jobs, fn {key, increment}, acc ->
+        Map.update(acc, key, increment, &(&1 + increment))
+      end)
+    end)
+  end
+
   defp assign_pictures(socket, pictures) do
-    socket
-    |> assign(:pictures, pictures)
-    |> assign(:end_index, pictures.results.count - 1)
+    assign(socket, :pictures, pictures)
   end
 
   defp toggle_between_index(socket, new_last_index) do
@@ -299,18 +310,6 @@ defmodule GalerieWeb.Library.Live do
   defp close_picture(socket) do
     update_pictures(socket, &SelectableList.unhighlight/1)
   end
-
-  defp update_context_menu_visible(
-         %{assigns: %{context_menu: true, selected_pictures: selected_pictures}} = socket
-       ) do
-    if Enum.empty?(selected_pictures) do
-      assign(socket, :context_menu, false)
-    else
-      socket
-    end
-  end
-
-  defp update_context_menu_visible(socket), do: socket
 
   defp load_next_page(
          %{
@@ -333,6 +332,18 @@ defmodule GalerieWeb.Library.Live do
   end
 
   defp update_pictures(socket, function) do
-    update(socket, :pictures, fn page -> Page.map_results(page, function) end)
+    socket
+    |> update(:pictures, fn page -> Page.map_results(page, function) end)
+    |> clear_filter_selected_if_none_selected()
   end
+
+  defp clear_filter_selected_if_none_selected(%{assigns: %{filter_selected: true}} = socket) do
+    if SelectableList.any_selected?(socket.assigns.pictures.results) do
+      socket
+    else
+      assign(socket, :filter_selected, false)
+    end
+  end
+
+  defp clear_filter_selected_if_none_selected(socket), do: socket
 end
