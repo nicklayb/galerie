@@ -1,6 +1,6 @@
 defmodule GalerieWeb.Components.Form do
   use Phoenix.Component
-  alias GalerieWeb.Components.Helpers
+  alias GalerieWeb.Html
 
   attr(:name, :atom, required: true)
   attr(:label, :string, required: true)
@@ -31,7 +31,7 @@ defmodule GalerieWeb.Components.Form do
 
   @class "block w-full bg-true-gray-100 rounded border-0 py-1.5 pr-20 text-true-gray-900 ring-1 ring-inset ring-true-gray-500 placeholder:text-true-gray-400 focus:ring-2 focus:ring-inset focus:ring-pink-600 sm:text-sm sm:leading-6 group-[.has-errors]:ring-red-400"
   def text_input(%{field: _field} = assigns) do
-    assigns = update(assigns, :class, &Helpers.class(@class, &1))
+    assigns = update(assigns, :class, &Html.class(@class, &1))
 
     ~H"""
     <.element name={@field.name} label={@label} errors={@field.errors}>
@@ -41,7 +41,7 @@ defmodule GalerieWeb.Components.Form do
   end
 
   def text_input(%{rest: rest, class: class, form: form, name: name} = assigns) do
-    classes = Helpers.class(@class, class)
+    classes = Html.class(@class, class)
 
     errors =
       form
@@ -68,19 +68,24 @@ defmodule GalerieWeb.Components.Form do
 
   attr(:type, :atom, default: :button)
   attr(:style, :atom, default: :default)
+  attr(:size, :atom, default: :normal)
   attr(:class, :string, default: "")
   attr(:href, :string)
   slot(:inner_block, required: true)
   attr(:rest, :global)
 
-  @default_classes "inline-block py-1.5 px-3 h-10 rounded"
-  @classes %{
+  @default_classes "inline-block rounded"
+  @styles %{
     default: "bg-pink-500 hover:bg-pink-600 text-true-gray-50",
     white: "bg-true-gray-100 text-true-gray-900 hover:bg-true-gray-200",
     clear: "bg-transparent text-true-gray-200 hover:text-pink-400",
     link: "bg-transparent text-pink-600 hover:text-pink-400",
     outline:
-      "bg-transparent text-true-gray-100 border border-true-gray-100 hover:border-pink-400 hover:text-pink-400"
+      "bg-transparent text-pink-500 border border-pink-500 hover:bg-pink-600 hover:border-pink-600 hover:text-white disabled:bg-true-gray-400 disabled:hover:bg-true-gray-400 disabled:text-true-gray-700 disabled:hover:text-true-gray-700 disabled:border-true-gray-400 disabled:hover:border-true-gray-400"
+  }
+  @sizes %{
+    small: "py-1 px-2 h-8",
+    normal: "py-1.5 px-3 h-10"
   }
   def button(%{href: _href} = assigns) do
     assigns = update_button_class(assigns)
@@ -116,12 +121,19 @@ defmodule GalerieWeb.Components.Form do
     """
   end
 
-  defp update_button_class(%{style: style} = assigns) do
+  @button_styles ~w(style size)a
+  defp update_button_class(assigns) do
+    style_class =
+      Enum.reduce(@button_styles, @default_classes, fn button_style, acc ->
+        style_class = style_class(assigns, button_style)
+        Html.class(acc, style_class)
+      end)
+
     update(assigns, :class, fn class ->
-      @classes
-      |> Map.fetch!(style)
-      |> then(&Helpers.class(@default_classes, &1))
-      |> Helpers.class(class)
+      Html.class(style_class, class)
     end)
   end
+
+  defp style_class(assigns, :style), do: Map.fetch!(@styles, Map.fetch!(assigns, :style))
+  defp style_class(assigns, :size), do: Map.fetch!(@sizes, Map.fetch!(assigns, :size))
 end

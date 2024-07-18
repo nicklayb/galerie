@@ -240,6 +240,10 @@ defmodule SelectableList do
     }
   end
 
+  def clear_selected(%SelectableList{} = selectable_list) do
+    %SelectableList{selectable_list | selected_indexes: MapSet.new()}
+  end
+
   def slice(%SelectableList{items: items}, start_index, count) do
     range = start_index..(start_index + (count - 1))
 

@@ -2,26 +2,38 @@
   <div class="flex-iniital w-72">
     <div class="">Filter</div>
   </div>
-  <Dropzone.render upload={@uploads.upload_pictures} class="overflow-y-hidden h-full" id="libraryDropzone">
-    <Ui.loading loading={@updating}>
-      <div class="flex-1 p-4 h-full overflow-y-auto" id="library" phx-viewport-bottom={if @pictures.has_next_page and not @scroll_disabled, do: "scrolled-bottom"}>
-        <%= case @pictures do %>
-          <% %Page{results: pictures} -> %>
-            <Picture.grid pictures={pictures} filter_selected={@filter_selected} />
-          <% _ -> %>
-        <% end %>
-      </div>
-    </Ui.loading>
-  </Dropzone.render>
-  <Picture.context_menu selected_pictures={@selected_pictures} visible={@context_menu} />
+  <Ui.loading loading={@updating}>
+    <div class="">
+      <Picture.selection_bar selectable_list={@pictures.results}>
+        <Picture.selection_button action="selection_bar:clear" class="rounded-full w-8">
+          <Icon.cross class="m-auto" width="12" height="12" />
+        </Picture.selection_button>
+        <Picture.selection_button action="selection_bar:filter-selected" class="rounded-full w-8">
+          <Icon.eye class="m-auto" width="15" height="15" />
+        </Picture.selection_button>
+        <Picture.selection_button action="selection_bar:download-original" class="flex items-center">
+          <Icon.download class="mr-1" width="15" height="15" />
+          <%= gettext("Original") %>
+        </Picture.selection_button>
+        <Picture.selection_button action="selection_bar:download-jpeg" class="flex items-center">
+          <Icon.download class="mr-1" width="15" height="15" />
+          <%= gettext("JPG") %>
+        </Picture.selection_button>
+      </Picture.selection_bar>
+      <Dropzone.render upload={@uploads.upload_pictures} class="overflow-y-hidden h-full" id="libraryDropzone">
+        <div class="flex-1 pt-2 px-2 h-full overflow-y-auto" id="library" phx-viewport-bottom={if @pictures.has_next_page and not @scroll_disabled, do: "scrolled-bottom"}>
+          <%= case @pictures do %>
+            <% %Page{results: pictures} -> %>
+              <Picture.grid pictures={pictures} filter_selected={@filter_selected} />
+            <% _ -> %>
+          <% end %>
+        </div>
+      </Dropzone.render>
+    </div>
+  </Ui.loading>
   <FloatingPills.pills>
     <FloatingPills.pill visible={Enum.any?(@new_pictures)} text={gettext("%{count} new pictures processed", count: length(@new_pictures))} pill_class="bg-yellow-400" button_class="hover:bg-yellow-600">
       <:button phx_click="clear-new-pictures" icon={:cross} width="10" height="10"/>
-    </FloatingPills.pill>
-    <FloatingPills.pill visible={Enum.any?(@selected_pictures)} text={gettext("%{count} selected", count: MapSet.size(@selected_pictures))}>
-      <:button phx_click="filter-selected" icon={:eye} width="15" height="15" class={if @filter_selected, do: "bg-pink-600", else: ""}/>
-      <:button phx_click="open-context-menu" icon={:hamburger} width="15" height="15"/>
-      <:button phx_click="deselect-all" icon={:cross} width="10" height="10"/>
     </FloatingPills.pill>
   </FloatingPills.pills>
   <%= case @pictures do %>

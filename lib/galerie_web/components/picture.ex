@@ -6,6 +6,7 @@ defmodule GalerieWeb.Components.Picture do
   import GalerieWeb.Gettext
 
   alias Galerie.Pictures.PictureItem
+  alias GalerieWeb.Components.Form
   alias GalerieWeb.Components.Ui
   alias GalerieWeb.Html
 
@@ -29,6 +30,33 @@ defmodule GalerieWeb.Components.Picture do
         <.thumbnail picture={picture} checked={SelectableList.index_selected?(@pictures, index)} index={index}/>
       <% end %>
     </div>
+    """
+  end
+
+  attr(:selectable_list, SelectableList, required: true)
+  slot(:inner_block, required: true)
+
+  def selection_bar(assigns) do
+    ~H"""
+    <div class="p-2 h-10 flex items-center">
+      <span><%= gettext("%{count} selected", count: Enum.count(@selectable_list.selected_indexes)) %></span>
+      <%= if SelectableList.any_selected?(@selectable_list) do %>
+        <%= render_slot(@inner_block) %>
+      <% end %>
+    </div>
+    """
+  end
+
+  attr(:action, :string, required: true)
+  attr(:title, :string, default: "")
+  attr(:class, :string, default: "")
+  slot(:inner_block, required: true)
+
+  def selection_button(assigns) do
+    ~H"""
+    <Form.button phx-click={@action} size={:small} style={:outline} class={Html.class("ml-1", @class)} title={@title}>
+      <%= render_slot(@inner_block) %>
+    </Form.button>
     """
   end
 

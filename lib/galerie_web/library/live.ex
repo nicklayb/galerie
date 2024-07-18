@@ -8,6 +8,7 @@ defmodule GalerieWeb.Library.Live do
 
   alias GalerieWeb.Components.Dropzone
   alias GalerieWeb.Components.FloatingPills
+  alias GalerieWeb.Components.Icon
   alias GalerieWeb.Components.Picture
   alias GalerieWeb.Components.Ui
 
@@ -197,11 +198,8 @@ defmodule GalerieWeb.Library.Live do
     {:noreply, socket}
   end
 
-  def handle_event("deselect-all", _, socket) do
-    socket =
-      socket
-      |> assign(:selected_pictures, MapSet.new())
-      |> update_context_menu_visible()
+  def handle_event("selection_bar:clear", _, socket) do
+    socket = update_pictures(socket, &SelectableList.clear_selected/1)
 
     {:noreply, socket}
   end
