@@ -52,6 +52,10 @@ defmodule Galerie.Jobs.Processor.ExifToMetadata do
 
   defp parse_exposure_time(number) when is_integer(number), do: Fraction.new(number)
 
+  defp parse_exposure_time(float) when is_float(float) do
+    Fraction.new(float)
+  end
+
   @fraction_regex ~r/([0-9]+)\/([0-9]+)/
   defp parse_exposure_time(string) when is_binary(string) do
     case Regex.scan(@fraction_regex, string) do

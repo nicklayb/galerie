@@ -101,8 +101,11 @@ defmodule GalerieWeb.Components.Picture.Viewer do
                 <% %Fraction{denominator: 1, numerator: numerator} -> %>
                   <%= numerator %>
 
-              <% %Fraction{} = fraction -> %>
+              <% %Fraction{numerator: 1} = fraction -> %>
                   <%= fraction.numerator %> / <%= fraction.denominator %>
+
+              <% %Fraction{} = fraction -> %>
+                  <%= fraction.numerator / fraction.denominator %>
               <% end %>
             </:info_item>
             <:info_item title={gettext("GPS")} visible={metadata.longitude}>
