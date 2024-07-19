@@ -64,6 +64,19 @@ defmodule GalerieWeb.Components.Picture do
     """
   end
 
+  attr(:link, :string, required: true)
+  attr(:title, :string, default: "")
+  attr(:class, :string, default: "")
+  slot(:inner_block, required: true)
+
+  def selection_link(assigns) do
+    ~H"""
+    <Form.button href={@link} size={:small} style={:outline} class={Html.class("ml-1", @class)} title={@title} target="_blank">
+      <%= render_slot(@inner_block) %>
+    </Form.button>
+    """
+  end
+
   attr(:picture, PictureItem, required: true)
   attr(:index, :integer, required: true)
   attr(:checked, :boolean, default: false)
@@ -71,49 +84,11 @@ defmodule GalerieWeb.Components.Picture do
   def thumbnail(assigns) do
     ~H"""
     <div class={Html.class("relative transition cursor-pointer select-none group", {@checked, "scale-90"})} phx-click="picture-click" phx-value-picture_id={@picture.id} phx-value-index={@index}>
-      <img class={Html.class("h-full max-h-72 w-full rounded-md shadow-md border-4 group object-cover border-true-gray-300", {@checked, "border-pink-500"})} src={~p(/pictures/#{@picture.id}?#{[type: "thumb"]})} />
+      <img class={Html.class("h-full max-h-72 w-full rounded-md shadow-md border-4 group object-cover", {@checked, "border-pink-500", "border-true-gray-300"})} src={~p(/pictures/#{@picture.id}?#{[type: "thumb"]})} />
 
       <div class={Html.class("w-full h-full group-hover:bg-gray-500/40 transition p-4 absolute z-10 top-0", [{not @checked, "opacity-0 group-hover:opacity-100"}])}>
         <Ui.select_marker checked={@checked}  on_select="select-picture" on_deselect="deselect-picture" phx-value-picture_id={@picture.id} phx-value-index={@index} />
       </div>
-    </div>
-    """
-  end
-
-  attr(:visible, :boolean, required: true)
-  attr(:selected_pictures, :list, required: true)
-
-  def context_menu(assigns) do
-    assigns =
-      assigns
-      |> assign(:items, [
-        {:action, "add-to-album", gettext("Add to album")},
-        {:link,
-         ~p(/download?#{[pictures: MapSet.to_list(assigns.selected_pictures), type: :jpeg]}),
-         gettext("Download JPEG")},
-        {:link,
-         ~p(/download?#{[pictures: MapSet.to_list(assigns.selected_pictures), type: :original]}),
-         gettext("Download original")},
-        {:action, "reprocess", gettext("Reprocess")}
-      ])
-      |> assign(
-        :class,
-        "cursor-pointer pl-2 py-2 first:rounded-t-lg last:rounded-b-lg transition bg-pink-400 hover:bg-pink-500"
-      )
-      |> update(:selected_pictures, &MapSet.to_list/1)
-      |> update(:visible, &(&1 and Enum.any?(assigns.selected_pictures)))
-
-    ~H"""
-    <div class={Html.class("fixed bottom-0 z-30 right-0 flex flex-col m-4 mb-16 text-white w-48 transition", {@visible, "scale-100", "scale-0"})}>
-      <%= for {type, action, label} <- @items do %>
-        <%= case type do %>
-          <% :action -> %>
-            <span class={@class} phx-click={action}><%= label %></span>
-
-          <% :link -> %>
-            <a href={action} target="_blank" class="cursor-pointer pl-2 py-2 first:rounded-t-lg last:rounded-b-lg transition bg-pink-400 hover:bg-pink-500"><%= label %></a>
-        <% end %>
-      <% end %>
     </div>
     """
   end

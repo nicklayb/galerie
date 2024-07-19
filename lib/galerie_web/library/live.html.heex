@@ -19,14 +19,14 @@
         <Picture.selection_button action="selection_bar:filter-selected" class="rounded-full w-8">
           <Icon.eye class="m-auto" width="15" height="15" />
         </Picture.selection_button>
-        <Picture.selection_button action="selection_bar:download-original" class="flex items-center">
+        <Picture.selection_link link={~p(/download?#{[pictures: @selected_ids, type: :original]})} class="flex items-center">
           <Icon.download class="mr-1" width="15" height="15" />
           <%= gettext("Original") %>
-        </Picture.selection_button>
-        <Picture.selection_button action="selection_bar:download-jpeg" class="flex items-center">
+        </Picture.selection_link>
+        <Picture.selection_link link={~p(/download?#{[pictures: @selected_ids, type: :jpeg]})} class="flex items-center">
           <Icon.download class="mr-1" width="15" height="15" />
           <%= gettext("JPG") %>
-        </Picture.selection_button>
+        </Picture.selection_link>
       </Picture.selection_bar>
       <Dropzone.render upload={@uploads.upload_pictures} class="overflow-y-hidden flex-1 h-full" id="libraryDropzone">
         <div class="flex-1 h-full overflow-y-auto" id="library" phx-viewport-bottom={if @pictures.has_next_page and not @scroll_disabled, do: "scrolled-bottom"}>

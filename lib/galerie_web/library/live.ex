@@ -28,7 +28,7 @@ defmodule GalerieWeb.Library.Live do
       |> assign(@defaults)
       |> setup_upload()
       |> start_async(:load_pictures, fn -> load_pictures(%{}) end)
-    |> start_async(:load_jobs, fn -> {true, Galerie.ObanRepo.pending_jobs()} end)
+      |> start_async(:load_jobs, fn -> {true, Galerie.ObanRepo.pending_jobs()} end)
 
     Galerie.PubSub.subscribe(Galerie.Pictures.Picture)
 
@@ -334,7 +334,17 @@ defmodule GalerieWeb.Library.Live do
   defp update_pictures(socket, function) do
     socket
     |> update(:pictures, fn page -> Page.map_results(page, function) end)
+    |> update_selected_ids()
     |> clear_filter_selected_if_none_selected()
+  end
+
+  defp update_selected_ids(socket) do
+    selected_picture_ids =
+      socket.assigns.pictures.results
+      |> SelectableList.selected_items()
+      |> Enum.map(fn {_, %{id: id}} -> id end)
+
+    assign(socket, :selected_ids, selected_picture_ids)
   end
 
   defp clear_filter_selected_if_none_selected(%{assigns: %{filter_selected: true}} = socket) do
