@@ -17,14 +17,22 @@ defmodule Fraction do
     |> to_string()
     |> String.split(".", parts: 2)
     |> then(fn [_, right] ->
-      multiplier = 10 * String.length(right)
+      multiplier =
+        10
+        |> :math.pow(String.length(right))
+        |> trunc()
+
       numerator = trunc(float * multiplier)
       new(numerator, multiplier)
     end)
   end
 
+  def new(_, 0) do
+    raise ArgumentError, message: "Attempted creating a fraction dividing by 0"
+  end
+
   def new(numerator, denominator)
-      when is_integer(numerator) and is_integer(denominator) and denominator != 0 do
+      when is_integer(numerator) and is_integer(denominator) do
     %Fraction{numerator: numerator, denominator: denominator}
   end
 

@@ -340,9 +340,7 @@ defmodule GalerieWeb.Library.Live do
 
   defp update_selected_ids(socket) do
     selected_picture_ids =
-      socket.assigns.pictures.results
-      |> SelectableList.selected_items()
-      |> Enum.map(fn {_, %{id: id}} -> id end)
+      SelectableList.selected_items(socket.assigns.pictures.results, fn {_, %{id: id}} -> id end)
 
     assign(socket, :selected_ids, selected_picture_ids)
   end

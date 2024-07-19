@@ -189,11 +189,14 @@ defmodule SelectableList do
     end
   end
 
-  @spec selected_items(t()) :: [{index(), any()}]
-  def selected_items(%SelectableList{items: items, selected_indexes: selected_indexes}) do
+  @spec selected_items(t(), ({index(), any()} -> any())) :: [{index(), any()}]
+  def selected_items(
+        %SelectableList{items: items, selected_indexes: selected_indexes},
+        map_function \\ &Function.identity/1
+      ) do
     selected_indexes
     |> Enum.sort()
-    |> Enum.map(&{&1, Map.fetch!(items, &1)})
+    |> Enum.map(&map_function.({&1, Map.fetch!(items, &1)}))
   end
 
   @spec prepend(t(), [any()]) :: t()
