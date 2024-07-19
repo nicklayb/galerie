@@ -1,6 +1,8 @@
 defmodule GalerieWeb.Library.Live do
   use GalerieWeb, :live_view
 
+  alias Galerie.Albums
+  alias Galerie.Accounts.User
   alias Galerie.Jobs.Importer
   alias Galerie.Pictures
   alias Galerie.Repo
@@ -12,6 +14,7 @@ defmodule GalerieWeb.Library.Live do
   alias GalerieWeb.Components.Modal
   alias GalerieWeb.Components.Picture
   alias GalerieWeb.Components.Ui
+  alias GalerieWeb.Html
 
   import GalerieWeb.Gettext
 
@@ -21,16 +24,20 @@ defmodule GalerieWeb.Library.Live do
     new_pictures: [],
     filter_selected: false,
     modal: nil,
-    jobs: %{}
+    jobs: %{},
+    albums: SelectableList.new([])
   }
 
   def mount(_params, _session, socket) do
+    current_user = socket.assigns.current_user
+
     socket =
       socket
       |> assign(@defaults)
       |> setup_upload()
       |> start_async(:load_pictures, fn -> load_pictures(%{}) end)
       |> start_async(:load_jobs, fn -> {true, Galerie.ObanRepo.pending_jobs()} end)
+      |> start_async(:load_albums, fn -> load_albums(current_user) end)
 
     Galerie.PubSub.subscribe(Galerie.Pictures.Picture)
 
@@ -101,6 +108,12 @@ defmodule GalerieWeb.Library.Live do
     {:noreply, assign(socket, :jobs, jobs)}
   end
 
+  def handle_async(:load_albums, {:ok, albums}, socket) do
+    socket = assign(socket, :albums, albums)
+
+    {:noreply, socket}
+  end
+
   def handle_async(:load_pictures, {:ok, page}, socket) do
     socket =
       socket
@@ -132,6 +145,12 @@ defmodule GalerieWeb.Library.Live do
     Repo.Page.map_results(Pictures.list_pictures(), &SelectableList.new/1)
   end
 
+  defp load_albums(%User{} = current_user) do
+    current_user
+    |> Albums.get_user_albums()
+    |> SelectableList.new()
+  end
+
   def handle_event("scrolled-bottom", _params, socket) do
     assigns = socket.assigns
 
@@ -150,6 +169,13 @@ defmodule GalerieWeb.Library.Live do
 
   def handle_event("selection_bar:filter-selected", _, socket) do
     socket = update(socket, :filter_selected, &(not &1))
+
+    {:noreply, socket}
+  end
+
+  def handle_event("filter-album", %{"index" => index}, socket) do
+    socket =
+      update(socket, :albums, &SelectableList.toggle_by_index(&1, String.to_integer(index)))
 
     {:noreply, socket}
   end

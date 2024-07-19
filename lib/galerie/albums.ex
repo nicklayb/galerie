@@ -9,6 +9,14 @@ defmodule Galerie.Albums do
   @type picture_or_id :: Picture.t() | String.t()
   @type picture_or_pictures :: picture_or_id() | [picture_or_id()]
 
+  def get_user_albums(%User{id: user_id}), do: get_user_albums(user_id)
+
+  def get_user_albums(user_id) do
+    Album
+    |> Ecto.Query.where([album], album.user_id == ^user_id)
+    |> Repo.all()
+  end
+
   @spec create_album(User.t(), map()) :: Result.t(Album.t(), any())
   def create_album(%User{id: user_id}, params) do
     %Album{}

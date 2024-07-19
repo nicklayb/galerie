@@ -65,4 +65,20 @@ defmodule GalerieWeb.Components.Ui do
     <% end %>
     """
   end
+
+  attr(:items, :list, required: true)
+  slot(:item, required: true)
+  slot(:empty, required: false)
+
+  def list(assigns) do
+    ~H"""
+    <%= if Enum.any?(@items) do %>
+      <%= for item <- @items do %>
+        <%= render_slot(@item, item) %>
+      <% end %>
+    <% else %>
+      <%= render_slot(@empty) %>
+    <% end %>
+    """
+  end
 end
