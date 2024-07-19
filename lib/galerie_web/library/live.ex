@@ -9,6 +9,7 @@ defmodule GalerieWeb.Library.Live do
   alias GalerieWeb.Components.Dropzone
   alias GalerieWeb.Components.FloatingPills
   alias GalerieWeb.Components.Icon
+  alias GalerieWeb.Components.Modal
   alias GalerieWeb.Components.Picture
   alias GalerieWeb.Components.Ui
 
@@ -19,6 +20,7 @@ defmodule GalerieWeb.Library.Live do
     pictures: nil,
     new_pictures: [],
     filter_selected: false,
+    modal: nil,
     jobs: %{}
   }
 
@@ -204,6 +206,18 @@ defmodule GalerieWeb.Library.Live do
     {:noreply, socket}
   end
 
+  def handle_event("selection_bar:download", _, socket) do
+    socket =
+      assign(
+        socket,
+        :modal,
+        {GalerieWeb.Components.Modals.Download,
+         [selectable_list: socket.assigns.pictures.results]}
+      )
+
+    {:noreply, socket}
+  end
+
   def handle_event("viewer:keyup", %{"key" => "ArrowLeft"}, socket) do
     socket = update_pictures(socket, &SelectableList.highlight_previous/1)
 
@@ -226,7 +240,19 @@ defmodule GalerieWeb.Library.Live do
     {:noreply, socket}
   end
 
-  def handle_event("viewer:keyup", %{"key" => "Escape"}, socket) do
+  def handle_event("viewer:keyup", %{"key" => "Escape"}, %{assigns: %{modal: modal}} = socket)
+      when not is_nil(modal) do
+    socket = assign(socket, :modal, nil)
+
+    {:noreply, socket}
+  end
+
+  def handle_event(
+        "viewer:keyup",
+        %{"key" => "Escape"},
+        %{assigns: %{pictures: %{results: %SelectableList{highlighted_index: index}}}} = socket
+      )
+      when not is_nil(index) do
     socket = close_picture(socket)
 
     {:noreply, socket}
@@ -238,6 +264,11 @@ defmodule GalerieWeb.Library.Live do
 
   def handle_event("viewer:close", _, socket) do
     socket = close_picture(socket)
+    {:noreply, socket}
+  end
+
+  def handle_event("modal:close", _, socket) do
+    socket = assign(socket, :modal, nil)
     {:noreply, socket}
   end
 
@@ -334,15 +365,7 @@ defmodule GalerieWeb.Library.Live do
   defp update_pictures(socket, function) do
     socket
     |> update(:pictures, fn page -> Page.map_results(page, function) end)
-    |> update_selected_ids()
     |> clear_filter_selected_if_none_selected()
-  end
-
-  defp update_selected_ids(socket) do
-    selected_picture_ids =
-      SelectableList.selected_items(socket.assigns.pictures.results, fn {_, %{id: id}} -> id end)
-
-    assign(socket, :selected_ids, selected_picture_ids)
   end
 
   defp clear_filter_selected_if_none_selected(%{assigns: %{filter_selected: true}} = socket) do

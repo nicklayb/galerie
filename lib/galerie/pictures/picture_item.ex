@@ -26,7 +26,7 @@ defmodule Galerie.Pictures.PictureItem do
     )
     |> Ecto.Query.select([group, picture: picture, metadata: metadata], %PictureItem{
       id: picture.id,
-      name: picture.name,
+      name: picture.original_name,
       folder_id: picture.folder_id,
       group_id: group.id,
       group_name: group.group_name,
