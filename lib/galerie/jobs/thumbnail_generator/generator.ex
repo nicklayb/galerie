@@ -42,7 +42,7 @@ defmodule Galerie.Jobs.ThumbnailGenerator.Generator do
       picture
       |> Picture.changeset(%{thumbnail: thumbnail_path})
       |> Repo.update()
-      |> Result.tap(&Galerie.PubSub.broadcast(Picture, {:thumbnail_generated, &1}))
+      |> Result.tap(&Galerie.PubSub.broadcast({Folder, &1.folder_id}, {:thumbnail_generated, &1}))
       |> Result.log(
         fn _ -> "[#{inspect(__MODULE__)}] [thumbnail] [#{picture.id}] [created]" end,
         &"[#{inspect(__MODULE__)}] [thumbnail] [#{picture.id}] [failed] #{inspect(&1)}"

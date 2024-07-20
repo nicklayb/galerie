@@ -38,25 +38,26 @@ defmodule Galerie.Pictures do
   end
 
   defp grouped_pictures_query(%PictureItem{group_id: group_id}) do
-    Picture
-    |> Ecto.Query.where([picture], picture.group_id == ^group_id)
-    |> Ecto.Query.join(:left, [picture], metadata in assoc(picture, :metadata), as: :metadata)
+    group_id
+    |> Picture.Query.by_group_id()
+    |> Picture.Query.ensure_joined(:metadata)
     |> Ecto.Query.preload([picture, metadata: metadata], metadata: metadata)
   end
 
   @spec get_all_pictures([String.t()]) :: [Picture.t()]
   def get_all_pictures(picture_ids) do
-    Picture
-    |> Ecto.Query.where([picture], picture.id in ^picture_ids)
+    picture_ids
+    |> Picture.Query.by_ids()
     |> Repo.all()
   end
 
   @default_limit 40
-  @spec list_pictures(Keyword.t()) :: Repo.Page.t()
-  def list_pictures(options \\ []) do
+  @spec list_pictures([String.t()], Keyword.t()) :: Repo.Page.t()
+  def list_pictures(folder_ids, options \\ []) do
     {limit, options} = Keyword.pop(options, :limit, @default_limit)
 
-    PictureItem.from()
+    folder_ids
+    |> PictureItem.by_folder_ids()
     |> Ecto.Query.order_by(
       [metadata: metadata],
       {:desc, metadata.datetime_original}
@@ -65,17 +66,10 @@ defmodule Galerie.Pictures do
     |> Repo.paginate(%{limit: limit, sort_by: {:desc, :datetime_original}})
   end
 
-  def apply_pictures_filter(query, options) do
+  defp apply_pictures_filter(query, options) do
     Enum.reduce(options, query, fn
-      {:album_ids, []}, acc ->
-        acc
-
       {:album_ids, album_ids}, acc ->
-        acc
-        |> Ecto.Query.join(:left, [group], album_picture_group in assoc(group, :albums_picture_groups),
-          as: :albums_picture_groups
-        )
-        |> Ecto.Query.where([albums_picture_groups: albums_picture_groups], albums_picture_groups.album_id in ^album_ids)
+        PictureItem.by_album_ids(acc, album_ids)
 
       _, acc ->
         acc
@@ -93,36 +87,36 @@ defmodule Galerie.Pictures do
   end
 
   def list_imported_paths(picture_paths) do
-    Picture
-    |> Ecto.Query.where([picture], picture.fullpath in ^picture_paths)
+    picture_paths
+    |> Picture.Query.by_fullpaths()
     |> Ecto.Query.select([picture], picture.fullpath)
     |> Repo.all()
   end
 
   def picture_imported?(fullpath) do
-    Picture
-    |> Ecto.Query.where([picture], picture.fullpath == ^fullpath)
+    fullpath
+    |> Picture.Query.by_fullpaths()
     |> Repo.exists?()
   end
 
   # TODO: Cache the function below
   def get_picture_path(picture_id, :original) do
     picture_id
-    |> base_picture_path_query()
+    |> Picture.Query.by_ids()
     |> Ecto.Query.select([picture], picture.fullpath)
     |> Repo.fetch_one()
   end
 
   def get_picture_path(picture_id, :thumb) do
     picture_id
-    |> base_picture_path_query()
+    |> Picture.Query.by_ids()
     |> Ecto.Query.select([picture], picture.thumbnail)
     |> Repo.fetch_one()
   end
 
   def get_picture_path(picture_id, :jpeg) do
     picture_id
-    |> base_picture_path_query()
+    |> Picture.Query.by_ids()
     |> Ecto.Query.select([picture], {picture.type, picture.fullpath, picture.converted_jpeg})
     |> Repo.fetch_one()
     |> Result.map(fn
@@ -133,9 +127,5 @@ defmodule Galerie.Pictures do
 
   def insert_picture(params) do
     UseCase.InsertPicture.run(params)
-  end
-
-  defp base_picture_path_query(query \\ Picture, picture_id) do
-    Ecto.Query.where(query, [picture], picture.id == ^picture_id)
   end
 end

@@ -37,7 +37,36 @@ defmodule Galerie.Pictures.PictureItem do
       inserted_at: picture.inserted_at
     })
     |> Ecto.Query.where([picture: picture], not is_nil(picture.thumbnail))
-    |> Ecto.Query.distinct([group, picture: picture], [picture.folder_id, group.group_name])
+
+    #  |> Ecto.Query.distinct([group, picture: picture], [picture.folder_id, group.group_name])
+  end
+
+  def by_folder_ids(query \\ from(), folder_ids) do
+    Ecto.Query.where(query, [group], group.folder_id in ^folder_ids)
+  end
+
+  def by_album_ids(query \\ from(), album_ids)
+  def by_album_ids(query, []), do: query
+
+  def by_album_ids(query, album_ids) do
+    query
+    |> ensure_joined(:album_picture_groups)
+    |> Ecto.Query.where(
+      [albums_picture_groups: albums_picture_groups],
+      albums_picture_groups.album_id in ^album_ids
+    )
+  end
+
+  defp ensure_joined(query, :album_picture_groups) do
+    Galerie.Ecto.Query.join_once(query, :album_picture_groups, fn query ->
+      Ecto.Query.join(
+        query,
+        :left,
+        [group],
+        album_picture_group in assoc(group, :albums_picture_groups),
+        as: :albums_picture_groups
+      )
+    end)
   end
 
   def put_index(pictures) do

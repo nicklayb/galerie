@@ -17,7 +17,7 @@ defmodule Galerie.Accounts.User do
     field(:permissions, Galerie.Ecto.Types.Permissions)
     field(:is_admin, :boolean)
 
-    belongs_to(:folder, Folder)
+    has_one(:folder, Folder)
 
     timestamps()
   end

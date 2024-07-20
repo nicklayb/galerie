@@ -75,7 +75,7 @@ defmodule Galerie.Jobs.Processor do
     picture_exif
     |> Exif.changeset(%{picture_id: picture_id, exif: exif})
     |> Repo.insert_or_update()
-    |> Result.tap(&Galerie.PubSub.broadcast(Picture, {:processed, &1}))
+    |> Result.tap(&Galerie.PubSub.broadcast({Folder, &1.folder_id}, {:processed, &1}))
     |> Result.log(
       &"[#{inspect(__MODULE__)}] [exif] [#{&1.picture_id}] [processed]",
       &"[#{inspect(__MODULE__)}] [exif] [#{picture_id}] [failed] #{inspect(&1)}"

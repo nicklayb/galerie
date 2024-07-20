@@ -9,6 +9,7 @@ defmodule GalerieWeb.Components.Picture.Viewer do
   alias Galerie.Pictures.Picture.Metadata
   alias Galerie.Pictures.PictureItem
   alias Galerie.Repo
+  alias GalerieWeb.Components.Form
   alias GalerieWeb.Components.Icon
   alias GalerieWeb.Components.Ui
   alias GalerieWeb.Html
@@ -65,7 +66,7 @@ defmodule GalerieWeb.Components.Picture.Viewer do
   end
 
   defp info_panel(assigns) do
-    assigns = update(assigns, :picture, &Repo.preload(&1, [:exif, :metadata]))
+    assigns = update(assigns, :picture, &Repo.preload(&1, [:exif, :metadata, :albums]))
 
     ~H"""
     <div class="flex flex-col flex-initial w-96 bg-white transition-all slide-left">
@@ -122,6 +123,15 @@ defmodule GalerieWeb.Components.Picture.Viewer do
               <Ui.link href={~p(/pictures/#{picture.id}?#{[type: "original"]})}>
                 <Icon.download height="20" width="20"/>
               </Ui.link>
+            </.info_section_item>
+          <% end %>
+        </.info_section>
+        <.info_section title={gettext("Albums (%{count})", count: length(@picture.albums))}>
+          <%= for album <- @picture.albums do %>
+            <.info_section_item title={album.name}>
+              <Ui.button phx-click="viewer:remove-from-album" phx-value-group_id={@picture.group_id} phx-value-album_id={album.id}>
+                <Icon.cross height="14" width="14"/>
+              </Ui.button>
             </.info_section_item>
           <% end %>
         </.info_section>
@@ -204,10 +214,7 @@ defmodule GalerieWeb.Components.Picture.Viewer do
   defp assign_pictures(socket, %PictureItem{} = picture_item) do
     pictures = Galerie.Pictures.get_grouped_pictures(picture_item)
 
-    picture =
-      pictures
-      |> Enum.find(&(&1.id == picture_item.main_picture_id))
-      |> Repo.preload([:exif])
+    picture = Enum.find(pictures, &(&1.id == picture_item.main_picture_id))
 
     socket
     |> assign(:picture, picture)

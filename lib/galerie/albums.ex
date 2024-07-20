@@ -13,16 +13,9 @@ defmodule Galerie.Albums do
   def get_user_albums(%User{id: user_id}), do: get_user_albums(user_id)
 
   def get_user_albums(user_id) do
-    Album
-    |> Ecto.Query.where([album], album.user_id == ^user_id)
-    |> Ecto.Query.join(:left, [album], groups in assoc(album, :groups), as: :groups)
-    |> Ecto.Query.group_by([album], [album.id, album.name, album.user_id])
-    |> Ecto.Query.select([album, groups: groups], %Album{
-      id: album.id,
-      name: album.name,
-      user_id: album.user_id,
-      picture_count: count(groups)
-    })
+    user_id
+    |> Album.Query.by_user()
+    |> Album.Query.with_picture_count()
     |> Repo.all()
   end
 
@@ -34,9 +27,9 @@ defmodule Galerie.Albums do
   end
 
   def attach_picture_groups_to_albums(album_ids, group_ids) do
-    Album
+    album_ids
+    |> Album.Query.by_ids()
     |> Ecto.Query.select([album], %Album{id: album.id})
-    |> Ecto.Query.where([album], album.id in ^album_ids)
     |> Repo.all()
     |> Enum.map(fn %Album{} = album ->
       add_to_album(album, group_ids)
@@ -77,27 +70,5 @@ defmodule Galerie.Albums do
 
   def add_to_album(%Album{} = album, pictures_or_group_ids) do
     add_to_album(album, List.wrap(pictures_or_group_ids))
-  end
-
-  @spec remove_from_album(Album.t(), picture_or_pictures()) :: Result.t(Album.t(), any())
-  def remove_from_album(%Album{} = album, [%Picture{} | _] = pictures) do
-    picture_ids = Enum.Extra.field(pictures, :id)
-
-    remove_from_album(album, picture_ids)
-  end
-
-  def remove_from_album(%Album{} = album, picture_ids) when is_list(picture_ids) do
-    album
-    |> Ecto.assoc(:albums_pictures)
-    |> Ecto.Query.where([album_picture], album_picture.picture_id in ^picture_ids)
-    |> Repo.delete_all()
-    |> then(fn _ ->
-      Repo.reload_assoc(album, [:pictures])
-    end)
-    |> Result.succeed()
-  end
-
-  def remove_from_album(%Album{} = album, picture_or_picture_id) do
-    remove_from_album(album, List.wrap(picture_or_picture_id))
   end
 end

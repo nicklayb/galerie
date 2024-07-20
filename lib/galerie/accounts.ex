@@ -35,17 +35,14 @@ defmodule Galerie.Accounts do
   @spec create_user(map()) :: Result.t(User.t(), any())
   def create_user(params) do
     Ecto.Multi.new()
-    |> Ecto.Multi.insert(:initial_user, User.changeset(%User{}, params))
-    |> Ecto.Multi.insert(:folder, fn %{initial_user: user} ->
+    |> Ecto.Multi.insert(:user, User.changeset(%User{}, params))
+    |> Ecto.Multi.insert(:folder, fn %{user: user} ->
       folder_path =
         user
         |> Galerie.Directory.upload("tmp.jpg")
         |> Path.dirname()
 
-      Folder.changeset(%Folder{}, %{path: folder_path})
-    end)
-    |> Ecto.Multi.update(:user, fn %{initial_user: user, folder: %Folder{id: folder_id}} ->
-      Ecto.Changeset.cast(user, %{folder_id: folder_id}, [:folder_id])
+      Folder.changeset(%Folder{}, %{path: folder_path, user_id: user.id})
     end)
     |> Repo.transaction()
     |> Repo.unwrap_transaction(:user)

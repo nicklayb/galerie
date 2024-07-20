@@ -19,7 +19,6 @@ defmodule Galerie.Repo.Migrations.CreatePicturesTable do
       add(:converted_jpeg, :string, null: true)
 
       add(:folder_id, references("folders", on_delete: :delete_all), null: false)
-      add(:user_id, references("users", on_delete: :delete_all), null: true)
 
       add(:group_id, references("picture_groups", on_delete: :delete_all), null: true)
 
@@ -28,7 +27,6 @@ defmodule Galerie.Repo.Migrations.CreatePicturesTable do
 
     create(index("pictures", :original_name))
     create(index("pictures", :folder_id))
-    create(index("pictures", :user_id))
     create(unique_index("pictures", :fullpath))
     create(unique_index("pictures", [:original_name, :folder_id]))
   end

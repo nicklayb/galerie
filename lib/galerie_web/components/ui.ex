@@ -4,6 +4,21 @@ defmodule GalerieWeb.Components.Ui do
   alias GalerieWeb.Components.Icon
   alias GalerieWeb.Html
 
+  attr(:class, :string, default: "")
+  slot(:inner_block, required: true)
+  attr(:rest, :global)
+
+  @default_class "text-pink-600"
+  def button(assigns) do
+    assigns = update(assigns, :class, &Html.class(@default_class, &1))
+
+    ~H"""
+    <button type="button" class={@class} {@rest}>
+      <%= render_slot(@inner_block) %>
+    </button>
+    """
+  end
+
   attr(:href, :string, required: true)
   attr(:class, :string, default: "")
   slot(:inner_block, required: true)

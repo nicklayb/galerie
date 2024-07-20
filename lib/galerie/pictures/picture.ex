@@ -3,6 +3,7 @@ defmodule Galerie.Pictures.Picture do
 
   alias Galerie.Accounts.User
   alias Galerie.Albums.Album
+  alias Galerie.Albums.AlbumPictureGroup
   alias Galerie.Directory.FileName
   alias Galerie.Folders.Folder
   alias Galerie.Pictures
@@ -31,21 +32,19 @@ defmodule Galerie.Pictures.Picture do
     field(:folder_path, :string, virtual: true)
 
     belongs_to(:folder, Folder)
-    belongs_to(:user, User)
 
     belongs_to(:group, Group)
 
     has_one(:exif, Exif)
     has_one(:metadata, Metadata)
 
-    many_to_many(:albums, Album, join_through: "albums_pictures")
+    has_many(:albums, through: [:group, :albums_picture_groups, :album])
 
     timestamps()
   end
 
   @required_for_cast ~w(fullpath folder_id folder_path)a
-  @optional_for_cast ~w(user_id)a
-  @castable @required_for_cast ++ @optional_for_cast
+  @castable @required_for_cast
   @required ~w(folder_id name extension original_name fullpath size)a
   @optional ~w(converted_jpeg group_id thumbnail)a
   def create_changeset(%Picture{} = picture \\ %Picture{}, params) do

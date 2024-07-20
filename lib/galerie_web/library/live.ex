@@ -1,6 +1,7 @@
 defmodule GalerieWeb.Library.Live do
   use GalerieWeb, :live_view
 
+  alias Galerie.Folders
   alias Galerie.Albums
   alias Galerie.Accounts.User
   alias Galerie.Jobs.Importer
@@ -25,6 +26,7 @@ defmodule GalerieWeb.Library.Live do
     filter_selected: false,
     modal: nil,
     jobs: %{},
+    folders: [],
     albums: SelectableList.new([])
   }
 
@@ -35,11 +37,9 @@ defmodule GalerieWeb.Library.Live do
       socket
       |> assign(@defaults)
       |> setup_upload()
-      |> start_async(:load_pictures, fn -> load_pictures(%{}) end)
+      |> start_async(:load_folders, fn -> Folders.get_user_folders(current_user) end)
       |> start_async(:load_jobs, fn -> {true, Galerie.ObanRepo.pending_jobs()} end)
       |> start_async(:load_albums, fn -> load_albums(current_user) end)
-
-    Galerie.PubSub.subscribe(Galerie.Pictures.Picture)
 
     {:ok, socket}
   end
@@ -95,6 +95,20 @@ defmodule GalerieWeb.Library.Live do
     end
   end
 
+  def handle_async(:load_folders, {:ok, folders}, socket) do
+    socket =
+      socket
+      |> assign(:folders, folders)
+      |> then(fn socket ->
+        assigns = socket.assigns
+        start_async(socket, :load_pictures, fn -> load_pictures(assigns) end)
+      end)
+
+    Enum.each(folders, &Galerie.PubSub.subscribe/1)
+
+    {:noreply, socket}
+  end
+
   def handle_async(:load_jobs, {:ok, {on_mount?, jobs}}, socket) do
     jobs =
       Enum.reduce(jobs, %{}, fn {key, count}, acc ->
@@ -120,6 +134,7 @@ defmodule GalerieWeb.Library.Live do
       |> assign_pictures(page)
       |> assign(:updating, false)
       |> assign(:scroll_disabled, false)
+      |> update_picture_index()
 
     {:noreply, socket}
   end
@@ -131,6 +146,7 @@ defmodule GalerieWeb.Library.Live do
       |> assign(:updating, false)
       |> assign(:scroll_disabled, false)
       |> update_pictures(&SelectableList.highlight_next/1)
+      |> update_picture_index()
 
     {:noreply, socket}
   end
@@ -142,9 +158,11 @@ defmodule GalerieWeb.Library.Live do
   end
 
   defp load_pictures(assigns) do
-    assigns
-    |> pictures_filter()
-    |> Pictures.list_pictures()
+    query_options = pictures_filter(assigns)
+
+    assigns.folders
+    |> Enum.Extra.field(:id)
+    |> Pictures.list_pictures(query_options)
     |> Repo.Page.map_results(&SelectableList.new/1)
   end
 
@@ -455,6 +473,15 @@ defmodule GalerieWeb.Library.Live do
     socket
     |> update(:pictures, fn page -> Page.map_results(page, function) end)
     |> clear_filter_selected_if_none_selected()
+  end
+
+  defp update_picture_index(%{assigns: %{pictures: %{results: results}}} = socket) do
+    index =
+      Enum.reduce(results, %{}, fn {index, %{group_id: group_id}}, acc ->
+        Map.put(acc, group_id, index)
+      end)
+
+    assign(socket, :picture_index, index)
   end
 
   defp clear_filter_selected_if_none_selected(%{assigns: %{filter_selected: true}} = socket) do

@@ -13,9 +13,16 @@ defmodule Galerie.PubSub do
 
   @doc "Topic generators"
   @spec topic(topic()) :: String.t()
-  def topic(Galerie.Pictures.Picture), do: "pictures"
-  def topic(Galerie.Accounts.User), do: "users"
-  def topic({:live_session, id}), do: "live_session:#{id}"
+  def topic(%struct{id: id}), do: topic({struct, id})
+
+  def topic(atom) when is_atom(atom) do
+    if function_exported?(atom, :__schema__, 1) do
+      apply(atom, :__schema__, [:source])
+    else
+      to_string(atom)
+    end
+  end
+
   def topic({namespace, id}), do: "#{topic(namespace)}:#{id}"
   def topic({namespace, id, child}), do: "#{topic({namespace, id})}:#{child}"
 

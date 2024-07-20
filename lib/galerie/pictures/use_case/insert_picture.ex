@@ -1,4 +1,5 @@
 defmodule Galerie.Pictures.UseCase.InsertPicture do
+  alias Galerie.Folders.Folder
   alias Galerie.Pictures.Picture
   alias Galerie.Pictures.Picture.Group
   alias Galerie.Repo
@@ -16,6 +17,7 @@ defmodule Galerie.Pictures.UseCase.InsertPicture do
     |> Ecto.Multi.run(:group_with_main_picture, &put_main_picture_id/2)
     |> Repo.transaction()
     |> Repo.unwrap_transaction(:picture_with_group)
+    |> Result.tap(&Galerie.PubSub.broadcast({Folder, &1.folder_id}, {:picture_imported, &1}))
   end
 
   defp get_or_create_group(

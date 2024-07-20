@@ -29,6 +29,7 @@ reset-samples:
 	mv ./samples/DSC00413.JPG ./_temp_files/DSC00413.JPG
 	mv ./samples/DSC00461.jpg ./_temp_files/DSC00461.jpg
 	mv ./samples/DSC01569.ARW ./_temp_files/DSC01569.ARW
+	mv ./samples/DSC01569.JPG ./_temp_files/DSC01569.JPG
 	mv ./samples/DSC01653.ARW ./_temp_files/DSC01653.ARW
 	mv ./samples/DSC01804.ARW ./_temp_files/DSC01804.ARW
 	rm -rf samples/*
@@ -87,3 +88,8 @@ remove-uploaded-files:
 
 run-bash:
 	docker run --rm -it --entrypoint bash --mount type=bind,source=./samples,destination=/samples $(DOCKER_IMAGE)
+
+stop-processors:
+	-sudo killall magick
+	-sudo killall dcraw
+	-sudo killall exiftool
