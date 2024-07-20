@@ -41,6 +41,8 @@ defmodule GalerieWeb.Library.Live do
       |> start_async(:load_jobs, fn -> {true, Galerie.ObanRepo.pending_jobs()} end)
       |> start_async(:load_albums, fn -> load_albums(current_user) end)
 
+    Galerie.PubSub.subscribe(current_user)
+
     {:ok, socket}
   end
 

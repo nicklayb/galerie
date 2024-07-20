@@ -13,7 +13,7 @@ defmodule Seed do
   def create_user(user_params) do
     user_params
     |> Map.merge(%{password: @password, password_confirmation: @password})
-    |> Accounts.create_user()
+    |> Accounts.create_user(after_run?: false)
     |> Result.unwrap!()
   end
 
@@ -23,7 +23,7 @@ defmodule Seed do
 
   def create_album(user, album_name) do
     user
-    |> Albums.create_album(%{name: album_name})
+    |> Albums.create_album(%{name: album_name}, after_run?: false)
     |> Result.unwrap!()
   end
 end

@@ -89,4 +89,14 @@ defmodule Galerie.Repo do
     end)
     |> preload(assocs)
   end
+
+  def touch(%_{} = schema) do
+    schema
+    |> Ecto.Changeset.cast(%{}, [])
+    |> update(force: true)
+  end
+
+  def touch_changeset(%_{} = schema) do
+    Ecto.Changeset.cast(schema, %{}, [])
+  end
 end

@@ -292,7 +292,8 @@ defmodule SelectableList do
     %SelectableList{selectable_list | items: Map.update!(items, index, function)}
   end
 
-  def update_at(%SelectableList{} = selectable_list, index, item) do
+  def update_at(%SelectableList{} = selectable_list, index, item)
+      when is_index_valid(selectable_list, index) do
     update_at(selectable_list, index, fn _ -> item end)
   end
 

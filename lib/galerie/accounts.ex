@@ -1,6 +1,6 @@
 defmodule Galerie.Accounts do
+  alias Galerie.Accounts.UseCase
   alias Galerie.Accounts.User
-  alias Galerie.Folders.Folder
   alias Galerie.Repo
 
   @doc "Logins a user"
@@ -32,55 +32,35 @@ defmodule Galerie.Accounts do
   end
 
   @doc "Creates a user"
-  @spec create_user(map()) :: Result.t(User.t(), any())
-  def create_user(params) do
-    Ecto.Multi.new()
-    |> Ecto.Multi.insert(:user, User.changeset(%User{}, params))
-    |> Ecto.Multi.insert(:folder, fn %{user: user} ->
-      folder_path =
-        user
-        |> Galerie.Directory.upload("tmp.jpg")
-        |> Path.dirname()
-
-      Folder.changeset(%Folder{}, %{path: folder_path, user_id: user.id})
-    end)
-    |> Repo.transaction()
-    |> Repo.unwrap_transaction(:user)
-    |> Result.tap(fn user ->
-      Galerie.Mailer.deliver_async(fn ->
-        Galerie.Mailer.welcome(user)
-      end)
-    end)
+  @spec create_user(map(), Keyword.t()) :: Result.t(User.t(), any())
+  def create_user(params, options \\ []) do
+    UseCase.CreateUser.execute(params, options)
   end
 
   @doc "Resets a user password"
-  @spec reset_password(User.t() | String.t()) :: Result.t(User.t(), any())
-  def reset_password(%User{} = user) do
-    user
-    |> User.reset_password_changeset()
-    |> Repo.update()
-    |> Result.tap(fn user ->
-      Galerie.Mailer.deliver_async(fn ->
-        Galerie.Mailer.reset_password(user)
-      end)
-    end)
+  @spec reset_password(User.t() | String.t(), Keyword.t()) :: Result.t(User.t(), any())
+
+  def reset_password(email, options \\ [])
+
+  def reset_password(%User{} = user, options) do
+    UseCase.ResetPassword.execute(user, options)
   end
 
-  def reset_password(email) do
+  def reset_password(email, options) do
     with {:ok, %User{} = user} <- get_user_by_email(email) do
-      reset_password(user)
+      reset_password(user, options)
     end
   end
 
-  def update_password(%User{} = user, params) do
-    user
-    |> User.update_password_changeset(params)
-    |> Repo.update()
+  def update_password(user, params, options \\ [])
+
+  def update_password(%User{} = user, params, options) do
+    UseCase.UpdatePassword.execute({user, params}, options)
   end
 
-  def update_password(reset_password_token, params) do
+  def update_password(reset_password_token, params, options) do
     with {:ok, %User{} = user} <- get_user_by_reset_password_token(reset_password_token) do
-      update_password(user, params)
+      update_password(user, params, options)
     end
   end
 end

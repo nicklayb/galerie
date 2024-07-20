@@ -15,6 +15,8 @@ defmodule Galerie.Albums.Album do
     has_many(:albums_picture_groups, AlbumPictureGroup)
     has_many(:groups, through: [:albums_picture_groups, :group])
     has_many(:pictures, through: [:groups, :picture])
+
+    timestamps()
   end
 
   @required ~w(name user_id)a

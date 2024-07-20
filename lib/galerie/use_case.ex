@@ -29,11 +29,16 @@ defmodule Galerie.UseCase do
   end
 
   def execute(module, params, options) do
+    transaction_options = Keyword.get(options, :transaction, [])
+
     with {:ok, new_params} <- module.validate(params, options),
          {:ok, %Ecto.Multi{} = multi} <- build_multi(module, new_params, options),
-         {:ok, result} <- Repo.transaction(multi) do
+         {:ok, result} <- Repo.transaction(multi, transaction_options) do
       options = Keyword.put(options, :params, params)
-      module.after_run(result, options)
+
+      if Keyword.get(options, :after_run?, true) do
+        module.after_run(result, options)
+      end
 
       {:ok, module.return(result, options)}
     end

@@ -15,20 +15,21 @@ defmodule Galerie.Albums do
     user_id
     |> Album.Query.by_user()
     |> Album.Query.with_picture_count()
+    |> Ecto.Query.order_by([album: album], {:desc, album.updated_at})
     |> Repo.all()
   end
 
-  @spec create_album(User.t(), map()) :: Result.t(Album.t(), any())
-  def create_album(user, params) do
-    UseCase.CreateAlbum.execute({user, params})
+  @spec create_album(User.t(), map(), Keyword.t()) :: Result.t(Album.t(), any())
+  def create_album(user, params, options \\ []) do
+    UseCase.CreateAlbum.execute({user, params}, options)
   end
 
-  def attach_picture_groups_to_albums(album_ids, group_ids) do
+  def attach_picture_groups_to_albums(album_ids, group_ids, options \\ []) do
     album_ids
     |> Album.Query.by_ids()
     |> Repo.all()
     |> Enum.map(fn %Album{} = album ->
-      UseCase.AddToAlbum.execute({album, group_ids})
+      UseCase.AddToAlbum.execute({album, group_ids}, options)
     end)
   end
 end

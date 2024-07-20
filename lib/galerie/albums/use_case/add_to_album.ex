@@ -36,6 +36,7 @@ defmodule Galerie.Albums.UseCase.AddToAlbum do
         AlbumPictureGroup.changeset(%{group_id: group_id, album_id: album_id})
       )
     end)
+    |> Ecto.Multi.update(:touch_album, Repo.touch_changeset(album))
   end
 
   @impl Galerie.UseCase

@@ -11,13 +11,13 @@ defmodule Galerie.Folders do
     |> Repo.all()
   end
 
-  def get_or_create_folder!(folder_path) do
+  def get_or_create_folder!(folder_path, options \\ []) do
     case Repo.fetch_by(Folder, path: folder_path) do
       {:ok, %Folder{} = folder} ->
         folder
 
       _ ->
-        UseCase.CreateFolder.execute!(folder_path)
+        UseCase.CreateFolder.execute!(folder_path, options)
     end
   end
 end
