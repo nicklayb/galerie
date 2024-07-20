@@ -17,7 +17,7 @@ defmodule Galerie.PubSub do
 
   def topic(atom) when is_atom(atom) do
     if function_exported?(atom, :__schema__, 1) do
-      apply(atom, :__schema__, [:source])
+      atom.__schema__(:source)
     else
       to_string(atom)
     end

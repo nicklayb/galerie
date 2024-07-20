@@ -10,9 +10,7 @@ defmodule GalerieWeb.Components.Modals.AddToAlbum do
 
   @defaults []
   def mount(socket) do
-    socket =
-      socket
-      |> assign(@defaults)
+    socket = assign(socket, @defaults)
 
     {:ok, socket}
   end

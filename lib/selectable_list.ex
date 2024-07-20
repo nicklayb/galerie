@@ -45,10 +45,10 @@ defmodule SelectableList do
     do: selectable_list
 
   def highlight_previous(%SelectableList{highlighted_index: highlighted_index} = selectable_list) do
-    if not first_highlighted?(selectable_list) do
-      highlight(selectable_list, highlighted_index - 1)
-    else
+    if first_highlighted?(selectable_list) do
       selectable_list
+    else
+      highlight(selectable_list, highlighted_index - 1)
     end
   end
 
@@ -56,10 +56,10 @@ defmodule SelectableList do
     do: selectable_list
 
   def highlight_next(%SelectableList{highlighted_index: highlighted_index} = selectable_list) do
-    if not last_highlighted?(selectable_list) do
-      highlight(selectable_list, highlighted_index + 1)
-    else
+    if last_highlighted?(selectable_list) do
       selectable_list
+    else
+      highlight(selectable_list, highlighted_index + 1)
     end
   end
 

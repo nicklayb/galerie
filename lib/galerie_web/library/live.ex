@@ -1,9 +1,9 @@
 defmodule GalerieWeb.Library.Live do
   use GalerieWeb, :live_view
 
-  alias Galerie.Folders
-  alias Galerie.Albums
   alias Galerie.Accounts.User
+  alias Galerie.Albums
+  alias Galerie.Folders
   alias Galerie.Jobs.Importer
   alias Galerie.Pictures
   alias Galerie.Repo
@@ -276,9 +276,7 @@ defmodule GalerieWeb.Library.Live do
   end
 
   def handle_event("deselect-picture", %{"index" => index}, socket) do
-    socket =
-      socket
-      |> update_pictures(&SelectableList.deselect_by_index(&1, index))
+    socket = update_pictures(socket, &SelectableList.deselect_by_index(&1, index))
 
     {:noreply, socket}
   end
