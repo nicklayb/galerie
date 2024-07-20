@@ -54,14 +54,32 @@ defmodule Galerie.Pictures do
   @default_limit 40
   @spec list_pictures(Keyword.t()) :: Repo.Page.t()
   def list_pictures(options \\ []) do
-    limit = Keyword.get(options, :limit, @default_limit)
+    {limit, options} = Keyword.pop(options, :limit, @default_limit)
 
     PictureItem.from()
     |> Ecto.Query.order_by(
       [metadata: metadata],
       {:desc, metadata.datetime_original}
     )
+    |> apply_pictures_filter(options)
     |> Repo.paginate(%{limit: limit, sort_by: {:desc, :datetime_original}})
+  end
+
+  def apply_pictures_filter(query, options) do
+    Enum.reduce(options, query, fn
+      {:album_ids, []}, acc ->
+        acc
+
+      {:album_ids, album_ids}, acc ->
+        acc
+        |> Ecto.Query.join(:left, [group], album_picture_group in assoc(group, :albums_picture_groups),
+          as: :albums_picture_groups
+        )
+        |> Ecto.Query.where([albums_picture_groups: albums_picture_groups], albums_picture_groups.album_id in ^album_ids)
+
+      _, acc ->
+        acc
+    end)
   end
 
   @spec get_picture(String.t()) :: Result.t(Picture.t(), :not_found)

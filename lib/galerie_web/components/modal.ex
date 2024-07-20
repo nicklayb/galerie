@@ -27,7 +27,7 @@ defmodule GalerieWeb.Components.Modal do
 
   def overlay(assigns) do
     ~H"""
-    <div class="h-full w-full fixed top-0 left-0 bg-gray-800/90 transition-all z-70 absolute" phx-window-keyup={@on_keyup}>
+    <div class="h-full w-full fixed top-0 left-0 bg-gray-800/90 transition-all z-70 absolute fade-in" phx-window-keyup={@on_keyup}>
       <%= render_slot(@inner_block) %>
     </div>
     """
@@ -47,7 +47,7 @@ defmodule GalerieWeb.Components.Modal do
 
   def modal(assigns) do
     ~H"""
-    <div class="bg-true-gray-100 absolute top-0 right-0 w-full max-w-[400px] mt-4 mr-4 rounded-lg shadow-lg">
+    <div class="bg-true-gray-100 absolute top-0 right-0 w-full max-w-[400px] mt-4 mr-4 rounded-lg shadow-lg transition-all slide-left">
       <div class="absolute top-0 right-0 p-4 cursor-pointer" phx-click="modal:close">
         <Icon.cross width="12" height="12" />
       </div>

@@ -7,12 +7,12 @@ defmodule Galerie.Repo.Migrations.CreateAlbums do
       add(:name, :string, null: false)
     end
 
-    create(table("albums_pictures")) do
+    create(table("albums_picture_groups")) do
       add(:album_id, references("albums", on_delete: :delete_all), null: false)
-      add(:picture_id, references("pictures", on_delete: :delete_all), null: false)
+      add(:group_id, references("picture_groups", on_delete: :delete_all), null: false)
     end
 
     create(unique_index("albums", [:user_id, :name]))
-    create(unique_index("albums_pictures", [:album_id, :picture_id]))
+    create(unique_index("albums_picture_groups", [:album_id, :group_id]))
   end
 end

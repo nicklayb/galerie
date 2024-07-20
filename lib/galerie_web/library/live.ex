@@ -135,14 +135,17 @@ defmodule GalerieWeb.Library.Live do
     {:noreply, socket}
   end
 
-  defp load_pictures(%{pictures: %Page{} = previous_page}) do
+  defp next_page(%{pictures: %Page{} = previous_page}) do
     new_page = Repo.next(previous_page)
 
     Page.merge(previous_page, new_page, &SelectableList.append/2)
   end
 
-  defp load_pictures(_) do
-    Repo.Page.map_results(Pictures.list_pictures(), &SelectableList.new/1)
+  defp load_pictures(assigns) do
+    assigns
+    |> pictures_filter()
+    |> Pictures.list_pictures()
+    |> Repo.Page.map_results(&SelectableList.new/1)
   end
 
   defp load_albums(%User{} = current_user) do
@@ -151,13 +154,24 @@ defmodule GalerieWeb.Library.Live do
     |> SelectableList.new()
   end
 
+  defp pictures_filter(assigns) do
+    album_ids =
+      assigns
+      |> Map.get_lazy(:albums, fn -> SelectableList.new([]) end)
+      |> SelectableList.selected_items(fn {_, item} -> item.id end)
+
+    [
+      album_ids: album_ids
+    ]
+  end
+
   def handle_event("scrolled-bottom", _params, socket) do
     assigns = socket.assigns
 
     socket =
       socket
       |> assign(:scroll_disabled, true)
-      |> start_async(:load_pictures, fn -> load_pictures(assigns) end)
+      |> start_async(:load_pictures, fn -> next_page(assigns) end)
 
     {:noreply, socket}
   end
@@ -173,9 +187,32 @@ defmodule GalerieWeb.Library.Live do
     {:noreply, socket}
   end
 
-  def handle_event("filter-album", %{"index" => index}, socket) do
+  def handle_event("filter-album", %{"ctrl_key" => true, "index" => index}, socket) do
+    index = String.to_integer(index)
+
     socket =
-      update(socket, :albums, &SelectableList.toggle_by_index(&1, String.to_integer(index)))
+      socket
+      |> update(:albums, fn albums ->
+        SelectableList.toggle_by_index(albums, index)
+      end)
+      |> reload_pictures()
+
+    {:noreply, socket}
+  end
+
+  def handle_event("filter-album", %{"index" => index}, socket) do
+    index = String.to_integer(index)
+
+    socket =
+      socket
+      |> update(:albums, fn albums ->
+        if SelectableList.multiple_selected?(albums) do
+          SelectableList.toggle_by_index(albums, index)
+        else
+          SelectableList.toggle_only(albums, index)
+        end
+      end)
+      |> reload_pictures()
 
     {:noreply, socket}
   end
@@ -244,6 +281,21 @@ defmodule GalerieWeb.Library.Live do
     {:noreply, socket}
   end
 
+  def handle_event("selection_bar:add-to-album", _, socket) do
+    socket =
+      assign(
+        socket,
+        :modal,
+        {GalerieWeb.Components.Modals.AddToAlbum,
+         [
+           selectable_list: socket.assigns.pictures.results,
+           albums: SelectableList.new(socket.assigns.albums)
+         ]}
+      )
+
+    {:noreply, socket}
+  end
+
   def handle_event("viewer:keyup", %{"key" => "ArrowLeft"}, socket) do
     socket = update_pictures(socket, &SelectableList.highlight_previous/1)
 
@@ -299,6 +351,17 @@ defmodule GalerieWeb.Library.Live do
   end
 
   def handle_event("validate_file", %{"_target" => _}, socket) do
+    {:noreply, socket}
+  end
+
+  def handle_info(:sync_albums, socket) do
+    current_user = socket.assigns.current_user
+    socket = start_async(socket, :load_albums, fn -> load_albums(current_user) end)
+    {:noreply, socket}
+  end
+
+  def handle_info(:close_modal, socket) do
+    socket = assign(socket, :modal, nil)
     {:noreply, socket}
   end
 
@@ -403,4 +466,8 @@ defmodule GalerieWeb.Library.Live do
   end
 
   defp clear_filter_selected_if_none_selected(socket), do: socket
+
+  defp reload_pictures(%{assigns: assigns} = socket) do
+    start_async(socket, :load_pictures, fn -> load_pictures(assigns) end)
+  end
 end
