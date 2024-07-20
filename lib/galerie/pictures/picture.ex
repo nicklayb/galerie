@@ -108,9 +108,9 @@ defmodule Galerie.Pictures.Picture do
     fullpath
   end
 
-  def path(%Picture{type: :jpeg, fullpath: fullpath}, :jpeg), do: fullpath
+  def path(%Picture{type: :jpeg, converted_jpeg: nil, fullpath: fullpath}, :jpeg), do: fullpath
 
-  def path(%Picture{type: :tiff, converted_jpeg: jpeg}, :jpeg), do: jpeg
+  def path(%Picture{converted_jpeg: jpeg}, :jpeg), do: jpeg
 
   def rotation(%Picture{metadata: %Metadata{rotation: rotation}}), do: rotation
 
