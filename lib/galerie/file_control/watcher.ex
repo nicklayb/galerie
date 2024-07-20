@@ -80,8 +80,8 @@ defmodule Galerie.FileControl.Watcher do
 
       true ->
         false
-      end
     end
+  end
 
   defp enqueue_importer(path, %Folder{} = folder) do
     Galerie.Jobs.Importer.enqueue(path, folder)

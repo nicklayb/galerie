@@ -3,7 +3,7 @@ defmodule Galerie.ObanRepo do
     otp_app: :galerie,
     adapter: Ecto.Adapters.Postgres
 
-    require Ecto.Query
+  require Ecto.Query
 
   def pending_jobs do
     Oban.Job
