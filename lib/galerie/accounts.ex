@@ -48,7 +48,8 @@ defmodule Galerie.Accounts do
       Ecto.Changeset.cast(user, %{folder_id: folder_id}, [:folder_id])
     end)
     |> Repo.transaction()
-    |> Result.tap(fn %{user: user} ->
+    |> Repo.unwrap_transaction(:user)
+    |> Result.tap(fn user ->
       Galerie.Mailer.deliver_async(fn ->
         Galerie.Mailer.welcome(user)
       end)

@@ -40,7 +40,7 @@ defmodule GalerieWeb.Components.Picture.Viewer do
 
   def render(assigns) do
     ~H"""
-    <div class="z-50 fixed flex flex-row top-0 left-0 w-screen h-screen bg-gray-800/90" phx-window-keyup={@on_keyup}>
+    <div class="z-50 fixed flex flex-row top-0 left-0 w-screen h-screen bg-gray-800/90 fade-in transition-all" phx-window-keyup={@on_keyup}>
       <div class="flex-1 flex flex-row text-white text-lg">
         <.side_arrow disabled={not @has_previous} icon={:left_chevron} on_keyup={@on_keyup} key="ArrowLeft"/>
         <div class="py-2"><img class={Html.class("h-full m-auto", rotation(@picture))} src={~p(/pictures/#{@picture.id})} /></div>
@@ -68,7 +68,7 @@ defmodule GalerieWeb.Components.Picture.Viewer do
     assigns = update(assigns, :picture, &Repo.preload(&1, [:exif, :metadata]))
 
     ~H"""
-    <div class="flex flex-col flex-initial w-96 bg-white">
+    <div class="flex flex-col flex-initial w-96 bg-white transition-all slide-left">
       <div class="flex flex-row justify-between items-center px-2 py-2">
         <span class="text-md flex items-center">
           <Ui.select_marker checked={@checked} class="mr-2" on_select="select-picture" on_deselect="deselect-picture" phx-value-picture_id={@picture.id} phx-value-index={@index} />

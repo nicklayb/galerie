@@ -2,17 +2,25 @@
   <div class="flex-initial w-72 flex flex-col justify-between">
     <div class="flex-1">
       <div class="px-1">
-        <span class="text-sm pl-1"><%= gettext("Albums") %></span>
+        <div class="pl-1 flex flex-row justify-between items-center text-true-gray-700">
+          <span><%= gettext("Albums") %></span>
+          <span class="mr-2"><Icon.add width="14" height="14" /></span>
+        </div>
         <ul class="px-1">
           <Ui.list items={@albums}>
             <:item :let={{index, item}}>
-              <li class={Html.class("flex items-center px-1 border border-true-gray-300 py-0.5 cursor-pointer first:rounded-t-md last:rounded-b-md", {SelectableList.index_selected?(@albums, index), "bg-pink-500 text-white border-pink-500"})} phx-click="filter-album" phx-value-index={index}>
-                <Icon.picture width="18" height="18" class="mx-1"/>
-                <%= item.name %>
+              <li class={Html.class("flex flex-row justify-between px-1 border border-true-gray-300 border-t-0 first:border-t py-0.5 cursor-pointer first:rounded-t-md last:rounded-b-md", {SelectableList.index_selected?(@albums, index), "bg-pink-500 text-white border-pink-500"})} phx-click="filter-album" phx-value-index={index}>
+                <div class="flex items-center">
+                  <Icon.picture width="18" height="18" class="mx-1"/>
+                  <%= item.name %>
+                </div>
+                <div>
+                  (<%= item.picture_count %>)
+                </div>
               </li>
             </:item>
             <:empty>
-              <%= gettext("No albums") %>
+              <div class="bg-true-gray-200 text-true-gray-500 rounded-lg p-2 text-center"><%= gettext("No albums") %></div>
             </:empty>
           </Ui.list>
         </ul>
@@ -28,7 +36,7 @@
     </div>
   </div>
   <Ui.loading loading={@updating}>
-    <div class="w-full flex flex-col px-2">
+    <div class="w-full flex flex-col">
       <Picture.selection_bar selectable_list={@pictures.results}>
         <Picture.selection_button action="selection_bar:clear" class="rounded-full w-8">
           <Icon.cross class="m-auto" width="12" height="12" />
@@ -39,9 +47,12 @@
         <Picture.selection_button action="selection_bar:download" class="rounded-full w-8">
           <Icon.download class="m-auto" width="15" height="15" />
         </Picture.selection_button>
+        <Picture.selection_button action="selection_bar:add-to-album" class="rounded-full w-8">
+          <Icon.picture class="m-auto" width="15" height="15" />
+        </Picture.selection_button>
       </Picture.selection_bar>
       <Dropzone.render upload={@uploads.upload_pictures} class="overflow-y-hidden flex-1 h-full" id="libraryDropzone">
-        <div class="flex-1 h-full overflow-y-auto" id="library" phx-viewport-bottom={if @pictures.has_next_page and not @scroll_disabled, do: "scrolled-bottom"}>
+        <div class="flex-1 h-full overflow-y-auto pr-2" id="library" phx-viewport-bottom={if @pictures.has_next_page and not @scroll_disabled, do: "scrolled-bottom"}>
           <%= case @pictures do %>
             <% %Page{results: pictures} -> %>
               <Picture.grid pictures={pictures} filter_selected={@filter_selected} />

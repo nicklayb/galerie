@@ -70,7 +70,16 @@ defmodule SelectableList do
     Map.get(items, highlighted_index)
   end
 
-  @spec new([any()]) :: t()
+  @spec new([any()] | t()) :: t()
+  def new(%SelectableList{} = selectable_list) do
+    %SelectableList{
+      selectable_list
+      | selected_indexes: MapSet.new(),
+        highlighted_index: nil,
+        last_touched_index: nil
+    }
+  end
+
   def new(items) do
     {count, items_with_index} = with_index(items)
     %SelectableList{items: items_with_index, count: count}
@@ -154,7 +163,26 @@ defmodule SelectableList do
     }
   end
 
+  def multiple_selected?(%SelectableList{selected_indexes: selected_indexes}) do
+    selected_indexes
+    |> MapSet.to_list()
+    |> List.Extra.at_least?(2)
+  end
+
   @type function_or_item :: (any() -> boolean()) | (any(), index() -> boolean()) | any()
+
+  def select_only(%SelectableList{} = selectable_list, index)
+      when is_index_valid(selectable_list, index) do
+    %SelectableList{selectable_list | selected_indexes: MapSet.new([index])}
+  end
+
+  def toggle_only(%SelectableList{} = selectable_list, index) do
+    if index_selected?(selectable_list, index) do
+      deselect_all(selectable_list)
+    else
+      select_only(selectable_list, index)
+    end
+  end
 
   @spec select(t(), function_or_item()) :: t()
   def select(%SelectableList{} = selectable_list, function_or_item) do
@@ -165,6 +193,10 @@ defmodule SelectableList do
       _ ->
         selectable_list
     end
+  end
+
+  def deselect_all(%SelectableList{} = selectable_list) do
+    %SelectableList{selectable_list | selected_indexes: MapSet.new()}
   end
 
   @spec deselect(t(), function_or_item()) :: t()

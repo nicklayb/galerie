@@ -1,6 +1,7 @@
 defmodule Galerie.Pictures.Picture.Group do
   use Galerie, :schema
 
+  alias Galerie.Albums.AlbumPictureGroup
   alias Galerie.Folders.Folder
   alias Galerie.Pictures.Picture
   alias Galerie.Pictures.Picture.Group
@@ -13,6 +14,7 @@ defmodule Galerie.Pictures.Picture.Group do
     belongs_to(:folder, Folder)
 
     has_many(:pictures, Picture)
+    has_many(:albums_picture_groups, AlbumPictureGroup)
 
     timestamps()
   end

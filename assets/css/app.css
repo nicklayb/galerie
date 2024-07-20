@@ -2,4 +2,20 @@
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 
+@keyframes fadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
 
+@keyframes slideLeft {
+  0% { translate: 1000px; }
+  100% { translate: 0px; }
+}
+
+.fade-in {
+  animation: fadeIn 0.1s;
+}
+
+.slide-left {
+  animation: slideLeft 0.3s;
+}

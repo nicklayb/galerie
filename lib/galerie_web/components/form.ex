@@ -4,12 +4,17 @@ defmodule GalerieWeb.Components.Form do
 
   attr(:name, :atom, required: true)
   attr(:label, :string, required: true)
+  attr(:multiple, :boolean, default: false)
   attr(:errors, :list, default: [])
+  attr(:class, :string, default: "")
   slot(:inner_block, required: true)
 
   def element(assigns) do
+    name = multiple_name(assigns)
+    assigns = assign(assigns, :name, name)
+
     ~H"""
-    <div class={"group mb-3 flex flex-col gap-y-2 " <> if Enum.any?(@errors), do: "has-errors", else: ""}>
+    <div class={Html.class("group", [{Enum.any?(@errors), "has-errors"}, {@class != "", @class, "flex flex-col gap-y-2 mb-3"}])}>
       <%= if @label do %>
         <label for={@name} class="text-sm pl-0.5 group-[.has-errors]:text-red-400">
           <%= @label %>
@@ -20,6 +25,38 @@ defmodule GalerieWeb.Components.Form do
     </div>
     """
   end
+
+  attr(:field, :any, required: true)
+  attr(:label, :string)
+  attr(:value, :any, required: true)
+  attr(:element_class, :string, default: "")
+  attr(:multiple, :boolean, default: false)
+  attr(:checked, :boolean, required: true)
+
+  def checkbox(assigns) do
+    name = multiple_name(assigns)
+    assigns = assign(assigns, :name, name)
+
+    ~H"""
+    <.element label={@label} name={@field.name} errors={@field.errors} class={@element_class} multiple={@multiple}>
+      <input type="checkbox" id={@field.id} name={@name} value={@value} checked={@checked}/>
+    </.element>
+    """
+  end
+
+  def hidden(assigns) do
+    name = multiple_name(assigns)
+    assigns = assign(assigns, :name, name)
+
+    ~H"""
+    <input type="hidden" id={@field.id} name={@name} value={@value} />
+    """
+  end
+
+  defp multiple_name(%{multiple: true, field: field}), do: field.name <> "[]"
+  defp multiple_name(%{multiple: true, name: name}), do: name <> "[]"
+  defp multiple_name(%{field: field}), do: field.name
+  defp multiple_name(%{name: name}), do: name
 
   attr(:form, :any, default: nil)
   attr(:class, :string, default: "")

@@ -2,8 +2,9 @@ defmodule Galerie.Albums do
   require Ecto.Query
   alias Galerie.Accounts.User
   alias Galerie.Albums.Album
-  alias Galerie.Albums.AlbumPicture
+  alias Galerie.Albums.AlbumPictureGroup
   alias Galerie.Pictures.Picture
+  alias Galerie.Pictures.Picture.Group
   alias Galerie.Repo
 
   @type picture_or_id :: Picture.t() | String.t()
@@ -14,6 +15,14 @@ defmodule Galerie.Albums do
   def get_user_albums(user_id) do
     Album
     |> Ecto.Query.where([album], album.user_id == ^user_id)
+    |> Ecto.Query.join(:left, [album], groups in assoc(album, :groups), as: :groups)
+    |> Ecto.Query.group_by([album], [album.id, album.name, album.user_id])
+    |> Ecto.Query.select([album, groups: groups], %Album{
+      id: album.id,
+      name: album.name,
+      user_id: album.user_id,
+      picture_count: count(groups)
+    })
     |> Repo.all()
   end
 
@@ -24,33 +33,50 @@ defmodule Galerie.Albums do
     |> Repo.insert()
   end
 
-  @spec add_to_album(Album.t(), picture_or_pictures()) :: Result.t(Album.t(), any())
-  def add_to_album(%Album{} = album, [%Picture{} | _] = pictures) do
-    picture_ids = Enum.Extra.field(pictures, :id)
-
-    add_to_album(album, picture_ids)
+  def attach_picture_groups_to_albums(album_ids, group_ids) do
+    Album
+    |> Ecto.Query.select([album], %Album{id: album.id})
+    |> Ecto.Query.where([album], album.id in ^album_ids)
+    |> Repo.all()
+    |> Enum.map(fn %Album{} = album ->
+      add_to_album(album, group_ids)
+    end)
   end
 
-  def add_to_album(%Album{id: album_id} = album, picture_ids) when is_list(picture_ids) do
-    %Album{pictures: pictures} = Repo.preload(album, :pictures)
+  @spec add_to_album(Album.t(), picture_or_pictures()) :: Result.t(Album.t(), any())
+  def add_to_album(%Album{} = album, [%Picture{} | _] = pictures) do
+    group_ids = Enum.Extra.field(pictures, :group_id)
 
-    picture_ids
-    |> Enum.reject(fn id -> Enum.any?(pictures, &(&1.id == id)) end)
-    |> Enum.reduce(Ecto.Multi.new(), fn picture_id, multi ->
+    add_to_album(album, group_ids)
+  end
+
+  def add_to_album(%Album{} = album, [%Group{} | _] = groups) do
+    group_ids = Enum.Extra.field(groups, :id)
+
+    add_to_album(album, group_ids)
+  end
+
+  def add_to_album(%Album{id: album_id} = album, group_ids) when is_list(group_ids) do
+    %Album{groups: groups} = Repo.preload(album, :groups)
+
+    group_ids
+    |> Enum.reject(fn id -> Enum.any?(groups, &(&1.id == id)) end)
+    |> Enum.uniq()
+    |> Enum.reduce(Ecto.Multi.new(), fn group_id, multi ->
       Ecto.Multi.insert(
         multi,
-        {:album_picture, picture_id},
-        AlbumPicture.changeset(%{picture_id: picture_id, album_id: album_id})
+        {:album_group_group, group_id},
+        AlbumPictureGroup.changeset(%{group_id: group_id, album_id: album_id})
       )
     end)
     |> Repo.transaction()
     |> Result.map(fn _ ->
-      Repo.reload_assoc(album, [:pictures])
+      Repo.reload_assoc(album, [:groups])
     end)
   end
 
-  def add_to_album(%Album{} = album, picture_or_picture_id) do
-    add_to_album(album, List.wrap(picture_or_picture_id))
+  def add_to_album(%Album{} = album, pictures_or_group_ids) do
+    add_to_album(album, List.wrap(pictures_or_group_ids))
   end
 
   @spec remove_from_album(Album.t(), picture_or_pictures()) :: Result.t(Album.t(), any())
