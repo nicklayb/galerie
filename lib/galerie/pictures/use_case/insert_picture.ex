@@ -1,11 +1,12 @@
 defmodule Galerie.Pictures.UseCase.InsertPicture do
+  use Galerie.UseCase
   alias Galerie.Folders.Folder
   alias Galerie.Pictures.Picture
   alias Galerie.Pictures.Picture.Group
-  alias Galerie.Repo
 
-  def run(params) do
-    Ecto.Multi.new()
+  @impl Galerie.UseCase
+  def run(multi, params, _options) do
+    multi
     |> Ecto.Multi.insert(:picture, Picture.create_changeset(params))
     |> Ecto.Multi.run(:picture_group, &get_or_create_group/2)
     |> Ecto.Multi.update(:picture_with_group, fn %{
@@ -15,9 +16,6 @@ defmodule Galerie.Pictures.UseCase.InsertPicture do
       Picture.group_changeset(picture, %{group_id: group_id})
     end)
     |> Ecto.Multi.run(:group_with_main_picture, &put_main_picture_id/2)
-    |> Repo.transaction()
-    |> Repo.unwrap_transaction(:picture_with_group)
-    |> Result.tap(&Galerie.PubSub.broadcast({Folder, &1.folder_id}, {:picture_imported, &1}))
   end
 
   defp get_or_create_group(
@@ -52,5 +50,15 @@ defmodule Galerie.Pictures.UseCase.InsertPicture do
 
   defp put_main_picture_id(_repo, %{picture_group: %Group{} = picture_group}) do
     {:ok, picture_group}
+  end
+
+  @impl Galerie.UseCase
+  def after_run(%{picture_with_group: %Picture{folder_id: folder_id} = picture}, _options) do
+    Galerie.PubSub.broadcast({Folder, folder_id}, {:picture_imported, picture})
+  end
+
+  @impl Galerie.UseCase
+  def return(%{picture_with_group: picture}, _options) do
+    picture
   end
 end

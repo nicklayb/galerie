@@ -2,6 +2,7 @@ defmodule Galerie.Folders do
   require Ecto.Query
   alias Galerie.Accounts.User
   alias Galerie.Folders.Folder
+  alias Galerie.Folders.UseCase
   alias Galerie.Repo
 
   def get_user_folders(%User{} = user) do
@@ -16,9 +17,7 @@ defmodule Galerie.Folders do
         folder
 
       _ ->
-        %{path: folder_path, global: true}
-        |> Folder.changeset()
-        |> Repo.insert!()
+        UseCase.CreateFolder.execute!(folder_path)
     end
   end
 end

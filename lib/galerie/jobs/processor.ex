@@ -33,7 +33,6 @@ defmodule Galerie.Jobs.Processor do
 
   defp process(
          %Picture{
-           id: picture_id,
            exif: picture_exif,
            metadata: picture_metadata
          } = picture
@@ -44,7 +43,7 @@ defmodule Galerie.Jobs.Processor do
       |> Result.map(&normalize/1)
       |> Result.with_default(%{})
 
-    upsert_exif(picture_exif, picture_id, exif)
+    upsert_exif(picture_exif, picture, exif)
     upsert_metadata(picture_metadata, picture, exif)
 
     :ok
@@ -69,13 +68,13 @@ defmodule Galerie.Jobs.Processor do
     )
   end
 
-  defp upsert_exif(nil, picture_id, exif), do: upsert_exif(%Exif{}, picture_id, exif)
+  defp upsert_exif(nil, picture, exif), do: upsert_exif(%Exif{}, picture, exif)
 
-  defp upsert_exif(%Exif{} = picture_exif, picture_id, exif) do
+  defp upsert_exif(%Exif{} = picture_exif, %Picture{id: picture_id, folder_id: folder_id}, exif) do
     picture_exif
     |> Exif.changeset(%{picture_id: picture_id, exif: exif})
     |> Repo.insert_or_update()
-    |> Result.tap(&Galerie.PubSub.broadcast({Folder, &1.folder_id}, {:processed, &1}))
+    |> Result.tap(&Galerie.PubSub.broadcast({Folder, folder_id}, {:processed, &1}))
     |> Result.log(
       &"[#{inspect(__MODULE__)}] [exif] [#{&1.picture_id}] [processed]",
       &"[#{inspect(__MODULE__)}] [exif] [#{picture_id}] [failed] #{inspect(&1)}"

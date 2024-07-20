@@ -1,9 +1,6 @@
 defmodule Galerie.Pictures.Picture do
   use Galerie, :schema
 
-  alias Galerie.Accounts.User
-  alias Galerie.Albums.Album
-  alias Galerie.Albums.AlbumPictureGroup
   alias Galerie.Directory.FileName
   alias Galerie.Folders.Folder
   alias Galerie.Pictures

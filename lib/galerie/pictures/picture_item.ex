@@ -37,8 +37,6 @@ defmodule Galerie.Pictures.PictureItem do
       inserted_at: picture.inserted_at
     })
     |> Ecto.Query.where([picture: picture], not is_nil(picture.thumbnail))
-
-    #  |> Ecto.Query.distinct([group, picture: picture], [picture.folder_id, group.group_name])
   end
 
   def by_folder_ids(query \\ from(), folder_ids) do

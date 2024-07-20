@@ -9,7 +9,7 @@ defmodule Galerie.Albums.Album.Query do
   end
 
   def by_ids(query \\ from(), album_ids) do
-    Ecto.Query.where(query, [album: album], album.id in ^album_ids)
+    Ecto.Query.where(query, [album: album], album.id in ^List.wrap(album_ids))
   end
 
   def with_picture_count(query \\ from()) do

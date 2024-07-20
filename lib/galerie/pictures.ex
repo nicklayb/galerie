@@ -126,6 +126,6 @@ defmodule Galerie.Pictures do
   end
 
   def insert_picture(params) do
-    UseCase.InsertPicture.run(params)
+    UseCase.InsertPicture.execute(params)
   end
 end

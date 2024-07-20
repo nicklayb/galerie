@@ -385,6 +385,20 @@ defmodule GalerieWeb.Library.Live do
 
   def handle_info(
         %Galerie.PubSub.Message{
+          message: :processed,
+          params: %Galerie.Pictures.Picture{} = picture
+        } = message,
+        socket
+      ) do
+    if highlighted?(socket, picture) do
+      send_update(Picture.Viewer, id: "viewer", message: message)
+    end
+
+    {:noreply, socket}
+  end
+
+  def handle_info(
+        %Galerie.PubSub.Message{
           message: :thumbnail_generated,
           params: %Galerie.Pictures.Picture{} = picture
         },
@@ -496,5 +510,23 @@ defmodule GalerieWeb.Library.Live do
 
   defp reload_pictures(%{assigns: assigns} = socket) do
     start_async(socket, :load_pictures, fn -> load_pictures(assigns) end)
+  end
+
+  defp highlighted?(socket, %{group_id: group_id}) do
+    highlighted?(socket, group_id)
+  end
+
+  defp highlighted?(socket, %{id: group_id}) do
+    highlighted?(socket, group_id)
+  end
+
+  defp highlighted?(%{assigns: %{pictures: %{results: results}}}, group_id) do
+    case SelectableList.highlighted_item(results) do
+      %{group_id: ^group_id} ->
+        true
+
+      _ ->
+        false
+    end
   end
 end

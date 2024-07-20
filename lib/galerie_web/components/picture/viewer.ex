@@ -9,7 +9,6 @@ defmodule GalerieWeb.Components.Picture.Viewer do
   alias Galerie.Pictures.Picture.Metadata
   alias Galerie.Pictures.PictureItem
   alias Galerie.Repo
-  alias GalerieWeb.Components.Form
   alias GalerieWeb.Components.Icon
   alias GalerieWeb.Components.Ui
   alias GalerieWeb.Html

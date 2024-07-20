@@ -287,6 +287,17 @@ defmodule SelectableList do
     end)
   end
 
+  def update_at(%SelectableList{items: items} = selectable_list, index, function)
+      when is_function(function, 1) and is_index_valid(selectable_list, index) do
+    %SelectableList{selectable_list | items: Map.update!(items, index, function)}
+  end
+
+  def update_at(%SelectableList{} = selectable_list, index, item) do
+    update_at(selectable_list, index, fn _ -> item end)
+  end
+
+  def update_at(%SelectableList{} = selectable_list, _, _), do: selectable_list
+
   defp with_index(items, start_index \\ 0) do
     Enum.reduce(items, {start_index, %{}}, fn item, {current_index, acc} ->
       {current_index + 1, Map.put(acc, current_index, item)}
