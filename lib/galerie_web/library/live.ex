@@ -1,6 +1,9 @@
 defmodule GalerieWeb.Library.Live do
   use GalerieWeb, :live_view
 
+  require Logger
+
+  alias Galerie.Albums.Album
   alias Galerie.Accounts.User
   alias Galerie.Albums
   alias Galerie.Folders
@@ -126,6 +129,8 @@ defmodule GalerieWeb.Library.Live do
 
   def handle_async(:load_albums, {:ok, albums}, socket) do
     socket = assign(socket, :albums, albums)
+
+    Enum.each(albums, fn {_, album} -> Galerie.PubSub.subscribe(album) end)
 
     {:noreply, socket}
   end
@@ -439,8 +444,31 @@ defmodule GalerieWeb.Library.Live do
     {:noreply, socket}
   end
 
-  def handle_info(%Galerie.PubSub.Message{}, socket) do
+  def handle_info(
+        %Galerie.PubSub.Message{
+          message: :removed_from_album,
+          params: %{album: album, group: group}
+        } = message,
+        socket
+      ) do
+    socket = update(socket, :albums, &put_album(&1, album))
+
+    if highlighted?(socket, group) do
+      send_update(self(), Picture.Viewer, id: "pictureViewer", message: message)
+    end
+
     {:noreply, socket}
+  end
+
+  def handle_info(%Galerie.PubSub.Message{message: message}, socket) do
+    Logger.warning("[#{inspect(__MODULE__)}] [handle_info] [unhandled_pub_sub] #{message}")
+    {:noreply, socket}
+  end
+
+  defp put_album(%SelectableList{} = albums, %Album{id: album_id} = album) do
+    SelectableList.update(albums, fn current_album ->
+      {current_album.id == album_id, album}
+    end)
   end
 
   defp update_jobs(socket, updates) do

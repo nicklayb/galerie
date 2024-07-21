@@ -66,6 +66,12 @@ defmodule Galerie.Pictures do
     |> Repo.paginate(%{limit: limit, sort_by: {:desc, :datetime_original}})
   end
 
+  def get_picture_item(:group_id, group_id) do
+    group_id
+    |> PictureItem.by_group_ids()
+    |> Repo.one()
+  end
+
   defp apply_pictures_filter(query, options) do
     Enum.reduce(options, query, fn
       {:album_ids, album_ids}, acc ->

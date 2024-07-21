@@ -5,6 +5,7 @@ defmodule GalerieWeb.Components.Picture.Viewer do
 
   import GalerieWeb.Gettext
 
+  alias Galerie.Albums
   alias Galerie.Pictures.Picture
   alias Galerie.Pictures.Picture.Metadata
   alias Galerie.Pictures.PictureItem
@@ -33,9 +34,24 @@ defmodule GalerieWeb.Components.Picture.Viewer do
     {:ok, socket}
   end
 
+  def update(%{message: %Galerie.PubSub.Message{message: :removed_from_album}}, socket) do
+    socket = assign_pictures(socket)
+    {:ok, socket}
+  end
+
   def update(assigns, socket) do
+    IO.inspect(assigns, label: "Updated")
     socket = assign(socket, assigns)
     {:ok, socket}
+  end
+
+  def handle_event(
+        "viewer:remove-from-album",
+        %{"album_id" => album_id, "group_id" => group_id},
+        socket
+      ) do
+    Albums.remove_from_album(%{album_id: album_id, group_id: group_id})
+    {:noreply, socket}
   end
 
   def render(assigns) do
@@ -46,7 +62,7 @@ defmodule GalerieWeb.Components.Picture.Viewer do
         <div class="py-2"><img class={Html.class("h-full m-auto", rotation(@picture))} src={~p(/pictures/#{@picture.id})} /></div>
         <.side_arrow disabled={not @has_next} icon={:right_chevron} on_keyup={@on_keyup} key="ArrowRight"/>
       </div>
-      <.info_panel checked={@checked} picture={@picture} index={@results.highlighted_index} on_close={@on_close} pictures={@pictures} />
+      <.info_panel checked={@checked} picture={@picture} index={@results.highlighted_index} on_close={@on_close} pictures={@pictures} myself={@myself}/>
     </div>
     """
   end
@@ -65,8 +81,6 @@ defmodule GalerieWeb.Components.Picture.Viewer do
   end
 
   defp info_panel(assigns) do
-    assigns = update(assigns, :picture, &Repo.preload(&1, [:exif, :metadata, :albums]))
-
     ~H"""
     <div class="flex flex-col flex-initial w-96 bg-white transition-all slide-left">
       <div class="flex flex-row justify-between items-center px-2 py-2">
@@ -128,7 +142,7 @@ defmodule GalerieWeb.Components.Picture.Viewer do
         <.info_section title={gettext("Albums (%{count})", count: length(@picture.albums))}>
           <%= for album <- @picture.albums do %>
             <.info_section_item title={album.name}>
-              <Ui.button phx-click="viewer:remove-from-album" phx-value-group_id={@picture.group_id} phx-value-album_id={album.id}>
+              <Ui.button phx-click="viewer:remove-from-album" phx-value-group_id={@picture.group_id} phx-value-album_id={album.id} phx-target={@myself}>
                 <Icon.cross height="14" width="14"/>
               </Ui.button>
             </.info_section_item>
@@ -197,6 +211,10 @@ defmodule GalerieWeb.Components.Picture.Viewer do
   defp rotation(180), do: "rotate-180"
   defp rotation(_), do: nil
 
+  defp assign_pictures(%{assigns: %{picture_item: picture_item}} = socket) do
+    assign_pictures(socket, picture_item)
+  end
+
   defp assign_pictures(socket, %SelectableList{} = pictures) do
     picture_item = SelectableList.highlighted_item(pictures)
 
@@ -216,7 +234,9 @@ defmodule GalerieWeb.Components.Picture.Viewer do
     picture = Enum.find(pictures, &(&1.id == picture_item.main_picture_id))
 
     socket
+    |> assign(:picture_item, picture_item)
     |> assign(:picture, picture)
     |> assign(:pictures, pictures)
+    |> update(:picture, &Repo.preload(&1, [:exif, :metadata, :albums]))
   end
 end

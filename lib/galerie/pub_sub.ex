@@ -27,7 +27,17 @@ defmodule Galerie.PubSub do
   def topic({namespace, id, child}), do: "#{topic({namespace, id})}:#{child}"
 
   @doc "Broadcasts a message to one or more topics"
-  @spec broadcast(topic() | [topic()] | String.t(), message()) :: :ok
+  @spec broadcast(topic() | [topic()] | String.t(), message() | function()) :: :ok
+  def broadcast(topics, function) when is_function(function, 0) do
+    Task.start(fn ->
+      result = function.()
+
+      broadcast(topics, result)
+    end)
+
+    :ok
+  end
+
   def broadcast(topics, message) when is_list(topics) do
     Enum.each(topics, &broadcast(&1, message))
   end

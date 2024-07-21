@@ -8,6 +8,8 @@ defmodule Galerie.Albums.AlbumPictureGroup do
   schema("albums_picture_groups") do
     belongs_to(:album, Album)
     belongs_to(:group, Group)
+
+    timestamps()
   end
 
   @required ~w(album_id group_id)a

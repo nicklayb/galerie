@@ -39,6 +39,10 @@ defmodule Galerie.Pictures.PictureItem do
     |> Ecto.Query.where([picture: picture], not is_nil(picture.thumbnail))
   end
 
+  def by_group_ids(query \\ from(), group_ids) do
+    Ecto.Query.where(query, [group], group.id in ^List.wrap(group_ids))
+  end
+
   def by_folder_ids(query \\ from(), folder_ids) do
     Ecto.Query.where(query, [group], group.folder_id in ^folder_ids)
   end

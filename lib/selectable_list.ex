@@ -287,6 +287,24 @@ defmodule SelectableList do
     end)
   end
 
+  def update(%SelectableList{} = selectable_list, function) when is_function(function, 1) do
+    lookup =
+      Enum.reduce_while(selectable_list, nil, fn {index, value}, _ ->
+        case function.(value) do
+          {true, new_value} ->
+            {:halt, {index, new_value}}
+
+          {false, _} ->
+            {:cont, nil}
+        end
+      end)
+
+    case lookup do
+      {index, new_value} -> update_at(selectable_list, index, new_value)
+      _ -> selectable_list
+    end
+  end
+
   def update_at(%SelectableList{items: items} = selectable_list, index, function)
       when is_function(function, 1) and is_index_valid(selectable_list, index) do
     %SelectableList{selectable_list | items: Map.update!(items, index, function)}

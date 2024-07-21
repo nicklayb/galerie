@@ -32,4 +32,8 @@ defmodule Galerie.Albums do
       UseCase.AddToAlbum.execute({album, group_ids}, options)
     end)
   end
+
+  def remove_from_album(params, options \\ []) do
+    UseCase.RemoveFromAlbum.execute(params, options)
+  end
 end

@@ -17,10 +17,8 @@ defmodule Galerie.Albums.Album.Query do
     |> Ecto.Query.join(:left, [album: album], groups in assoc(album, :groups), as: :groups)
     |> Ecto.Query.group_by([album: album], [album.id, album.name, album.user_id])
     |> Ecto.Query.select([album: album, groups: groups], %Album{
-      id: album.id,
-      name: album.name,
-      user_id: album.user_id,
-      picture_count: count(groups)
+      album
+      | picture_count: count(groups)
     })
   end
 
