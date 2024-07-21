@@ -32,10 +32,3 @@ end
   Seed.create_user([
     %{first_name: "John", last_name: "Doe", email: "admin@example.com", is_admin: true}
   ])
-
-[_, _, _] =
-  Seed.create_album(main_user, [
-    "First album",
-    "Second album",
-    "Third album"
-  ])

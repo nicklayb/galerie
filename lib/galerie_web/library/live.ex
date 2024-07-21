@@ -127,8 +127,10 @@ defmodule GalerieWeb.Library.Live do
     {:noreply, assign(socket, :jobs, jobs)}
   end
 
-  def handle_async(:load_albums, {:ok, albums}, socket) do
+  def handle_async(:load_albums, {:ok, albums}, %{assigns: %{albums: old_albums}} = socket) do
     socket = assign(socket, :albums, albums)
+
+    Enum.each(old_albums, fn {_, album} -> Galerie.PubSub.unsubscribe(album) end)
 
     Enum.each(albums, fn {_, album} -> Galerie.PubSub.subscribe(album) end)
 
@@ -188,6 +190,17 @@ defmodule GalerieWeb.Library.Live do
     [
       album_ids: album_ids
     ]
+  end
+
+  def handle_event("create-album", _, socket) do
+    socket =
+      assign(
+        socket,
+        :modal,
+        {GalerieWeb.Components.Modals.CreateAlbum, current_user: socket.assigns.current_user}
+      )
+
+    {:noreply, socket}
   end
 
   def handle_event("scrolled-bottom", _params, socket) do
@@ -319,6 +332,10 @@ defmodule GalerieWeb.Library.Live do
     {:noreply, socket}
   end
 
+  def handle_event("viewer:keyup", %{"_target" => _}, socket) do
+    {:noreply, socket}
+  end
+
   def handle_event("viewer:keyup", %{"key" => "ArrowLeft"}, socket) do
     socket = update_pictures(socket, &SelectableList.highlight_previous/1)
 
@@ -331,12 +348,18 @@ defmodule GalerieWeb.Library.Live do
     {:noreply, socket}
   end
 
-  def handle_event("viewer:keyup", %{"key" => "c"}, socket) do
+  def handle_event("viewer:keyup", %{"key" => "c"} = params, socket) do
+    params |> IO.inspect()
+
     socket =
-      update_pictures(
-        socket,
-        &SelectableList.toggle_by_index(&1, socket.assigns.pictures.results.highlighted_index)
-      )
+      if SelectableList.highlighted?(socket.assigns.pictures.results) do
+        update_pictures(
+          socket,
+          &SelectableList.toggle_by_index(&1, socket.assigns.pictures.results.highlighted_index)
+        )
+      else
+        socket
+      end
 
     {:noreply, socket}
   end
@@ -456,6 +479,18 @@ defmodule GalerieWeb.Library.Live do
     if highlighted?(socket, group) do
       send_update(self(), Picture.Viewer, id: "pictureViewer", message: message)
     end
+
+    {:noreply, socket}
+  end
+
+  def handle_info(
+        %Galerie.PubSub.Message{
+          message: :album_created
+        },
+        socket
+      ) do
+    current_user = socket.assigns.current_user
+    socket = start_async(socket, :load_albums, fn -> load_albums(current_user) end)
 
     {:noreply, socket}
   end

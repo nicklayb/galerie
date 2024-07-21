@@ -4,7 +4,7 @@
       <div class="px-1">
         <div class="pl-1 flex flex-row justify-between items-center text-true-gray-700">
           <span><%= gettext("Albums") %></span>
-          <span class="mr-2"><Icon.add width="14" height="14" /></span>
+          <span class="mr-2 hover:text-pink-600" phx-click="create-album"><Icon.add width="14" height="14" /></span>
         </div>
         <ul class="px-1">
           <Ui.list items={@albums}>

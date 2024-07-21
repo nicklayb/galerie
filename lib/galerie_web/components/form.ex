@@ -72,7 +72,7 @@ defmodule GalerieWeb.Components.Form do
 
     ~H"""
     <.element name={@field.name} label={@label} errors={@field.errors}>
-      <input type="text" id={@field.id} name={@field.name} value={@field.value} class={@class} autocomplete={@autocomplete} {@rest} />
+      <input type="text" id={@field.id} name={@field.name} value={@field.value} class={@class} autocomplete={@autocomplete} onkeyup="event.preventDefault()" {@rest} />
     </.element>
     """
   end

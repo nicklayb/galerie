@@ -13,6 +13,7 @@ defmodule Galerie.Pictures.Picture.Metadata do
     field(:datetime_original, :naive_datetime)
     field(:longitude, :float)
     field(:latitude, :float)
+    field(:focal_length, :float)
     field(:width, :integer)
     field(:height, :integer)
     field(:rotation, :integer)
@@ -24,7 +25,7 @@ defmodule Galerie.Pictures.Picture.Metadata do
   end
 
   @required ~w(width height orientation picture_id)a
-  @optional ~w(exposure_time f_number lens_model camera_make camera_model datetime_original longitude latitude rotation)a
+  @optional ~w(exposure_time f_number focal_length lens_model camera_make camera_model datetime_original longitude latitude rotation)a
   @castable @required ++ @optional
   def changeset(%Metadata{} = metadata \\ %Metadata{}, params) do
     metadata

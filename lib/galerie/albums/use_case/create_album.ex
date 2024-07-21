@@ -16,5 +16,10 @@ defmodule Galerie.Albums.UseCase.CreateAlbum do
   end
 
   @impl Galerie.UseCase
+  def after_run(%{album: album}, _options) do
+    Galerie.PubSub.broadcast({Galerie.Accounts.User, album.user_id}, {:album_created, album})
+  end
+
+  @impl Galerie.UseCase
   def return(%{album: album}, _options), do: album
 end

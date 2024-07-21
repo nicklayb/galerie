@@ -24,5 +24,6 @@ defmodule Galerie.Albums.Album do
     album
     |> Ecto.Changeset.cast(params, @required)
     |> Ecto.Changeset.validate_required(@required)
+    |> Ecto.Changeset.unique_constraint(:name, name: :albums_user_id_name_index)
   end
 end

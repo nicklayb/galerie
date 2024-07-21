@@ -16,6 +16,7 @@ defmodule Galerie.Repo.Migrations.CreatePictureMetadataTable do
       add(:datetime_original, :naive_datetime)
       add(:longitude, :float)
       add(:latitude, :float)
+      add(:focal_length, :float)
       add(:width, :integer)
       add(:height, :integer)
       add(:rotation, :integer, null: false, default: 0)

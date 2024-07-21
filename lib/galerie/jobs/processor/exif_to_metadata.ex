@@ -22,6 +22,7 @@ defmodule Galerie.Jobs.Processor.ExifToMetadata do
         format_date_time(Map.get(exif, :datetime_original), Map.get(exif, :time_offset)),
       longitude: get_gps(gps, :longitude),
       latitude: get_gps(gps, :latitude),
+      focal_length: Map.get(exif, :focal_length),
       picture_id: picture_id
     }
   end

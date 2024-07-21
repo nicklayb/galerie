@@ -19,7 +19,8 @@ defmodule Galerie.Albums do
     |> Repo.all()
   end
 
-  @spec create_album(User.t(), map(), Keyword.t()) :: Result.t(Album.t(), any())
+  @spec create_album(User.t(), map(), Keyword.t()) ::
+          {:ok, Album.t()} | {:error, atom, Ecto.Changeset.t()}
   def create_album(user, params, options \\ []) do
     UseCase.CreateAlbum.execute({user, params}, options)
   end

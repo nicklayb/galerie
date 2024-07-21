@@ -108,6 +108,9 @@ defmodule GalerieWeb.Components.Picture.Viewer do
             <:info_item title={gettext("F stop")} visible={metadata.f_number > 0}>
               <%= gettext("f/%{focal}", focal: metadata.f_number) %>
             </:info_item>
+          <:info_item title={gettext("Focal length")} visible={not is_nil(metadata.focal_length) and metadata.focal_length > 0.0}>
+              <%= metadata.focal_length %>
+            </:info_item>
             <:info_item title={gettext("Dimensions")}>
               <%= metadata.width %>
               <span class="mx-0.5">x</span>
