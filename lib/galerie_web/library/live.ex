@@ -348,9 +348,7 @@ defmodule GalerieWeb.Library.Live do
     {:noreply, socket}
   end
 
-  def handle_event("viewer:keyup", %{"key" => "c"} = params, socket) do
-    params |> IO.inspect()
-
+  def handle_event("viewer:keyup", %{"key" => "c"}, socket) do
     socket =
       if SelectableList.highlighted?(socket.assigns.pictures.results) do
         update_pictures(
