@@ -36,6 +36,6 @@ defmodule Galerie.FileControl.Supervisor do
   end
 
   defp enabled? do
-    Galerie.Env.config(@supervisor, :enabled)
+    not Galerie.Env.test?() and Galerie.Env.config(@supervisor, :enabled)
   end
 end

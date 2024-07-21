@@ -34,36 +34,6 @@ defmodule SelectableLisTest do
     end
   end
 
-  describe "put/2" do
-    test "puts new items indexed" do
-      selectable_list = SelectableList.new([])
-
-      assert %SelectableList{
-               items: %{},
-               count: 0,
-               selected_indexes: MapSet.new(),
-               highlighted_index: nil,
-               last_touched_index: nil
-             } == selectable_list
-
-      assert %SelectableList{
-               items: %{
-                 0 => :a,
-                 1 => :b,
-                 2 => :c,
-                 3 => :d,
-                 4 => :e,
-                 5 => :f,
-                 6 => :g
-               },
-               count: 7,
-               selected_indexes: MapSet.new(),
-               highlighted_index: nil,
-               last_touched_index: nil
-             } == SelectableList.put(selectable_list, @chars)
-    end
-  end
-
   describe "append/2" do
     test "appends new items with indexes and count increment", %{selectable_list: selectable_list} do
       assert %SelectableList{
@@ -127,11 +97,11 @@ defmodule SelectableLisTest do
                last_touched_index: 5
              } == selectable_list
 
-      assert [:e, :f] = SelectableList.selected_items(selectable_list)
+      assert [{4, :e}, {5, :f}] = SelectableList.selected_items(selectable_list)
 
       prepended_selectable_list = SelectableList.prepend(selectable_list, ~w(qwer asdf zxcv)a)
 
-      assert [:e, :f] = SelectableList.selected_items(prepended_selectable_list)
+      assert [{7, :e}, {8, :f}] = SelectableList.selected_items(prepended_selectable_list)
 
       assert %SelectableList{
                items: %{

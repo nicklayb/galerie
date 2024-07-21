@@ -34,13 +34,17 @@ defmodule GalerieWeb.Components.Picture.Viewer do
     {:ok, socket}
   end
 
-  def update(%{message: %Galerie.PubSub.Message{message: :removed_from_album}}, socket) do
+  @updatable_messages ~w(
+    processed
+    removed_from_album
+  )a
+  def update(%{message: %Galerie.PubSub.Message{message: message}}, socket)
+      when message in @updatable_messages do
     socket = assign_pictures(socket)
     {:ok, socket}
   end
 
   def update(assigns, socket) do
-    IO.inspect(assigns, label: "Updated")
     socket = assign(socket, assigns)
     {:ok, socket}
   end

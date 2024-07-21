@@ -3,36 +3,15 @@ defmodule Galerie.PubSubTest do
 
   alias Galerie.PubSub
 
-  @topics %{
-    Galerie.Accounts.User => "users",
-    Galerie.Pictures.Picture => "pictures"
-  }
-
   describe "topic/1" do
-    for {module, topic} <- @topics do
-      test "creates topic for #{inspect(topic)}" do
-        expected_topic = unquote(topic)
-        assert expected_topic == PubSub.topic(unquote(module))
-      end
-
-      test "creates identifier topic for #{inspect(topic)}" do
-        expected_topic = "#{unquote(topic)}:10"
-        assert expected_topic == PubSub.topic({unquote(module), 10})
-      end
-
-      test "creates sub topic for #{inspect(topic)}" do
-        expected_topic = "#{unquote(topic)}:10:children"
-        assert expected_topic == PubSub.topic({unquote(module), 10, :children})
-      end
-    end
-
     test "creates session topic" do
       session_id = Ecto.UUID.generate()
       assert "live_session:#{session_id}" == PubSub.topic({:live_session, session_id})
     end
 
-    test "raises for unsupported topic" do
-      assert_raise(FunctionClauseError, fn -> PubSub.topic(Bicycle) end)
+    test "creates topic from schema" do
+      id = Ecto.UUID.generate()
+      assert "albums:#{id}" == PubSub.topic(%Galerie.Albums.Album{id: id})
     end
   end
 

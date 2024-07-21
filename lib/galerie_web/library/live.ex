@@ -3,9 +3,9 @@ defmodule GalerieWeb.Library.Live do
 
   require Logger
 
-  alias Galerie.Albums.Album
   alias Galerie.Accounts.User
   alias Galerie.Albums
+  alias Galerie.Albums.Album
   alias Galerie.Folders
   alias Galerie.Jobs.Importer
   alias Galerie.Pictures
