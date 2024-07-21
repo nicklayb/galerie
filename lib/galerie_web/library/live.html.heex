@@ -4,18 +4,18 @@
       <div class="px-1">
         <div class="pl-1 flex flex-row justify-between items-center text-true-gray-700">
           <span><%= gettext("Albums") %></span>
-          <span class="mr-2 hover:text-pink-600" phx-click="create-album"><Icon.add width="14" height="14" /></span>
+          <span class="mr-2 hover:text-pink-600 cursor-pointer" phx-click="create-album"><Icon.add width="14" height="14" /></span>
         </div>
         <ul class="px-1">
           <Ui.list items={@albums}>
             <:item :let={{index, item}}>
-              <li class={Html.class("flex flex-row justify-between px-1 border border-true-gray-300 border-t-0 first:border-t py-0.5 cursor-pointer first:rounded-t-md last:rounded-b-md", {SelectableList.index_selected?(@albums, index), "bg-pink-500 text-white border-pink-500"})} phx-click="filter-album" phx-value-index={index}>
+              <li class={Html.class("flex flex-row items-center justify-between px-1 border border-true-gray-300 border-t-0 first:border-t py-0.5 cursor-pointer first:rounded-t-md last:rounded-b-md", {SelectableList.index_selected?(@albums, index), "bg-pink-500 text-white border-pink-500"})} phx-click="filter-album" phx-value-index={index}>
                 <div class="flex items-center">
                   <Icon.picture width="18" height="18" class="mx-1"/>
                   <%= item.name %>
                 </div>
-                <div>
-                  (<%= item.picture_count %>)
+                <div class="w-5 h-5 text-sm text-center rounded-full bg-true-gray-400 text-true-gray-100">
+                  <%= item.picture_count %>
                 </div>
               </li>
             </:item>
