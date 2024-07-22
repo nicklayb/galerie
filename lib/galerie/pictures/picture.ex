@@ -108,7 +108,7 @@ defmodule Galerie.Pictures.Picture do
 
   def path(%Picture{converted_jpeg: jpeg}, :jpeg), do: jpeg
 
-  def rotation(%Picture{metadata: %Metadata{rotation: rotation}}), do: rotation
+  def rotation(%Picture{type: :tiff, metadata: %Metadata{rotation: rotation}}), do: rotation
 
   def rotation(_), do: 0
 end

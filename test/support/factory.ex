@@ -27,18 +27,6 @@ defmodule GalerieTest.Support.Factory do
     }
   end
 
-  def build(:create_user_params) do
-    id = next_integer(:user_id)
-
-    %{
-      first_name: "Jane",
-      last_name: "Doe",
-      email: "jane.doe.#{id}@email.com",
-      password: "Shawi1234",
-      password_confirmation: "Shawi1234"
-    }
-  end
-
   defp id, do: Ecto.UUID.generate()
 
   defp next_integer(namespace) do
