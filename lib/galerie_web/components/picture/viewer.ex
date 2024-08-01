@@ -5,19 +5,23 @@ defmodule GalerieWeb.Components.Picture.Viewer do
 
   import GalerieWeb.Gettext
 
+  alias Galerie.Pictures
   alias Galerie.Albums
   alias Galerie.Pictures.Picture
+  alias Galerie.Pictures.Picture.Group
   alias Galerie.Pictures.Picture.Metadata
   alias Galerie.Pictures.PictureItem
   alias Galerie.Repo
   alias GalerieWeb.Components.Icon
+  alias GalerieWeb.Components.Stars
   alias GalerieWeb.Components.Ui
   alias GalerieWeb.Html
 
   @defaults [
     on_keyup: "viewer:keyup",
     on_close: "viewer:close",
-    selected_pictures: []
+    selected_pictures: [],
+    rating_range: Group.rating_range()
   ]
 
   def mount(socket) do
@@ -37,6 +41,7 @@ defmodule GalerieWeb.Components.Picture.Viewer do
   @updatable_messages ~w(
     processed
     removed_from_album
+    rating_updated
   )a
   def update(%{message: %Galerie.PubSub.Message{message: message}}, socket)
       when message in @updatable_messages do
@@ -58,6 +63,23 @@ defmodule GalerieWeb.Components.Picture.Viewer do
     {:noreply, socket}
   end
 
+  def handle_event(
+        "viewer:rate",
+        %{"rating" => rating},
+        %{assigns: %{picture_item: picture_item}} = socket
+      ) do
+    socket =
+      case Pictures.update_rating(picture_item.group_id, String.to_integer(rating)) do
+        {:ok, %Group{rating: rating}} ->
+          update(socket, :picture_item, &%PictureItem{&1 | rating: rating})
+
+        _ ->
+          socket
+      end
+
+    {:noreply, socket}
+  end
+
   def render(assigns) do
     ~H"""
     <div class="z-50 fixed flex flex-row top-0 left-0 w-screen h-screen bg-gray-800/90 fade-in transition-all" phx-window-keyup={@on_keyup}>
@@ -66,7 +88,7 @@ defmodule GalerieWeb.Components.Picture.Viewer do
         <div class="py-2"><img class={Html.class("h-full m-auto", rotation(@picture))} src={~p(/pictures/#{@picture.id})} /></div>
         <.side_arrow disabled={not @has_next} icon={:right_chevron} on_keyup={@on_keyup} key="ArrowRight"/>
       </div>
-      <.info_panel checked={@checked} picture={@picture} index={@results.highlighted_index} on_close={@on_close} pictures={@pictures} myself={@myself}/>
+      <.info_panel checked={@checked} picture={@picture} picture_item={@picture_item} rating_range={@rating_range} index={@results.highlighted_index} on_close={@on_close} pictures={@pictures} myself={@myself}/>
     </div>
     """
   end
@@ -96,6 +118,9 @@ defmodule GalerieWeb.Components.Picture.Viewer do
           <Icon.cross width="14" height="14" />
         </span>
       </div>
+      <div class="p-3">
+        <Stars.render value={@picture_item.rating} range={@rating_range} phx-click="viewer:rate" phx-target={@myself} />
+      </div>
       <div>
         <%= with %Metadata{} = metadata <- @picture.metadata do %>
           <.info_section title={gettext("Informations")}>
@@ -108,7 +133,7 @@ defmodule GalerieWeb.Components.Picture.Viewer do
             <:info_item title={gettext("F stop")} visible={metadata.f_number > 0}>
               <%= gettext("f/%{focal}", focal: metadata.f_number) %>
             </:info_item>
-          <:info_item title={gettext("Focal length")} visible={not is_nil(metadata.focal_length) and metadata.focal_length > 0.0}>
+            <:info_item title={gettext("Focal length")} visible={not is_nil(metadata.focal_length) and metadata.focal_length > 0.0}>
               <%= metadata.focal_length %>
             </:info_item>
             <:info_item title={gettext("Dimensions")}>
@@ -236,6 +261,7 @@ defmodule GalerieWeb.Components.Picture.Viewer do
   end
 
   defp assign_pictures(socket, %PictureItem{} = picture_item) do
+    picture_item = Pictures.reload_picture_item(picture_item)
     pictures = Galerie.Pictures.get_grouped_pictures(picture_item)
 
     picture = Enum.find(pictures, &(&1.id == picture_item.main_picture_id))

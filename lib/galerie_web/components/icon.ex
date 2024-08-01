@@ -16,8 +16,6 @@ defmodule GalerieWeb.Components.Icon do
       class={@class}
       height={@height}
       width={@width}
-      version="1.1"
-      id="Capa_1"
     	viewBox="0 0 47.94 47.94"
     	xml:space="preserve">
     <path fill="currentColor" d="M26.285,2.486l5.407,10.956c0.376,0.762,1.103,1.29,1.944,1.412l12.091,1.757

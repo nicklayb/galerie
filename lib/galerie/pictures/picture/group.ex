@@ -6,9 +6,12 @@ defmodule Galerie.Pictures.Picture.Group do
   alias Galerie.Pictures.Picture
   alias Galerie.Pictures.Picture.Group
 
+  @rating_range 1..5
+
   schema("picture_groups") do
     field(:name, :string)
     field(:group_name, :string)
+    field(:rating, :integer)
 
     belongs_to(:main_picture, Picture)
     belongs_to(:folder, Folder)
@@ -20,12 +23,13 @@ defmodule Galerie.Pictures.Picture.Group do
   end
 
   @required ~w(name group_name folder_id)a
-  @optional ~w(main_picture_id)a
+  @optional ~w(rating main_picture_id)a
   @castable @required ++ @optional
   def changeset(%Group{} = group \\ %Group{}, params) do
     group
     |> Ecto.Changeset.cast(params, @castable)
     |> Ecto.Changeset.validate_required(@required)
+    |> Ecto.Changeset.validate_inclusion(:rating, @rating_range)
   end
 
   @required ~w(main_picture_id)a
@@ -34,4 +38,8 @@ defmodule Galerie.Pictures.Picture.Group do
     |> Ecto.Changeset.cast(params, @required)
     |> Ecto.Changeset.validate_required(@required)
   end
+
+  @doc "Gets available rating range"
+  @spec rating_range() :: Range.t()
+  def rating_range, do: @rating_range
 end

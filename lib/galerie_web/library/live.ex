@@ -9,6 +9,8 @@ defmodule GalerieWeb.Library.Live do
   alias Galerie.Folders
   alias Galerie.Jobs.Importer
   alias Galerie.Pictures
+  alias Galerie.Pictures.Picture.Group
+  alias Galerie.Pictures.PictureItem
   alias Galerie.Repo
   alias Galerie.Repo.Page
 
@@ -380,6 +382,17 @@ defmodule GalerieWeb.Library.Live do
     {:noreply, socket}
   end
 
+  @rating_keys Enum.map(Group.rating_range(), &to_string/1)
+
+  def handle_event("viewer:keyup", %{"key" => key}, socket) when key in @rating_keys do
+    %PictureItem{group_id: group_id} =
+      SelectableList.highlighted_item(socket.assigns.pictures.results)
+
+    Pictures.update_rating(group_id, String.to_integer(key))
+
+    {:noreply, socket}
+  end
+
   def handle_event("viewer:keyup", _, socket) do
     {:noreply, socket}
   end
@@ -413,6 +426,20 @@ defmodule GalerieWeb.Library.Live do
         %Galerie.PubSub.Message{
           message: :processed,
           params: %Galerie.Pictures.Picture{} = picture
+        } = message,
+        socket
+      ) do
+    if highlighted?(socket, picture) do
+      send_update(Picture.Viewer, id: "viewer", message: message)
+    end
+
+    {:noreply, socket}
+  end
+
+  def handle_info(
+        %Galerie.PubSub.Message{
+          message: :rating_updated,
+          params: %Galerie.Pictures.Picture.Group{} = picture
         } = message,
         socket
       ) do
