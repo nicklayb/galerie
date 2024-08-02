@@ -32,6 +32,7 @@ defmodule GalerieWeb.Library.Live do
     modal: nil,
     jobs: %{},
     folders: [],
+    rating: {0, 5},
     albums: SelectableList.new([])
   }
 
@@ -399,6 +400,16 @@ defmodule GalerieWeb.Library.Live do
 
   def handle_event("viewer:close", _, socket) do
     socket = close_picture(socket)
+    {:noreply, socket}
+  end
+
+  def handle_event("rating:min", %{"value" => value}, socket) do
+    socket = update(socket, :rating, fn {_, right} -> {String.to_integer(value), right} end)
+    {:noreply, socket}
+  end
+
+  def handle_event("rating:max", %{"value" => value}, socket) do
+    socket = update(socket, :rating, fn {left, _} -> {left, String.to_integer(value)} end)
     {:noreply, socket}
   end
 

@@ -25,6 +25,14 @@
           </Ui.list>
         </ul>
       </div>
+    <div>
+      <span><%= gettext("Rating") %></span>
+      <div>
+        <%= with {left, right} <- @rating do %>
+          <GalerieWeb.Components.Slider.double id="ratingScroller" data-left-event="rating:min" data-right-event="rating:max" left_value={left} right_value={right} min={0} max={5} />
+        <% end %>
+      </div>
+    </div>
     </div>
     <div class="flex flex-col flex-initial text-xs">
       <%= for {job, count} <- @jobs, count > 0 do %>
