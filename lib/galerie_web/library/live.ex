@@ -191,7 +191,8 @@ defmodule GalerieWeb.Library.Live do
       |> SelectableList.selected_items(fn {_, item} -> item.id end)
 
     [
-      album_ids: album_ids
+      album_ids: album_ids,
+      rating: assigns.rating
     ]
   end
 
@@ -403,13 +404,21 @@ defmodule GalerieWeb.Library.Live do
     {:noreply, socket}
   end
 
-  def handle_event("rating:min", %{"value" => value}, socket) do
-    socket = update(socket, :rating, fn {_, right} -> {String.to_integer(value), right} end)
+  def handle_event("rating", %{"boundary" => "left", "value" => value}, socket) do
+    socket =
+      socket
+      |> update(:rating, fn {_, right} -> {value, right} end)
+      |> reload_pictures()
+
     {:noreply, socket}
   end
 
-  def handle_event("rating:max", %{"value" => value}, socket) do
-    socket = update(socket, :rating, fn {left, _} -> {left, String.to_integer(value)} end)
+  def handle_event("rating", %{"boundary" => "right", "value" => value}, socket) do
+    socket =
+      socket
+      |> update(:rating, fn {left, _} -> {left, value} end)
+      |> reload_pictures()
+
     {:noreply, socket}
   end
 

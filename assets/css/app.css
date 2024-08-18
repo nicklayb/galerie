@@ -1,15 +1,26 @@
 @import "tailwindcss/base";
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
+@import "./slider.css";
 
 @keyframes fadeIn {
-  0% { opacity: 0; }
-  100% { opacity: 1; }
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
 }
 
 @keyframes slideLeft {
-  0% { translate: 1000px; }
-  100% { translate: 0px; }
+  0% {
+    translate: 1000px;
+  }
+
+  100% {
+    translate: 0px;
+  }
 }
 
 .fade-in {

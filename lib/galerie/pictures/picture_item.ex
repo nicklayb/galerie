@@ -61,6 +61,18 @@ defmodule Galerie.Pictures.PictureItem do
     )
   end
 
+  def by_rating(query, 0, maximum) do
+    Ecto.Query.where(
+      query,
+      [group],
+      is_nil(group.rating) or (group.rating >= 1 and group.rating <= ^maximum)
+    )
+  end
+
+  def by_rating(query, minimum, maximum) do
+    Ecto.Query.where(query, [group], group.rating >= ^minimum and group.rating <= ^maximum)
+  end
+
   defp ensure_joined(query, :album_picture_groups) do
     Galerie.Ecto.Query.join_once(query, :album_picture_groups, fn query ->
       Ecto.Query.join(

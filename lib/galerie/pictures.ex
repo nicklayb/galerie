@@ -77,6 +77,12 @@ defmodule Galerie.Pictures do
       {:album_ids, album_ids}, acc ->
         PictureItem.by_album_ids(acc, album_ids)
 
+      {:rating, {0, 5}}, acc ->
+        acc
+
+      {:rating, {minimum, maximum}}, acc ->
+        PictureItem.by_rating(acc, minimum, maximum)
+
       _, acc ->
         acc
     end)
