@@ -199,6 +199,7 @@ defmodule GalerieWeb.Library.Live do
     [
       album_ids: album_ids,
       rating: Multiselect.selected_items(assigns.ratings),
+      camera_model: Multiselect.selected_items(assigns.camera_models),
       lens_model: Multiselect.selected_items(assigns.lens_models),
       f_number: Multiselect.selected_items(assigns.f_numbers),
       exposure_time: Multiselect.selected_items(assigns.exposure_times),
