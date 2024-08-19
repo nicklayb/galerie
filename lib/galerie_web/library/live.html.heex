@@ -1,6 +1,6 @@
 <div class="flex flex-row overflow-y-hidden w-full">
   <div class="flex-initial w-72 flex flex-col justify-between">
-    <div class="flex-1">
+    <div class="flex-1 overflow-y-auto">
       <div class="px-1">
         <div class="pl-1 flex flex-row justify-between items-center text-true-gray-700">
           <span><%= gettext("Albums") %></span>
@@ -25,11 +25,24 @@
           </Ui.list>
         </ul>
       </div>
-    <div>
-      <%= with {left, right} <- @rating do %>
-        <GalerieWeb.Components.Slider.double id="ratingScroller" data-event="rating" label={gettext("Rating")} left_value={left} right_value={right} min={0} max={5} />
-      <% end %>
-    </div>
+      <div class="px-2 mt-2">
+        <Multiselect.render state={@ratings} prefix="rating" label={gettext("Rating")}/>
+      </div>
+      <div class="px-2 mt-2">
+        <Multiselect.render state={@camera_models} prefix="camera_models" label={gettext("Camera model")}/>
+      </div>
+      <div class="px-2 mt-2">
+        <Multiselect.render state={@lens_models} prefix="lens_models" label={gettext("Lens model")}/>
+      </div>
+      <div class="px-2 mt-2">
+        <Multiselect.render state={@focal_lengths} prefix="focal_lengths" label={gettext("Focal length")}/>
+      </div>
+      <div class="px-2 mt-2">
+        <Multiselect.render state={@f_numbers} prefix="f_numbers" label={gettext("F number")}/>
+      </div>
+      <div class="px-2 mt-2">
+        <Multiselect.render state={@exposure_times} prefix="exposure_times" label={gettext("Exposure time")}/>
+      </div>
     </div>
     <div class="flex flex-col flex-initial text-xs">
       <%= for {job, count} <- @jobs, count > 0 do %>

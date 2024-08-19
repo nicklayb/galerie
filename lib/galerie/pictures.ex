@@ -72,16 +72,17 @@ defmodule Galerie.Pictures do
     |> Repo.one()
   end
 
+  @metadata_filter ~w(camera_model lens_model f_number exposure_time focal_length)a
   defp apply_pictures_filter(query, options) do
     Enum.reduce(options, query, fn
       {:album_ids, album_ids}, acc ->
         PictureItem.by_album_ids(acc, album_ids)
 
-      {:rating, {0, 5}}, acc ->
-        acc
+      {:rating, ratings}, acc ->
+        PictureItem.by_rating(acc, ratings)
 
-      {:rating, {minimum, maximum}}, acc ->
-        PictureItem.by_rating(acc, minimum, maximum)
+      {metadata_filter, value}, acc when metadata_filter in @metadata_filter ->
+        PictureItem.by_metadata(acc, metadata_filter, value)
 
       _, acc ->
         acc
@@ -149,5 +150,13 @@ defmodule Galerie.Pictures do
     PictureItem.from()
     |> PictureItem.by_group_ids(group_id)
     |> Repo.one()
+  end
+
+  def distinct_metadata(metadata) do
+    Picture.Metadata
+    |> Ecto.Query.select([m], field(m, ^metadata))
+    |> Ecto.Query.distinct(true)
+    |> Ecto.Query.order_by([m], {:asc, ^metadata})
+    |> Repo.all()
   end
 end

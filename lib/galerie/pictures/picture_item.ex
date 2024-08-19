@@ -61,16 +61,41 @@ defmodule Galerie.Pictures.PictureItem do
     )
   end
 
-  def by_rating(query, 0, maximum) do
-    Ecto.Query.where(
-      query,
-      [group],
-      is_nil(group.rating) or (group.rating >= 1 and group.rating <= ^maximum)
-    )
+  def by_metadata(query, _, []), do: query
+
+  def by_metadata(query, :exposure_time, values) do
+    or_where =
+      Enum.reduce(values, Ecto.Query.dynamic(false), fn %Fraction{
+                                                          numerator: numerator,
+                                                          denominator: denominator
+                                                        },
+                                                        acc ->
+        Ecto.Query.dynamic(
+          [metadata: metadata],
+          ^acc or
+            (fragment("(?).numerator", metadata.exposure_time) == ^numerator and
+               fragment("(?).denominator", metadata.exposure_time) == ^denominator)
+        )
+      end)
+
+    Ecto.Query.where(query, ^or_where)
   end
 
-  def by_rating(query, minimum, maximum) do
-    Ecto.Query.where(query, [group], group.rating >= ^minimum and group.rating <= ^maximum)
+  def by_metadata(query, metadata, values) do
+    Ecto.Query.where(query, [metadata: metadata], field(metadata, ^metadata) in ^values)
+  end
+
+  def by_rating(query, ratings) do
+    case Enum.split_with(ratings, &(&1 == :empty)) do
+      {[], []} ->
+        query
+
+      {[], ratings} ->
+        Ecto.Query.where(query, [q], q.rating in ^ratings)
+
+      {[:empty], ratings} ->
+        Ecto.Query.where(query, [q], is_nil(q.rating) or q.rating in ^ratings)
+    end
   end
 
   defp ensure_joined(query, :album_picture_groups) do

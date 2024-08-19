@@ -18,6 +18,7 @@ defmodule GalerieWeb.Library.Live do
   alias GalerieWeb.Components.FloatingPills
   alias GalerieWeb.Components.Icon
   alias GalerieWeb.Components.Modal
+  alias GalerieWeb.Components.Multiselect
   alias GalerieWeb.Components.Picture
   alias GalerieWeb.Components.Ui
   alias GalerieWeb.Html
@@ -32,7 +33,6 @@ defmodule GalerieWeb.Library.Live do
     modal: nil,
     jobs: %{},
     folders: [],
-    rating: {0, 5},
     albums: SelectableList.new([])
   }
 
@@ -42,6 +42,12 @@ defmodule GalerieWeb.Library.Live do
     socket =
       socket
       |> assign(@defaults)
+      |> assign(:ratings, Multiselect.new(:rating))
+      |> assign(:lens_models, Multiselect.new({:metadata, :lens_model}))
+      |> assign(:focal_lengths, Multiselect.new({:metadata, :focal_length}))
+      |> assign(:camera_models, Multiselect.new({:metadata, :camera_model}))
+      |> assign(:f_numbers, Multiselect.new({:metadata, :f_number}))
+      |> assign(:exposure_times, Multiselect.new({:metadata, :exposure_time}))
       |> setup_upload()
       |> start_async(:load_folders, fn -> Folders.get_user_folders(current_user) end)
       |> start_async(:load_jobs, fn -> {true, Galerie.ObanRepo.pending_jobs()} end)
@@ -192,7 +198,11 @@ defmodule GalerieWeb.Library.Live do
 
     [
       album_ids: album_ids,
-      rating: assigns.rating
+      rating: Multiselect.selected_items(assigns.ratings),
+      lens_model: Multiselect.selected_items(assigns.lens_models),
+      f_number: Multiselect.selected_items(assigns.f_numbers),
+      exposure_time: Multiselect.selected_items(assigns.exposure_times),
+      focal_length: Multiselect.selected_items(assigns.focal_lengths)
     ]
   end
 
@@ -404,20 +414,38 @@ defmodule GalerieWeb.Library.Live do
     {:noreply, socket}
   end
 
-  def handle_event("rating", %{"boundary" => "left", "value" => value}, socket) do
-    socket =
-      socket
-      |> update(:rating, fn {_, right} -> {value, right} end)
-      |> reload_pictures()
+  def handle_event("camera_models:" <> event, params, socket) do
+    socket = update_filter(socket, :camera_models, &Multiselect.handle_event(event, params, &1))
 
     {:noreply, socket}
   end
 
-  def handle_event("rating", %{"boundary" => "right", "value" => value}, socket) do
-    socket =
-      socket
-      |> update(:rating, fn {left, _} -> {left, value} end)
-      |> reload_pictures()
+  def handle_event("exposure_times:" <> event, params, socket) do
+    socket = update_filter(socket, :exposure_times, &Multiselect.handle_event(event, params, &1))
+
+    {:noreply, socket}
+  end
+
+  def handle_event("f_numbers:" <> event, params, socket) do
+    socket = update_filter(socket, :f_numbers, &Multiselect.handle_event(event, params, &1))
+
+    {:noreply, socket}
+  end
+
+  def handle_event("focal_lengths:" <> event, params, socket) do
+    socket = update_filter(socket, :focal_lengths, &Multiselect.handle_event(event, params, &1))
+
+    {:noreply, socket}
+  end
+
+  def handle_event("lens_models:" <> event, params, socket) do
+    socket = update_filter(socket, :lens_models, &Multiselect.handle_event(event, params, &1))
+
+    {:noreply, socket}
+  end
+
+  def handle_event("rating:" <> event, params, socket) do
+    socket = update_filter(socket, :ratings, &Multiselect.handle_event(event, params, &1))
 
     {:noreply, socket}
   end
@@ -636,5 +664,11 @@ defmodule GalerieWeb.Library.Live do
       _ ->
         false
     end
+  end
+
+  defp update_filter(socket, filter, function) do
+    socket
+    |> update(filter, function)
+    |> reload_pictures()
   end
 end
