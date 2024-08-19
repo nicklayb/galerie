@@ -16,6 +16,7 @@ defmodule GalerieWeb.Components.Multiselect.Options do
   def build({:metadata, :exposure_time}) do
     :exposure_time
     |> Pictures.distinct_metadata()
+    |> Enum.sort({:desc, Fraction})
     |> Enum.map(fn fraction ->
       {fraction, Fraction.to_string(fraction), Fraction.to_string(fraction)}
     end)

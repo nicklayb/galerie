@@ -34,4 +34,13 @@ defmodule FractionTest do
       end)
     end
   end
+
+  describe "parse/1" do
+    test "parses integer to fraction" do
+      assert %Fraction{denominator: 1, numerator: 15} = Fraction.parse("15")
+      assert %Fraction{denominator: 10, numerator: 155} = Fraction.parse("15.5")
+      assert %Fraction{denominator: 120, numerator: 1} = Fraction.parse("1/120")
+      assert %Fraction{denominator: 1, numerator: 1} = Fraction.parse("1")
+    end
+  end
 end
