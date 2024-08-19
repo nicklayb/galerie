@@ -9,6 +9,7 @@ defmodule Galerie.Pictures.PictureItem do
     :thumbnail,
     :datetime_original,
     :orientation,
+    :rating,
     :main_picture_id,
     :inserted_at
   ]
@@ -33,6 +34,7 @@ defmodule Galerie.Pictures.PictureItem do
       thumbnail: picture.thumbnail,
       datetime_original: metadata.datetime_original,
       orientation: metadata.orientation,
+      rating: group.rating,
       main_picture_id: group.main_picture_id,
       inserted_at: picture.inserted_at
     })
@@ -57,6 +59,18 @@ defmodule Galerie.Pictures.PictureItem do
       [albums_picture_groups: albums_picture_groups],
       albums_picture_groups.album_id in ^album_ids
     )
+  end
+
+  def by_rating(query, 0, maximum) do
+    Ecto.Query.where(
+      query,
+      [group],
+      is_nil(group.rating) or (group.rating >= 1 and group.rating <= ^maximum)
+    )
+  end
+
+  def by_rating(query, minimum, maximum) do
+    Ecto.Query.where(query, [group], group.rating >= ^minimum and group.rating <= ^maximum)
   end
 
   defp ensure_joined(query, :album_picture_groups) do

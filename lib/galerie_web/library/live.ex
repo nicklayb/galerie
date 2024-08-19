@@ -9,6 +9,8 @@ defmodule GalerieWeb.Library.Live do
   alias Galerie.Folders
   alias Galerie.Jobs.Importer
   alias Galerie.Pictures
+  alias Galerie.Pictures.Picture.Group
+  alias Galerie.Pictures.PictureItem
   alias Galerie.Repo
   alias Galerie.Repo.Page
 
@@ -30,6 +32,7 @@ defmodule GalerieWeb.Library.Live do
     modal: nil,
     jobs: %{},
     folders: [],
+    rating: {0, 5},
     albums: SelectableList.new([])
   }
 
@@ -188,7 +191,8 @@ defmodule GalerieWeb.Library.Live do
       |> SelectableList.selected_items(fn {_, item} -> item.id end)
 
     [
-      album_ids: album_ids
+      album_ids: album_ids,
+      rating: assigns.rating
     ]
   end
 
@@ -362,12 +366,41 @@ defmodule GalerieWeb.Library.Live do
     {:noreply, socket}
   end
 
+  @rating_keys Enum.map(Group.rating_range(), &to_string/1)
+
+  def handle_event("viewer:keyup", %{"key" => key}, socket) when key in @rating_keys do
+    %PictureItem{group_id: group_id} =
+      SelectableList.highlighted_item(socket.assigns.pictures.results)
+
+    Pictures.update_rating(group_id, String.to_integer(key))
+
+    {:noreply, socket}
+  end
+
   def handle_event("viewer:keyup", _, socket) do
     {:noreply, socket}
   end
 
   def handle_event("viewer:close", _, socket) do
     socket = close_picture(socket)
+    {:noreply, socket}
+  end
+
+  def handle_event("rating", %{"boundary" => "left", "value" => value}, socket) do
+    socket =
+      socket
+      |> update(:rating, fn {_, right} -> {value, right} end)
+      |> reload_pictures()
+
+    {:noreply, socket}
+  end
+
+  def handle_event("rating", %{"boundary" => "right", "value" => value}, socket) do
+    socket =
+      socket
+      |> update(:rating, fn {left, _} -> {left, value} end)
+      |> reload_pictures()
+
     {:noreply, socket}
   end
 
@@ -395,6 +428,20 @@ defmodule GalerieWeb.Library.Live do
         %Galerie.PubSub.Message{
           message: :processed,
           params: %Galerie.Pictures.Picture{} = picture
+        } = message,
+        socket
+      ) do
+    if highlighted?(socket, picture) do
+      send_update(Picture.Viewer, id: "viewer", message: message)
+    end
+
+    {:noreply, socket}
+  end
+
+  def handle_info(
+        %Galerie.PubSub.Message{
+          message: :rating_updated,
+          params: %Galerie.Pictures.Picture.Group{} = picture
         } = message,
         socket
       ) do

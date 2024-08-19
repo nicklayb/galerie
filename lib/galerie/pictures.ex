@@ -77,6 +77,12 @@ defmodule Galerie.Pictures do
       {:album_ids, album_ids}, acc ->
         PictureItem.by_album_ids(acc, album_ids)
 
+      {:rating, {0, 5}}, acc ->
+        acc
+
+      {:rating, {minimum, maximum}}, acc ->
+        PictureItem.by_rating(acc, minimum, maximum)
+
       _, acc ->
         acc
     end)
@@ -133,5 +139,15 @@ defmodule Galerie.Pictures do
 
   def insert_picture(params, options \\ []) do
     UseCase.InsertPicture.execute(params, options)
+  end
+
+  def update_rating(group_id, rating, options \\ []) do
+    UseCase.UpdateRating.execute(%{group_id: group_id, rating: rating}, options)
+  end
+
+  def reload_picture_item(%PictureItem{group_id: group_id}) do
+    PictureItem.from()
+    |> PictureItem.by_group_ids(group_id)
+    |> Repo.one()
   end
 end

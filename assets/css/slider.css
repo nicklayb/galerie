@@ -1,0 +1,97 @@
+.double-slider {
+  --dot-color: pink;
+  --dot-size: 1.2em;
+
+  input[type="range"] {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    width: 100%;
+    outline: none;
+    position: absolute;
+    margin: auto;
+    top: 0;
+    bottom: 0;
+    background-color: transparent;
+    pointer-events: none;
+  }
+
+  input[type="range"]::-webkit-slider-runnable-track {
+    -webkit-appearance: none;
+    height: 5px;
+  }
+
+  input[type="range"]::-moz-range-track {
+    -moz-appearance: none;
+    height: 5px;
+  }
+
+  input[type="range"]::-ms-track {
+    appearance: none;
+    height: 5px;
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    height: var(--dot-size);
+    width: var(--dot-size);
+    background-color: var(--dot-color);
+    cursor: pointer;
+    margin-top: -9px;
+    pointer-events: auto;
+    border-radius: 50%;
+  }
+
+  input[type="range"]::-moz-range-thumb {
+    -webkit-appearance: none;
+    height: var(--dot-size);
+    width: var(--dot-size);
+    cursor: pointer;
+    border-radius: 50%;
+    background-color: var(--dot-color);
+    pointer-events: auto;
+    border: none;
+  }
+
+  input[type="range"]::-ms-thumb {
+    appearance: none;
+    height: var(--dot-size);
+    width: var(--dot-size);
+    cursor: pointer;
+    border-radius: 50%;
+    background-color: var(--dot-color);
+    pointer-events: auto;
+  }
+
+  input[type="range"]:active::-webkit-slider-thumb {
+    background-color: #ffffff;
+    border: 1px solid var(--dot-color);
+  }
+
+  .values {
+    background-color: var(--dot-color);
+    width: 32%;
+    position: relative;
+    margin: auto;
+    padding: 10px 0;
+    border-radius: 5px;
+    text-align: center;
+    font-weight: 500;
+    font-size: 25px;
+    color: #ffffff;
+  }
+
+  .values:before {
+    content: "";
+    position: absolute;
+    height: 0;
+    width: 0;
+    border-top: 15px solid var(--dot-color);
+    border-left: 15px solid transparent;
+    border-right: 15px solid transparent;
+    margin: auto;
+    bottom: -14px;
+    left: 0;
+    right: 0;
+  }
+}
