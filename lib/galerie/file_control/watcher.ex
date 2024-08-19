@@ -24,7 +24,7 @@ defmodule Galerie.FileControl.Watcher do
     folder_path = Keyword.fetch!(args, :folder)
     folder = Galerie.Folders.get_or_create_folder!(folder_path)
 
-    send(self(), :synchronize)
+    send(self(), :initial_synchronize)
 
     {:ok, %{folder_path: folder_path, folder: folder}}
   end
@@ -54,11 +54,16 @@ defmodule Galerie.FileControl.Watcher do
     {:noreply, Map.put(state, :watcher_pid, watcher_pid)}
   end
 
-  def handle_info(:synchronize, %{folder: %Folder{path: path} = folder} = state) do
+  def handle_info(:initial_synchronize, %{folder: %Folder{path: path} = folder} = state) do
     Logger.info("[#{inspect(__MODULE__)}] [synchronize] [#{path}] [started]")
     synchronize(folder)
     send(self(), :start_file_system)
     Logger.info("[#{inspect(__MODULE__)}] [synchronize] [#{path}] [completed]")
+    {:noreply, state}
+  end
+
+  def handle_cast(:synchronize, %{folder: %Folder{} = folder} = state) do
+    synchronize(folder)
     {:noreply, state}
   end
 

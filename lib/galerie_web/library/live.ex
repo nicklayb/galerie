@@ -239,31 +239,13 @@ defmodule GalerieWeb.Library.Live do
     {:noreply, socket}
   end
 
-  def handle_event("filter-album", %{"ctrl_key" => true, "index" => index}, socket) do
-    index = String.to_integer(index)
-
-    socket =
-      socket
-      |> update(:albums, fn albums ->
-        SelectableList.toggle_by_index(albums, index)
-      end)
-      |> reload_pictures()
-
-    {:noreply, socket}
-  end
-
   def handle_event("filter-album", %{"index" => index}, socket) do
     index = String.to_integer(index)
 
     socket =
       socket
-      |> update(:albums, fn albums ->
-        if SelectableList.multiple_selected?(albums) do
-          SelectableList.toggle_by_index(albums, index)
-        else
-          SelectableList.toggle_only(albums, index)
-        end
-      end)
+      |> update(:albums, &SelectableList.toggle_only(&1, index))
+      |> assign(:updating, true)
       |> reload_pictures()
 
     {:noreply, socket}
