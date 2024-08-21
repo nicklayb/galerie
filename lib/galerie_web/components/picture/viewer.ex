@@ -1,7 +1,8 @@
 defmodule GalerieWeb.Components.Picture.Viewer do
   use Phoenix.LiveComponent
-
   use GalerieWeb.Components.Routes
+
+  require Logger
 
   import GalerieWeb.Gettext
 
@@ -45,6 +46,7 @@ defmodule GalerieWeb.Components.Picture.Viewer do
     processed
     removed_from_album
     rating_updated
+    metadata_updated
   )a
   def update(%{message: %Galerie.PubSub.Message{message: message}}, socket)
       when message in @updatable_messages do
@@ -56,6 +58,8 @@ defmodule GalerieWeb.Components.Picture.Viewer do
     socket = assign(socket, assigns)
     {:ok, socket}
   end
+
+  def interesting_messages, do: @updatable_messages
 
   def handle_event(
         "viewer:remove-from-album",
@@ -87,13 +91,15 @@ defmodule GalerieWeb.Components.Picture.Viewer do
   end
 
   def handle_event("viewer:metadata:save", %{"metadata" => metadata}, socket) do
-    case Pictures.update_metadata_manually(socket.assigns.picture.group_id, metadata) do
-      {:ok, _} ->
-        IO.inspect("OK")
+    socket =
+      case Pictures.update_metadata_manually(socket.assigns.picture.group_id, metadata) do
+        {:ok, _} ->
+          assign(socket, :editing_metadata, nil)
 
-      {:error, error} ->
-        IO.inspect(error)
-    end
+        {:error, error} ->
+          Logger.error("[#{inspect(__MODULE__)}] [viewer:metadata:save] #{inspect(error)}")
+          socket
+      end
 
     {:noreply, socket}
   end
@@ -194,7 +200,7 @@ defmodule GalerieWeb.Components.Picture.Viewer do
             <:info_item title={gettext("GPS")} visible={metadata.longitude}>
               <.google_map_link longitude={metadata.longitude} latitude={metadata.latitude} />
             </:info_item>
-            <:info_item title={gettext("Lens")} visible={metadata.lens_model} editable_name={:camera_lens}>
+            <:info_item title={gettext("Lens")} visible={metadata.lens_model} editable_name={:lens_model}>
               <%= metadata.lens_model %>
             </:info_item>
           </.info_section>
@@ -253,7 +259,7 @@ defmodule GalerieWeb.Components.Picture.Viewer do
         <%= render_slot(@inner_block) %>
       <% end %>
       <%= for item <- @info_item do %>
-        <%= if Map.get(item, :visible, true) do %>
+        <%= if Map.get(item, :visible, true) != false or not is_nil(Map.get(item, :editable_name)) do %>
           <.info_section_item title={item.title} editable_name={Map.get(item, :editable_name)} editing_metadata={@editing_metadata} metadata_changeset={@metadata_changeset} myself={@myself} manually_updated_fields={@manually_updated_fields}>
             <%= render_slot(item) %>
           </.info_section_item>
@@ -287,8 +293,8 @@ defmodule GalerieWeb.Components.Picture.Viewer do
       )
 
     ~H"""
-    <div class="flex flex-row justify-between text-sm py-0.5 border-b border-gray-100 ">
-      <div class="flex pl-2 group">
+    <div class="flex flex-row justify-between text-sm py-0.5 border-b border-gray-100 group">
+      <div class="flex pl-2">
         <%= @title %>
         <%= if @editable? and not @editing? do %>
           <span phx-click="viewer:edit_metadata" phx-value-metadata={@editable_name} phx-target={@myself} class={Html.class("group-hover:block cursor-pointer hover:text-pink-600", [{@manually_edited?, "block text-gray-300", "hidden"}])}>

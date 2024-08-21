@@ -1,6 +1,7 @@
 defmodule GalerieWeb.Library.Live do
   use GalerieWeb, :live_view
 
+  require Galerie.PubSub
   require Logger
 
   alias Galerie.Accounts.User
@@ -457,25 +458,29 @@ defmodule GalerieWeb.Library.Live do
 
   def handle_info(
         %Galerie.PubSub.Message{
-          message: :processed,
-          params: %Galerie.Pictures.Picture{} = picture
+          message: :removed_from_album,
+          params: %{album: album, group: group}
         } = message,
         socket
       ) do
-    if highlighted?(socket, picture) do
-      send_update(Picture.Viewer, id: @picture_viewer_id, message: message)
+    socket = update(socket, :albums, &put_album(&1, album))
+
+    if highlighted?(socket, group) do
+      send_update(self(), Picture.Viewer, id: @picture_viewer_id, message: message)
     end
 
     {:noreply, socket}
   end
 
+  @interesting_messages Picture.Viewer.interesting_messages()
   def handle_info(
         %Galerie.PubSub.Message{
-          message: :rating_updated,
-          params: %Galerie.Pictures.Picture.Group{} = picture
+          message: inner_message,
+          params: picture
         } = message,
         socket
-      ) do
+      )
+      when inner_message in @interesting_messages do
     if highlighted?(socket, picture) do
       send_update(Picture.Viewer, id: @picture_viewer_id, message: message)
     end
@@ -527,22 +532,6 @@ defmodule GalerieWeb.Library.Live do
 
   def handle_info(
         %Galerie.PubSub.Message{
-          message: :removed_from_album,
-          params: %{album: album, group: group}
-        } = message,
-        socket
-      ) do
-    socket = update(socket, :albums, &put_album(&1, album))
-
-    if highlighted?(socket, group) do
-      send_update(self(), Picture.Viewer, id: @picture_viewer_id, message: message)
-    end
-
-    {:noreply, socket}
-  end
-
-  def handle_info(
-        %Galerie.PubSub.Message{
           message: :album_created
         },
         socket
@@ -584,6 +573,18 @@ defmodule GalerieWeb.Library.Live do
     update_pictures(socket, &SelectableList.unhighlight/1)
   end
 
+  defp subscribe(%PictureItem{group_id: group_id}) do
+    Galerie.PubSub.subscribe({Galerie.Pictures.Picture.Group, group_id})
+  end
+
+  defp subscribe(_), do: :noop
+
+  defp unsubscribe(%PictureItem{group_id: group_id}) do
+    Galerie.PubSub.unsubscribe({Galerie.Pictures.Picture.Group, group_id})
+  end
+
+  defp unsubscribe(_), do: :noop
+
   defp load_next_page(
          %{
            assigns:
@@ -605,9 +606,23 @@ defmodule GalerieWeb.Library.Live do
   end
 
   defp update_pictures(socket, function) do
+    previous_highlighted_item = SelectableList.highlighted_item(socket.assigns.pictures.results)
+
     socket
     |> update(:pictures, fn page -> Page.map_results(page, function) end)
     |> clear_filter_selected_if_none_selected()
+    |> tap(&resubscribe(&1, previous_highlighted_item))
+  end
+
+  defp resubscribe(
+         %{assigns: %{pictures: %Page{results: %SelectableList{} = results}}},
+         previous_highlighted_item
+       ) do
+    unsubscribe(previous_highlighted_item)
+
+    results
+    |> SelectableList.highlighted_item()
+    |> subscribe()
   end
 
   defp update_picture_index(%{assigns: %{pictures: %{results: results}}} = socket) do

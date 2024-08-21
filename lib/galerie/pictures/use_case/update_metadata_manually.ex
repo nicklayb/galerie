@@ -37,7 +37,8 @@ defmodule Galerie.Pictures.UseCase.UpdateMetadataManually do
   end
 
   @impl Galerie.UseCase
-  def after_run(%{group: _group}, _) do
+  def after_run(%{group: group}, _) do
+    Galerie.PubSub.broadcast({Picture.Group, group.id}, {:metadata_updated, group})
   end
 
   @impl Galerie.UseCase

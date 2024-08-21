@@ -1,4 +1,5 @@
 defmodule GalerieWeb.Hooks.UrlUpdated do
+  require Galerie.PubSub
   alias Phoenix.LiveView
 
   def on_mount(:default, _params, _session, socket) do

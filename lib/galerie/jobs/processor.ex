@@ -1,5 +1,6 @@
 defmodule Galerie.Jobs.Processor do
   use Oban.Worker, queue: :processors
+  require Galerie.PubSub
 
   alias Galerie.Jobs.Processor.ExifToMetadata
   alias Galerie.Pictures

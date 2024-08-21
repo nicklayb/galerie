@@ -5,6 +5,7 @@ defmodule Galerie.Jobs.Importer do
   alias Galerie.Pictures
   alias Galerie.Pictures.Picture
 
+  require Galerie.PubSub
   require Logger
 
   @spec enqueue(String.t(), Folder.t()) ::
