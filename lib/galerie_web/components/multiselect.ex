@@ -30,7 +30,12 @@ defmodule GalerieWeb.Components.Multiselect do
     ~H"""
     <form phx-change={"#{@prefix}:change"} class="w-full">
       <div class="flex justify-between text-true-gray-700">
-        <%= @label %>
+        <div class="flex items-center">
+          <%= @label %>
+          <%= if @state.count > 0 do %>
+            <span class="ml-1 flex justify-center items-center w-4 h-4 text-sm bg-pink-400 text-white rounded-full"><%= @state.count %></span>
+          <% end %>
+        </div>
         <div class="text-sm flex items-end">
           <a class="mr-2" href="#" phx-click={"#{@prefix}:all"}><%= gettext("All") %></a>
           <a href="#" phx-click={"#{@prefix}:none"}><%= gettext("None") %></a>

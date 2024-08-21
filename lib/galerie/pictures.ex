@@ -159,4 +159,8 @@ defmodule Galerie.Pictures do
     |> Ecto.Query.order_by([m], {:asc, ^metadata})
     |> Repo.all()
   end
+
+  def update_metadata_manually(group_id, params, options \\ []) do
+    UseCase.UpdateMetadataManually.execute(%{group_id: group_id, params: params}, options)
+  end
 end

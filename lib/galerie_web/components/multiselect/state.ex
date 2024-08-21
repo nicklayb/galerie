@@ -1,5 +1,5 @@
 defmodule GalerieWeb.Components.Multiselect.State do
-  defstruct [:options, selected: [], type: :any]
+  defstruct [:options, selected: [], count: 0, type: :any]
 
   alias GalerieWeb.Components.Multiselect.Options
   alias GalerieWeb.Components.Multiselect.State
@@ -18,7 +18,7 @@ defmodule GalerieWeb.Components.Multiselect.State do
   def clear(%State{} = state), do: update(state, [])
 
   def update(%State{} = state, items) do
-    %State{state | selected: items}
+    %State{state | selected: items, count: length(items)}
   end
 
   def selected?(%State{selected: selected}, item), do: item in selected

@@ -25,6 +25,8 @@ defmodule GalerieWeb.Library.Live do
 
   import GalerieWeb.Gettext
 
+  @picture_viewer_id "pictureViewer"
+
   @defaults %{
     updating: true,
     pictures: nil,
@@ -388,7 +390,7 @@ defmodule GalerieWeb.Library.Live do
     {:noreply, socket}
   end
 
-  def handle_event("viewer:keyup", _, socket) do
+  def handle_event("viewer:keyup", _params, socket) do
     {:noreply, socket}
   end
 
@@ -461,7 +463,7 @@ defmodule GalerieWeb.Library.Live do
         socket
       ) do
     if highlighted?(socket, picture) do
-      send_update(Picture.Viewer, id: "viewer", message: message)
+      send_update(Picture.Viewer, id: @picture_viewer_id, message: message)
     end
 
     {:noreply, socket}
@@ -475,7 +477,7 @@ defmodule GalerieWeb.Library.Live do
         socket
       ) do
     if highlighted?(socket, picture) do
-      send_update(Picture.Viewer, id: "viewer", message: message)
+      send_update(Picture.Viewer, id: @picture_viewer_id, message: message)
     end
 
     {:noreply, socket}
@@ -533,7 +535,7 @@ defmodule GalerieWeb.Library.Live do
     socket = update(socket, :albums, &put_album(&1, album))
 
     if highlighted?(socket, group) do
-      send_update(self(), Picture.Viewer, id: "pictureViewer", message: message)
+      send_update(self(), Picture.Viewer, id: @picture_viewer_id, message: message)
     end
 
     {:noreply, socket}
