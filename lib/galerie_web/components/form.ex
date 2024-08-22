@@ -59,19 +59,20 @@ defmodule GalerieWeb.Components.Form do
   defp multiple_name(%{name: name}), do: name
 
   attr(:form, :any, default: nil)
-  attr(:class, :string, default: "")
+  attr(:class, :string, default: "py-1.5 pr-20")
+  attr(:element_class, :string, default: "")
   attr(:name, :atom)
   attr(:field, :any)
   attr(:label, :string, default: nil)
   attr(:autocomplete, :string, default: "")
   attr(:rest, :global)
 
-  @class "block w-full bg-true-gray-100 rounded border-0 py-1.5 pr-20 text-true-gray-900 ring-1 ring-inset ring-true-gray-500 placeholder:text-true-gray-400 focus:ring-2 focus:ring-inset focus:ring-pink-600 sm:text-sm sm:leading-6 group-[.has-errors]:ring-red-400"
+  @class "block w-full bg-true-gray-100 rounded border-0 text-true-gray-900 ring-1 ring-inset ring-true-gray-500 placeholder:text-true-gray-400 focus:ring-2 focus:ring-inset focus:ring-pink-600 sm:text-sm sm:leading-6 group-[.has-errors]:ring-red-400"
   def text_input(%{field: _field} = assigns) do
     assigns = update(assigns, :class, &Html.class(@class, &1))
 
     ~H"""
-    <.element name={@field.name} label={@label} errors={@field.errors}>
+    <.element name={@field.name} label={@label} errors={@field.errors} class={@element_class}>
       <input type="text" id={@field.id} name={@field.name} value={@field.value} class={@class} autocomplete={@autocomplete} onkeyup="event.preventDefault()" {@rest} />
     </.element>
     """

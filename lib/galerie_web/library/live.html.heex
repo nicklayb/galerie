@@ -28,21 +28,17 @@
       <div class="px-2 mt-2">
         <Multiselect.render state={@ratings} prefix="rating" label={gettext("Rating")}/>
       </div>
-      <div class="px-2 mt-2">
-        <Multiselect.render state={@camera_models} prefix="camera_models" label={gettext("Camera model")}/>
-      </div>
-      <div class="px-2 mt-2">
-        <Multiselect.render state={@lens_models} prefix="lens_models" label={gettext("Lens model")}/>
-      </div>
-      <div class="px-2 mt-2">
-        <Multiselect.render state={@focal_lengths} prefix="focal_lengths" label={gettext("Focal length")}/>
-      </div>
-      <div class="px-2 mt-2">
-        <Multiselect.render state={@f_numbers} prefix="f_numbers" label={gettext("F number")}/>
-      </div>
-      <div class="px-2 mt-2">
-        <Multiselect.render state={@exposure_times} prefix="exposure_times" label={gettext("Exposure time")}/>
-      </div>
+      <%= for {assign, _metadata, label} <- @filters do %>
+        <%= with %AsyncResult{result: result, ok?: ok?} <- assigns[assign] do %>
+          <%= if ok? do %>
+            <div class="px-2 mt-2" id={result.id}>
+              <Multiselect.render state={result} prefix={to_string(assign)} label={label}/>
+            </div>
+          <% else %>
+            <%= gettext("Loading...") %>
+          <% end %>
+        <% end %>
+      <% end %>
     </div>
     <div class="flex flex-col flex-initial text-xs">
       <%= for {job, count} <- @jobs, count > 0 do %>

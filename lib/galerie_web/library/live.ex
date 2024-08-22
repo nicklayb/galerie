@@ -24,9 +24,20 @@ defmodule GalerieWeb.Library.Live do
   alias GalerieWeb.Components.Ui
   alias GalerieWeb.Html
 
+  alias Phoenix.LiveView.AsyncResult
+
   import GalerieWeb.Gettext
 
   @picture_viewer_id "pictureViewer"
+
+  @filters [
+    lens_model: :lens_models,
+    focal_length: :focal_lengths,
+    camera_model: :camera_models,
+    f_number: :f_numbers,
+    exposure_time: :exposure_times
+  ]
+  @filter_metadata Keyword.keys(@filters)
 
   @defaults %{
     updating: true,
@@ -46,19 +57,52 @@ defmodule GalerieWeb.Library.Live do
       socket
       |> assign(@defaults)
       |> assign(:ratings, Multiselect.new(:rating))
-      |> assign(:lens_models, Multiselect.new({:metadata, :lens_model}))
-      |> assign(:focal_lengths, Multiselect.new({:metadata, :focal_length}))
-      |> assign(:camera_models, Multiselect.new({:metadata, :camera_model}))
-      |> assign(:f_numbers, Multiselect.new({:metadata, :f_number}))
-      |> assign(:exposure_times, Multiselect.new({:metadata, :exposure_time}))
+      |> assign(:filters, filters_with_labels(@filters))
       |> setup_upload()
       |> start_async(:load_folders, fn -> Folders.get_user_folders(current_user) end)
       |> start_async(:load_jobs, fn -> {true, Galerie.ObanRepo.pending_jobs()} end)
       |> start_async(:load_albums, fn -> load_albums(current_user) end)
+      |> assign_filters()
 
     Galerie.PubSub.subscribe(current_user)
 
     {:ok, socket}
+  end
+
+  defp filters_with_labels(filters) do
+    Enum.map(filters, fn {metadata, assign} ->
+      {assign, metadata, filter_label(assign)}
+    end)
+  end
+
+  defp filter_label(:lens_models), do: gettext("Lens models")
+  defp filter_label(:focal_lengths), do: gettext("Focal length")
+  defp filter_label(:camera_models), do: gettext("Camera models")
+  defp filter_label(:f_numbers), do: gettext("F number")
+  defp filter_label(:exposure_times), do: gettext("Exposure times")
+
+  defp assign_filters(socket, keys \\ @filter_metadata) do
+    Enum.reduce(keys, socket, fn metadata, acc ->
+      case Keyword.get(@filters, metadata) do
+        nil ->
+          acc
+
+        assign_name ->
+          current_value = Map.get(socket.assigns, assign_name)
+
+          assign_async(acc, [assign_name], fn ->
+            {:ok, %{assign_name => init_or_update_multiselect(current_value, metadata)}}
+          end)
+      end
+    end)
+  end
+
+  defp init_or_update_multiselect(%AsyncResult{result: %Multiselect.State{} = state}, _) do
+    Multiselect.State.update(state)
+  end
+
+  defp init_or_update_multiselect(_, metadata) do
+    Multiselect.new({:metadata, metadata})
   end
 
   @max_entries 10
@@ -199,15 +243,22 @@ defmodule GalerieWeb.Library.Live do
       |> Map.get_lazy(:albums, fn -> SelectableList.new([]) end)
       |> SelectableList.selected_items(fn {_, item} -> item.id end)
 
-    [
+    metadata_filters(assigns,
       album_ids: album_ids,
-      rating: Multiselect.selected_items(assigns.ratings),
-      camera_model: Multiselect.selected_items(assigns.camera_models),
-      lens_model: Multiselect.selected_items(assigns.lens_models),
-      f_number: Multiselect.selected_items(assigns.f_numbers),
-      exposure_time: Multiselect.selected_items(assigns.exposure_times),
-      focal_length: Multiselect.selected_items(assigns.focal_lengths)
-    ]
+      rating: Multiselect.selected_items(assigns.ratings)
+    )
+  end
+
+  defp metadata_filters(assigns, initial) do
+    Enum.reduce(@filters, initial, fn {metadata, assign_name}, acc ->
+      case Map.get(assigns, assign_name) do
+        %AsyncResult{ok?: true, result: result} ->
+          Keyword.put(acc, metadata, Multiselect.selected_items(result))
+
+        _ ->
+          acc
+      end
+    end)
   end
 
   def handle_event("create-album", _, socket) do
@@ -472,6 +523,22 @@ defmodule GalerieWeb.Library.Live do
     {:noreply, socket}
   end
 
+  def handle_info(
+        %Galerie.PubSub.Message{
+          message: :metadata_updated,
+          params: {updated_metadata, picture}
+        } = message,
+        socket
+      ) do
+    if highlighted?(socket, picture) do
+      send_update(Picture.Viewer, id: @picture_viewer_id, message: message)
+    end
+
+    socket = assign_filters(socket, updated_metadata)
+
+    {:noreply, socket}
+  end
+
   @interesting_messages Picture.Viewer.interesting_messages()
   def handle_info(
         %Galerie.PubSub.Message{
@@ -668,7 +735,7 @@ defmodule GalerieWeb.Library.Live do
 
   defp update_filter(socket, filter, function) do
     socket
-    |> update(filter, function)
+    |> update(filter, &%AsyncResult{&1 | result: function.(&1.result)})
     |> reload_pictures()
   end
 end

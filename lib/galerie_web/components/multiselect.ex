@@ -27,6 +27,8 @@ defmodule GalerieWeb.Components.Multiselect do
   attr(:prefix, :string, required: true)
 
   def render(assigns) do
+    assigns = assign(assigns, :refresh_id, Ecto.UUID.generate())
+
     ~H"""
     <form phx-change={"#{@prefix}:change"} class="w-full">
       <div class="flex justify-between text-true-gray-700">
@@ -41,7 +43,7 @@ defmodule GalerieWeb.Components.Multiselect do
           <a href="#" phx-click={"#{@prefix}:none"}><%= gettext("None") %></a>
         </div>
       </div>
-      <select multiple name="select[]" class="w-full p-0 rounded-md">
+      <select multiple name="select[]" class="w-full p-0 rounded-md" id={@refresh_id}>
         <%= for {_, key, name} <- @state.options do %>
           <option value={key} selected={MultiselectState.selected?(@state, key)}><%= name %></option>
         <% end %>

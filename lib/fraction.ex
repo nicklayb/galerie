@@ -105,3 +105,9 @@ defmodule Fraction do
     end
   end
 end
+
+defimpl Phoenix.HTML.Safe, for: Fraction do
+  def to_iodata(%Fraction{} = fraction) do
+    Fraction.to_string(fraction)
+  end
+end

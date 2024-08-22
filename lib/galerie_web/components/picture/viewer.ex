@@ -104,6 +104,12 @@ defmodule GalerieWeb.Components.Picture.Viewer do
     {:noreply, socket}
   end
 
+  def handle_event("viewer:metadata:cancel", _, socket) do
+    socket = assign(socket, :editing_metadata, nil)
+
+    {:noreply, socket}
+  end
+
   def handle_event(
         "viewer:rate",
         %{"rating" => rating},
@@ -193,9 +199,11 @@ defmodule GalerieWeb.Components.Picture.Viewer do
               <span class="mx-0.5">x</span>
               <%= metadata.height %>
             </:info_item>
-            <:info_item title={gettext("Exposure")} editable_name={:exposure}>
-              <Icon.aperture width="18" height="18" class="mr-1" />
-              <%= Fraction.to_string(metadata.exposure_time) %>
+            <:info_item title={gettext("Exposure")} editable_name={:exposure_time}>
+              <%= with %Fraction{} = fraction <- metadata.exposure_time do %>
+                <Icon.aperture width="18" height="18" class="mr-1" />
+                <%= Fraction.to_string(fraction) %>
+              <% end %>
             </:info_item>
             <:info_item title={gettext("GPS")} visible={metadata.longitude}>
               <.google_map_link longitude={metadata.longitude} latitude={metadata.latitude} />
@@ -305,7 +313,7 @@ defmodule GalerieWeb.Components.Picture.Viewer do
       <div class="flex pr-2">
         <%= if @editing? do %>
           <.form for={@metadata_changeset} as={:edit_metadata} phx-change="viewer:metadata:change" phx-submit="viewer:metadata:save" phx-target={@myself}>
-            <Form.text_input field={@metadata_changeset[@editable_name]} />
+            <Form.text_input field={@metadata_changeset[@editable_name]} class="px-1 py-0" phx-hook="EditingMetadata" element_class="mb-0" id="editingMetadata" data-myself={@myself}/>
             <button type="submit" class="hidden"></button>
           </.form>
         <% else %>

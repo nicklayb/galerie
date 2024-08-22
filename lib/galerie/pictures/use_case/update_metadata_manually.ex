@@ -25,20 +25,32 @@ defmodule Galerie.Pictures.UseCase.UpdateMetadataManually do
       ) do
     picture_metadatas
     |> Enum.reduce(multi, fn picture_metadata, multi ->
-      Ecto.Multi.update(
-        multi,
-        {:metadata, picture_metadata.id},
-        Picture.Metadata.manual_edit_changeset(picture_metadata, params)
-      )
+      changeset = Picture.Metadata.manual_edit_changeset(picture_metadata, params)
+      updated_keys = Map.keys(changeset.changes)
+
+      multi
+      |> Ecto.Multi.update({:metadata, picture_metadata.id}, changeset)
+      |> put_once(:updated_metadata, updated_keys)
     end)
     |> Ecto.Multi.run(:group, fn repo, _ ->
       repo.fetch(Picture.Group, group_id)
     end)
   end
 
+  defp put_once(%Ecto.Multi{names: names} = multi, key, value) do
+    if key in names do
+      multi
+    else
+      Ecto.Multi.put(multi, key, value)
+    end
+  end
+
   @impl Galerie.UseCase
-  def after_run(%{group: group}, _) do
-    Galerie.PubSub.broadcast({Picture.Group, group.id}, {:metadata_updated, group})
+  def after_run(%{group: group, updated_metadata: updated_metadata}, _) do
+    Galerie.PubSub.broadcast(
+      {Picture.Group, group.id},
+      {:metadata_updated, {updated_metadata, group}}
+    )
   end
 
   @impl Galerie.UseCase

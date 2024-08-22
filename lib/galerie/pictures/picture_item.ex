@@ -63,26 +63,47 @@ defmodule Galerie.Pictures.PictureItem do
 
   def by_metadata(query, _, []), do: query
 
-  def by_metadata(query, :exposure_time, values) do
-    or_where =
-      Enum.reduce(values, Ecto.Query.dynamic(false), fn %Fraction{
-                                                          numerator: numerator,
-                                                          denominator: denominator
-                                                        },
-                                                        acc ->
+  def by_metadata(query, metadata, values) do
+    {new_query, values} =
+      case Enum.split_with(values, &(&1 == :empty)) do
+        {[:empty], values} ->
+          is_nil_query =
+            Ecto.Query.dynamic(
+              [metadata: metadata],
+              is_nil(field(metadata, ^metadata))
+            )
+
+          {is_nil_query, values}
+
+        {_, values} ->
+          {Ecto.Query.dynamic(false), values}
+      end
+
+    or_where = filter_by_metadata(new_query, metadata, values)
+    Ecto.Query.where(query, ^or_where)
+  end
+
+  defp filter_by_metadata(dynamic_query, :exposure_time, values) do
+    Enum.reduce(values, dynamic_query, fn
+      %Fraction{
+        numerator: numerator,
+        denominator: denominator
+      },
+      acc ->
         Ecto.Query.dynamic(
           [metadata: metadata],
           ^acc or
             (fragment("(?).numerator", metadata.exposure_time) == ^numerator and
                fragment("(?).denominator", metadata.exposure_time) == ^denominator)
         )
-      end)
-
-    Ecto.Query.where(query, ^or_where)
+    end)
   end
 
-  def by_metadata(query, metadata, values) do
-    Ecto.Query.where(query, [metadata: metadata], field(metadata, ^metadata) in ^values)
+  defp filter_by_metadata(dynamic_query, metadata, values) do
+    Ecto.Query.dynamic(
+      [metadata: metadata],
+      ^dynamic_query or field(metadata, ^metadata) in ^values
+    )
   end
 
   def by_rating(query, ratings) do
