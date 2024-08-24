@@ -5,12 +5,30 @@ defmodule GalerieWeb.Library.Controller do
   action_fallback(GalerieWeb.Error.Controller)
   plug(:put_view, GalerieWeb.Library.View)
 
+  @six_months_in_seconds 15_552_000
+  @cache_max_age @six_months_in_seconds
   def get(conn, %{"id" => picture_id} = params) do
     with {:ok, picture_id} <- Galerie.Ecto.check_uuid(picture_id),
          {:ok, type} <- type_param(params),
-         {:ok, path} <- Pictures.get_picture_path(picture_id, type) do
-      send_download(conn, {:file, path})
+         {:ok, path} <- Pictures.get_picture_path(picture_id, type),
+         {:ok, %File.Stat{mtime: mtime}} <- File.stat(path) do
+      etag = build_etag(picture_id, mtime)
+
+      conn
+      |> put_resp_header("cache-control", "private; max-age: #{@cache_max_age}")
+      |> put_resp_header("etag", etag)
+      |> send_download({:file, path})
     end
+  end
+
+  defp build_etag(picture_id, mtime) do
+    modified_time =
+      mtime
+      |> Tuple.to_list()
+      |> Enum.flat_map(&Tuple.to_list/1)
+      |> Enum.map_join(&to_string/1)
+
+    "#{picture_id}.#{modified_time}"
   end
 
   defp type_param(params) do

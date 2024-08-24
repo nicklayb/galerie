@@ -19,27 +19,18 @@ defmodule GalerieWeb.Library.Live do
   alias GalerieWeb.Components.FloatingPills
   alias GalerieWeb.Components.Icon
   alias GalerieWeb.Components.Modal
-  alias GalerieWeb.Components.Multiselect
   alias GalerieWeb.Components.Picture
   alias GalerieWeb.Components.Ui
   alias GalerieWeb.Html
 
-  alias Phoenix.LiveView.AsyncResult
-
   import GalerieWeb.Gettext
 
   @picture_viewer_id "pictureViewer"
-
-  @filters [
-    lens_model: :lens_models,
-    focal_length: :focal_lengths,
-    camera_model: :camera_models,
-    f_number: :f_numbers,
-    exposure_time: :exposure_times
-  ]
-  @filter_metadata Keyword.keys(@filters)
+  @picture_filter_id "pictureFilter"
 
   @defaults %{
+    picture_viewer_id: @picture_viewer_id,
+    picture_filter_id: @picture_filter_id,
     updating: true,
     pictures: nil,
     new_pictures: [],
@@ -47,6 +38,7 @@ defmodule GalerieWeb.Library.Live do
     modal: nil,
     jobs: %{},
     folders: [],
+    filters: [],
     albums: SelectableList.new([])
   }
 
@@ -56,53 +48,14 @@ defmodule GalerieWeb.Library.Live do
     socket =
       socket
       |> assign(@defaults)
-      |> assign(:ratings, Multiselect.new(:rating))
-      |> assign(:filters, filters_with_labels(@filters))
       |> setup_upload()
       |> start_async(:load_folders, fn -> Folders.get_user_folders(current_user) end)
       |> start_async(:load_jobs, fn -> {true, Galerie.ObanRepo.pending_jobs()} end)
-      |> start_async(:load_albums, fn -> load_albums(current_user) end)
-      |> assign_filters()
+      |> reload_albums()
 
     Galerie.PubSub.subscribe(current_user)
 
     {:ok, socket}
-  end
-
-  defp filters_with_labels(filters) do
-    Enum.map(filters, fn {metadata, assign} ->
-      {assign, metadata, filter_label(assign)}
-    end)
-  end
-
-  defp filter_label(:lens_models), do: gettext("Lens models")
-  defp filter_label(:focal_lengths), do: gettext("Focal length")
-  defp filter_label(:camera_models), do: gettext("Camera models")
-  defp filter_label(:f_numbers), do: gettext("F number")
-  defp filter_label(:exposure_times), do: gettext("Exposure times")
-
-  defp assign_filters(socket, keys \\ @filter_metadata) do
-    Enum.reduce(keys, socket, fn metadata, acc ->
-      case Keyword.get(@filters, metadata) do
-        nil ->
-          acc
-
-        assign_name ->
-          current_value = Map.get(socket.assigns, assign_name)
-
-          assign_async(acc, [assign_name], fn ->
-            {:ok, %{assign_name => init_or_update_multiselect(current_value, metadata)}}
-          end)
-      end
-    end)
-  end
-
-  defp init_or_update_multiselect(%AsyncResult{result: %Multiselect.State{} = state}, _) do
-    Multiselect.State.update(state)
-  end
-
-  defp init_or_update_multiselect(_, metadata) do
-    Multiselect.new({:metadata, metadata})
   end
 
   @max_entries 10
@@ -156,6 +109,22 @@ defmodule GalerieWeb.Library.Live do
     end
   end
 
+  defp load_albums(%User{} = current_user) do
+    current_user
+    |> Albums.get_user_albums()
+    |> SelectableList.new()
+  end
+
+  def handle_async(:load_albums, {:ok, albums}, %{assigns: %{albums: old_albums}} = socket) do
+    socket = assign(socket, :albums, albums)
+
+    Enum.each(old_albums, fn {_, album} -> Galerie.PubSub.unsubscribe(album) end)
+
+    Enum.each(albums, fn {_, album} -> Galerie.PubSub.subscribe(album) end)
+
+    {:noreply, socket}
+  end
+
   def handle_async(:load_folders, {:ok, folders}, socket) do
     socket =
       socket
@@ -181,16 +150,6 @@ defmodule GalerieWeb.Library.Live do
     end
 
     {:noreply, assign(socket, :jobs, jobs)}
-  end
-
-  def handle_async(:load_albums, {:ok, albums}, %{assigns: %{albums: old_albums}} = socket) do
-    socket = assign(socket, :albums, albums)
-
-    Enum.each(old_albums, fn {_, album} -> Galerie.PubSub.unsubscribe(album) end)
-
-    Enum.each(albums, fn {_, album} -> Galerie.PubSub.subscribe(album) end)
-
-    {:noreply, socket}
   end
 
   def handle_async(:load_pictures, {:ok, page}, socket) do
@@ -223,42 +182,15 @@ defmodule GalerieWeb.Library.Live do
   end
 
   defp load_pictures(assigns) do
-    query_options = pictures_filter(assigns)
+    query_options = [
+      {:album_ids, SelectableList.selected_items(assigns.albums, fn {_, item} -> item.id end)}
+      | assigns.filters
+    ]
 
     assigns.folders
     |> Enum.Extra.field(:id)
     |> Pictures.list_pictures(query_options)
     |> Repo.Page.map_results(&SelectableList.new/1)
-  end
-
-  defp load_albums(%User{} = current_user) do
-    current_user
-    |> Albums.get_user_albums()
-    |> SelectableList.new()
-  end
-
-  defp pictures_filter(assigns) do
-    album_ids =
-      assigns
-      |> Map.get_lazy(:albums, fn -> SelectableList.new([]) end)
-      |> SelectableList.selected_items(fn {_, item} -> item.id end)
-
-    metadata_filters(assigns,
-      album_ids: album_ids,
-      rating: Multiselect.selected_items(assigns.ratings)
-    )
-  end
-
-  defp metadata_filters(assigns, initial) do
-    Enum.reduce(@filters, initial, fn {metadata, assign_name}, acc ->
-      case Map.get(assigns, assign_name) do
-        %AsyncResult{ok?: true, result: result} ->
-          Keyword.put(acc, metadata, Multiselect.selected_items(result))
-
-        _ ->
-          acc
-      end
-    end)
   end
 
   def handle_event("create-album", _, socket) do
@@ -268,6 +200,17 @@ defmodule GalerieWeb.Library.Live do
         :modal,
         {GalerieWeb.Components.Modals.CreateAlbum, current_user: socket.assigns.current_user}
       )
+
+    {:noreply, socket}
+  end
+
+  def handle_event("filter:album", %{"index" => index}, socket) do
+    index = String.to_integer(index)
+
+    socket =
+      socket
+      |> update(:albums, &SelectableList.toggle_only(&1, index))
+      |> reload_pictures()
 
     {:noreply, socket}
   end
@@ -373,7 +316,7 @@ defmodule GalerieWeb.Library.Live do
       assign(
         socket,
         :modal,
-        {GalerieWeb.Components.Modals.AddToAlbum,
+        {GalerieWeb.Components.Modals.EditPictures,
          [
            selectable_list: socket.assigns.pictures.results,
            albums: SelectableList.new(socket.assigns.albums)
@@ -451,42 +394,6 @@ defmodule GalerieWeb.Library.Live do
     {:noreply, socket}
   end
 
-  def handle_event("camera_models:" <> event, params, socket) do
-    socket = update_filter(socket, :camera_models, &Multiselect.handle_event(event, params, &1))
-
-    {:noreply, socket}
-  end
-
-  def handle_event("exposure_times:" <> event, params, socket) do
-    socket = update_filter(socket, :exposure_times, &Multiselect.handle_event(event, params, &1))
-
-    {:noreply, socket}
-  end
-
-  def handle_event("f_numbers:" <> event, params, socket) do
-    socket = update_filter(socket, :f_numbers, &Multiselect.handle_event(event, params, &1))
-
-    {:noreply, socket}
-  end
-
-  def handle_event("focal_lengths:" <> event, params, socket) do
-    socket = update_filter(socket, :focal_lengths, &Multiselect.handle_event(event, params, &1))
-
-    {:noreply, socket}
-  end
-
-  def handle_event("lens_models:" <> event, params, socket) do
-    socket = update_filter(socket, :lens_models, &Multiselect.handle_event(event, params, &1))
-
-    {:noreply, socket}
-  end
-
-  def handle_event("rating:" <> event, params, socket) do
-    socket = update_filter(socket, :ratings, &Multiselect.handle_event(event, params, &1))
-
-    {:noreply, socket}
-  end
-
   def handle_event("modal:close", _, socket) do
     socket = assign(socket, :modal, nil)
     {:noreply, socket}
@@ -496,9 +403,17 @@ defmodule GalerieWeb.Library.Live do
     {:noreply, socket}
   end
 
+  def handle_info({:filter_updated, filters}, socket) do
+    socket =
+      socket
+      |> assign(:filters, filters)
+      |> reload_pictures()
+
+    {:noreply, socket}
+  end
+
   def handle_info(:sync_albums, socket) do
-    current_user = socket.assigns.current_user
-    socket = start_async(socket, :load_albums, fn -> load_albums(current_user) end)
+    socket = reload_albums(socket)
     {:noreply, socket}
   end
 
@@ -517,7 +432,7 @@ defmodule GalerieWeb.Library.Live do
     socket = update(socket, :albums, &put_album(&1, album))
 
     if highlighted?(socket, group) do
-      send_update(self(), Picture.Viewer, id: @picture_viewer_id, message: message)
+      send_to_viewer(message: message)
     end
 
     {:noreply, socket}
@@ -531,10 +446,10 @@ defmodule GalerieWeb.Library.Live do
         socket
       ) do
     if highlighted?(socket, picture) do
-      send_update(Picture.Viewer, id: @picture_viewer_id, message: message)
+      send_to_viewer(message: message)
     end
 
-    socket = assign_filters(socket, updated_metadata)
+    send_to_filter(updated_metadata: updated_metadata)
 
     {:noreply, socket}
   end
@@ -549,7 +464,7 @@ defmodule GalerieWeb.Library.Live do
       )
       when inner_message in @interesting_messages do
     if highlighted?(socket, picture) do
-      send_update(Picture.Viewer, id: @picture_viewer_id, message: message)
+      send_to_viewer(message: message)
     end
 
     {:noreply, socket}
@@ -733,9 +648,16 @@ defmodule GalerieWeb.Library.Live do
     end
   end
 
-  defp update_filter(socket, filter, function) do
-    socket
-    |> update(filter, &%AsyncResult{&1 | result: function.(&1.result)})
-    |> reload_pictures()
+  defp send_to_filter(assigns) do
+    send_update(self(), Picture.Filter, [{:id, @picture_filter_id} | assigns])
+  end
+
+  defp send_to_viewer(assigns) do
+    send_update(self(), Picture.Viewer, [{:id, @picture_viewer_id} | assigns])
+  end
+
+  defp reload_albums(socket) do
+    current_user = socket.assigns.current_user
+    start_async(socket, :load_albums, fn -> load_albums(current_user) end)
   end
 end
