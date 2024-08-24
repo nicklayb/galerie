@@ -4,6 +4,7 @@ defmodule GalerieWeb.Components.Modals.EditPictures do
   import GalerieWeb.Gettext
 
   alias GalerieWeb.Components.Form
+  alias GalerieWeb.Components.Icon
   alias GalerieWeb.Components.Modal
   alias GalerieWeb.Components.Modals.EditPictures.Form, as: EditPicturesForm
   alias GalerieWeb.Gettext.Picture, as: PictureGettext
@@ -38,9 +39,12 @@ defmodule GalerieWeb.Components.Modals.EditPictures do
 
   def handle_event(
         "edit_pictures:change",
-        %{"edit_pictures" => %{"album_ids" => album_ids, "metadatas" => metadatas}},
+        %{"edit_pictures" => params},
         socket
       ) do
+    album_ids = Map.get(params, "album_ids", [])
+    metadatas = Map.get(params, "metadatas", %{})
+
     socket =
       assign(
         socket,
@@ -114,7 +118,12 @@ defmodule GalerieWeb.Components.Modals.EditPictures do
 
     ~H"""
     <div class="">
-      <div class="" phx-click="edit_pictures:expand" phx-value-key={@key} phx-target={@myself}>
+      <div class="text-lg flex items-center" phx-click="edit_pictures:expand" phx-value-key={@key} phx-target={@myself}>
+        <%= if @expanded? do %>
+          <Icon.down_chevron width="20" height="20" />
+        <% else %>
+          <Icon.right_chevron width="20" height="20" />
+        <% end %>
         <%= @label %>
       </div>
       <div class={Html.class("", {@expanded?, "block", "hidden"})}>

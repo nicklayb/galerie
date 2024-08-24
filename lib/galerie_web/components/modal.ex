@@ -8,26 +8,25 @@ defmodule GalerieWeb.Components.Modal do
     ~H"""
     <%= case @component do %>
       <% {component, component_assigns} -> %>
-        <.overlay on_keyup={@on_keyup}>
+        <.overlay>
           <.live_component id="modal" module={component} {component_assigns} />
         </.overlay>
 
       <% nil -> %>
 
       <% component when is_atom(component) -> %>
-        <.overlay on_keyup={@on_keyup}>
+        <.overlay>
           <.live_component id="modal" module={component}/>
         </.overlay>
     <% end %>
     """
   end
 
-  attr(:on_keyup, :string, required: true)
   slot(:inner_block, required: true)
 
   def overlay(assigns) do
     ~H"""
-    <div class="h-full w-full fixed top-0 left-0 bg-gray-800/90 transition-all z-70 absolute fade-in" phx-window-keyup={@on_keyup}>
+    <div class="h-full w-full fixed top-0 left-0 bg-gray-800/90 transition-all z-70 absolute fade-in" phx-window-keyup="modal:keyup">
       <%= render_slot(@inner_block) %>
     </div>
     """

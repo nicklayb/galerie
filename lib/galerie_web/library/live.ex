@@ -288,7 +288,8 @@ defmodule GalerieWeb.Library.Live do
   end
 
   def handle_event("deselect-picture", %{"index" => index}, socket) do
-    socket = update_pictures(socket, &SelectableList.deselect_by_index(&1, index))
+    socket =
+      update_pictures(socket, &SelectableList.deselect_by_index(&1, String.to_integer(index)))
 
     {:noreply, socket}
   end
@@ -396,6 +397,17 @@ defmodule GalerieWeb.Library.Live do
 
   def handle_event("modal:close", _, socket) do
     socket = assign(socket, :modal, nil)
+    {:noreply, socket}
+  end
+
+  def handle_event("modal:keyup", %{"key" => "Escape"}, %{assigns: %{modal: modal}} = socket)
+      when not is_nil(modal) do
+    socket = assign(socket, :modal, nil)
+
+    {:noreply, socket}
+  end
+
+  def handle_event("modal:keyup", _params, socket) do
     {:noreply, socket}
   end
 

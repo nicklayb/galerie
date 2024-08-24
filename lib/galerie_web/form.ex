@@ -20,6 +20,7 @@ defmodule GalerieWeb.Form do
       def new(params) do
         params
         |> changeset()
+        |> then(&%Ecto.Changeset{&1 | action: :validate})
         |> Phoenix.Component.to_form(as: @form_name)
       end
 

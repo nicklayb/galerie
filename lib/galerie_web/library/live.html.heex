@@ -70,7 +70,7 @@
   </FloatingPills.pills>
   <%= case {@pictures, @modal} do %>
     <% {_, {_, _} = component} -> %> 
-      <Modal.render component={component} on_keyup="viewer:keyup"/>
+      <Modal.render component={component} />
     <% {%Page{has_next_page: has_next_page, results: %SelectableList{highlighted_index: highlighted_index} = results}, _} when is_integer(highlighted_index) -> %>
       <.live_component module={Picture.Viewer} id={@picture_viewer_id} results={results} has_next_page={has_next_page} />
     <% _ -> %>

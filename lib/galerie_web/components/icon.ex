@@ -162,6 +162,16 @@ defmodule GalerieWeb.Components.Icon do
   attr(:width, :string, default: "4")
   attr(:class, :string, default: "")
 
+  def down_chevron(assigns) do
+    assigns
+    |> Map.update!(:class, &(&1 <> " rotate-90"))
+    |> right_chevron()
+  end
+
+  attr(:height, :string, default: "4")
+  attr(:width, :string, default: "4")
+  attr(:class, :string, default: "")
+
   def download(assigns) do
     ~H"""
     <svg class={@class} height={@height} width={@width} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
