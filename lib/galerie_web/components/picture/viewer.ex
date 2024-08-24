@@ -6,8 +6,8 @@ defmodule GalerieWeb.Components.Picture.Viewer do
 
   import GalerieWeb.Gettext
 
-  alias Galerie.Pictures
   alias Galerie.Albums
+  alias Galerie.Pictures
   alias Galerie.Pictures.Picture
   alias Galerie.Pictures.Picture.Group
   alias Galerie.Pictures.Picture.Metadata
