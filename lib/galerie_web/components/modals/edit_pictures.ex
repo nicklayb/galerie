@@ -3,10 +3,11 @@ defmodule GalerieWeb.Components.Modals.EditPictures do
 
   import GalerieWeb.Gettext
 
+  alias Galerie.Form.Pictures.EditPicturesForm
+
   alias GalerieWeb.Components.Form
   alias GalerieWeb.Components.Icon
   alias GalerieWeb.Components.Modal
-  alias GalerieWeb.Components.Modals.EditPictures.Form, as: EditPicturesForm
   alias GalerieWeb.Gettext.Picture, as: PictureGettext
   alias GalerieWeb.Html
 
@@ -33,6 +34,32 @@ defmodule GalerieWeb.Components.Modals.EditPictures do
   def handle_event("edit_pictures:expand", %{"key" => key}, socket)
       when key in @expandable_block_strings do
     socket = update(socket, :expanded, &MapSet.Extra.toggle(&1, String.to_existing_atom(key)))
+
+    {:noreply, socket}
+  end
+
+  def handle_event(
+        "edit_pictures:save",
+        %{"edit_pictures" => params},
+        socket
+      ) do
+    album_ids = Map.get(params, "album_ids", [])
+    metadatas = Map.get(params, "metadatas", %{})
+
+    params = %{
+      group_ids: socket.assigns.group_ids,
+      album_ids: album_ids,
+      metadatas: metadatas
+    }
+
+    socket =
+      with {:ok, form} <- EditPicturesForm.submit(params),
+           {:ok, _result} <- Galerie.Pictures.UseCase.EditPictures.execute(form) do
+        socket
+      else
+        _error ->
+          socket
+      end
 
     {:noreply, socket}
   end
@@ -75,6 +102,9 @@ defmodule GalerieWeb.Components.Modals.EditPictures do
               <.block_wrapper expanded={@expanded} key={:metadata} myself={@myself}>
                 <.edit_metadata expanded={@expanded} myself={@myself} form={@form} />
               </.block_wrapper>
+              <div class="px-1 py-2 border-b last:border-b-0 border-true-gray-200 text-right">
+                <Form.button type={:submit}><%= gettext("Save") %></Form.button>
+              </div>
             </div>
           </:body>
         </Modal.modal>
@@ -85,16 +115,39 @@ defmodule GalerieWeb.Components.Modals.EditPictures do
 
   defp edit_metadata(assigns) do
     assigns =
-      assign(assigns, :metadata_inputs, GalerieWeb.Form.form_keys(EditPicturesForm.Metadatas))
+      assign(assigns, :metadata_inputs, EditPicturesForm.Metadatas.text_inputs())
 
     ~H"""
     <div class="">
       <%= for metadata_input <- @metadata_inputs do %>
         <.inputs_for :let={metadatas} field={@form[:metadatas]}>
-          <Form.text_input field={metadatas[metadata_input]} label={PictureGettext.translate_metadata(metadata_input)} />
+          <div>
+            <.metadata_input metadata_input={metadata_input} form={metadatas} />
+          </div>
         </.inputs_for>
       <% end %>
     </div>
+    """
+  end
+
+  defp metadata_input(assigns) do
+    assigns =
+      assigns
+      |> assign(:field, assigns.form[assigns.metadata_input])
+      |> assign(:checked_key, String.to_existing_atom("#{assigns.metadata_input}_edited"))
+      |> assign(:label, PictureGettext.translate_metadata(assigns.metadata_input))
+      |> then(&assign(&1, :checked_field, &1.form[&1.checked_key]))
+      |> then(&assign(&1, :checked?, &1.checked_field.value == true))
+
+    ~H"""
+    <Form.text_input field={@field} disabled={not @checked?} show_errors?={@checked?}>
+      <:label>
+        <div class="flex items-center">
+          <Form.checkbox field={@checked_field} checked={@checked?} value="true" element_class="flex mb-0 mr-1"/>
+          <div><%= @label %></div>
+        </div>
+      </:label>
+    </Form.text_input>
     """
   end
 
@@ -117,8 +170,8 @@ defmodule GalerieWeb.Components.Modals.EditPictures do
       |> assign(:expanded?, MapSet.member?(assigns.expanded, assigns.key))
 
     ~H"""
-    <div class="">
-      <div class="text-lg flex items-center" phx-click="edit_pictures:expand" phx-value-key={@key} phx-target={@myself}>
+    <div class="px-1 py-2 border-b last:border-b-0 border-true-gray-200">
+      <div class="text-lg flex items-center cursor-pointer" phx-click="edit_pictures:expand" phx-value-key={@key} phx-target={@myself}>
         <%= if @expanded? do %>
           <Icon.down_chevron width="20" height="20" />
         <% else %>

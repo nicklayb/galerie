@@ -1,8 +1,8 @@
-defmodule GalerieWeb.Form do
+defmodule Galerie.Form do
   defmacro __using__(options) do
     quote do
       use Ecto.Schema
-      import GalerieWeb.Form
+      import Galerie.Form
 
       @form_name Keyword.fetch!(unquote(options), :name)
     end
@@ -26,6 +26,12 @@ defmodule GalerieWeb.Form do
 
       def submit(%Ecto.Changeset{} = changeset) do
         Ecto.Changeset.apply_action(changeset, :insert)
+      end
+
+      def submit(%{} = params) do
+        params
+        |> new()
+        |> submit()
       end
     end
   end

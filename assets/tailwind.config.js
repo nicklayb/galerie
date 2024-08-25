@@ -7,6 +7,7 @@ module.exports = {
       colors: {
         "true-gray-50": "#fafafa",
         "true-gray-100": "#f5f5f5",
+        "true-gray-150": "#eeeeee",
         "true-gray-200": "#e5e5e5",
         "true-gray-300": "#d4d4d4",
         "true-gray-400": "#a3a3a3",
