@@ -63,11 +63,6 @@
       </Dropzone.render>
     </div>
   </Ui.loading>
-  <FloatingPills.pills>
-    <FloatingPills.pill visible={Enum.any?(@new_pictures)} text={gettext("%{count} new pictures processed", count: length(@new_pictures))} pill_class="bg-yellow-400" button_class="hover:bg-yellow-600">
-      <:button phx_click="clear-new-pictures" icon={:cross} width="10" height="10"/>
-    </FloatingPills.pill>
-  </FloatingPills.pills>
   <%= case {@pictures, @modal} do %>
     <% {_, {_, _} = component} -> %> 
       <Modal.render component={component} />

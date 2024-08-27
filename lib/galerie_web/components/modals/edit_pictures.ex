@@ -3,6 +3,7 @@ defmodule GalerieWeb.Components.Modals.EditPictures do
 
   import GalerieWeb.Gettext
 
+  alias GalerieWeb.Core.Notifications
   alias Galerie.Form.Pictures.EditPicturesForm
 
   alias GalerieWeb.Components.Form
@@ -55,10 +56,15 @@ defmodule GalerieWeb.Components.Modals.EditPictures do
     socket =
       with {:ok, form} <- EditPicturesForm.submit(params),
            {:ok, _result} <- Galerie.Pictures.UseCase.EditPictures.execute(form) do
-        socket
+        send(self(), :close_modal)
+        Notifications.notify(socket, :info, gettext("Pictures edited successfully"))
       else
         _error ->
-          socket
+          Notifications.notify(
+            socket,
+            :error,
+            gettext("Error occured while updating the pictures")
+          )
       end
 
     {:noreply, socket}

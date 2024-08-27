@@ -33,7 +33,6 @@ defmodule GalerieWeb.Library.Live do
     picture_filter_id: @picture_filter_id,
     updating: true,
     pictures: nil,
-    new_pictures: [],
     filter_selected: false,
     modal: nil,
     jobs: %{},
@@ -226,11 +225,6 @@ defmodule GalerieWeb.Library.Live do
     {:noreply, socket}
   end
 
-  def handle_event("clear-new-pictures", _, socket) do
-    socket = assign(socket, :new_pictures, [])
-    {:noreply, socket}
-  end
-
   def handle_event("selection_bar:filter-selected", _, socket) do
     socket = update(socket, :filter_selected, &(not &1))
 
@@ -320,6 +314,7 @@ defmodule GalerieWeb.Library.Live do
         {GalerieWeb.Components.Modals.EditPictures,
          [
            selectable_list: socket.assigns.pictures.results,
+           current_user: socket.assigns.current_user,
            albums: SelectableList.new(socket.assigns.albums)
          ]}
       )
@@ -489,8 +484,17 @@ defmodule GalerieWeb.Library.Live do
         },
         socket
       ) do
-    socket =
-      update(socket, :new_pictures, &[picture.id | &1])
+    Galerie.PubSub.broadcast(
+      {:sessions, socket.assigns.live_session_id},
+      {:update_notification,
+       {:new_pictures,
+        fn params ->
+          count = Map.get(params, :count, 0) + 1
+
+          {:info, gettext("%{count} new pictures", count: count),
+           key: :new_pictures, params: %{count: count}}
+        end}}
+    )
 
     {:noreply, socket}
   end
