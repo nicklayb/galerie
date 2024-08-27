@@ -1,5 +1,6 @@
 defmodule Galerie.UseCase do
   alias Galerie.Repo
+  require Logger
   @type params :: any()
   @callback validate(params(), Keyword.t()) :: {:ok, params()} | :ignore | {:error, any()}
   @callback run(Ecto.Multi.t(), params(), Keyword.t()) :: Ecto.Mutli.t()
@@ -9,6 +10,8 @@ defmodule Galerie.UseCase do
   defmacro __using__(_) do
     quote do
       @behaviour Galerie.UseCase
+
+      require Galerie.PubSub
 
       def execute!(params, options \\ []) do
         Galerie.UseCase.execute!(__MODULE__, params, options)
@@ -31,9 +34,18 @@ defmodule Galerie.UseCase do
   def execute(module, params, options) do
     transaction_options = Keyword.get(options, :transaction, [])
 
+    Logger.info("[#{inspect(module)}] [execute] [#{inspect(options)}] #{inspect(params)}")
+    start_time = System.system_time()
+
     with {:ok, new_params} <- module.validate(params, options),
          {:ok, %Ecto.Multi{} = multi} <- build_multi(module, new_params, options),
          {:ok, result} <- Repo.transaction(multi, transaction_options) do
+      end_time = System.system_time()
+
+      Logger.info(
+        "[#{inspect(module)}] [success] [#{inspect(options)}] [#{format_duration(start_time, end_time)}] #{inspect(params)}"
+      )
+
       options = Keyword.put(options, :params, params)
 
       if Keyword.get(options, :after_run?, true) do
@@ -41,7 +53,34 @@ defmodule Galerie.UseCase do
       end
 
       {:ok, module.return(result, options)}
+    else
+      error ->
+        Logger.error(
+          "[#{inspect(module)}] [error] #{inspect(options)} [#{inspect(params)}] #{inspect(error)}"
+        )
+
+        error
     end
+  end
+
+  @units %{
+    ms: 1000,
+    s: 1000,
+    m: 60,
+    h: 60,
+    d: 24
+  }
+  defp format_duration(start_time, end_time) do
+    {duration, unit} =
+      Enum.reduce_while(@units, end_time - start_time, fn {unit, divider}, duration ->
+        if duration / divider >= 1 do
+          {:cont, duration / divider}
+        else
+          {:halt, {duration, unit}}
+        end
+      end)
+
+    "#{round(duration)}#{unit}"
   end
 
   def execute!(module, params, options) do
@@ -63,6 +102,7 @@ defmodule Galerie.UseCase do
   defp build_multi(module, params, options) do
     case module.run(Ecto.Multi.new(), params, options) do
       %Ecto.Multi{} = multi ->
+        Logger.debug("[#{inspect(module)}] [mulit] #{inspect(multi)}")
         {:ok, multi}
 
       other ->

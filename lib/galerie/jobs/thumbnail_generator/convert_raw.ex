@@ -1,4 +1,5 @@
 defmodule Galerie.Jobs.ThumbnailGenerator.ConvertRaw do
+  require Galerie.PubSub
   alias Galerie.Directory
   alias Galerie.Pictures.Picture
   alias Galerie.Repo

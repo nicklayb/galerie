@@ -9,7 +9,7 @@
         <ul class="px-1">
           <Ui.list items={@albums}>
             <:item :let={{index, item}}>
-              <li class={Html.class("flex flex-row items-center justify-between px-1 border border-true-gray-300 border-t-0 first:border-t py-0.5 cursor-pointer first:rounded-t-md last:rounded-b-md", {SelectableList.index_selected?(@albums, index), "bg-pink-500 text-white border-pink-500"})} phx-click="filter-album" phx-value-index={index}>
+              <li phx-click="filter:album" phx-value-index={index} class={Html.class("flex flex-row items-center justify-between px-1 border border-true-gray-300 border-t-0 first:border-t py-0.5 cursor-pointer first:rounded-t-md last:rounded-b-md", {SelectableList.index_selected?(@albums, index), "bg-pink-500 text-white border-pink-500"})}>
                 <div class="flex items-center">
                   <Icon.picture width="18" height="18" class="mx-1"/>
                   <%= item.name %>
@@ -25,24 +25,7 @@
           </Ui.list>
         </ul>
       </div>
-      <div class="px-2 mt-2">
-        <Multiselect.render state={@ratings} prefix="rating" label={gettext("Rating")}/>
-      </div>
-      <div class="px-2 mt-2">
-        <Multiselect.render state={@camera_models} prefix="camera_models" label={gettext("Camera model")}/>
-      </div>
-      <div class="px-2 mt-2">
-        <Multiselect.render state={@lens_models} prefix="lens_models" label={gettext("Lens model")}/>
-      </div>
-      <div class="px-2 mt-2">
-        <Multiselect.render state={@focal_lengths} prefix="focal_lengths" label={gettext("Focal length")}/>
-      </div>
-      <div class="px-2 mt-2">
-        <Multiselect.render state={@f_numbers} prefix="f_numbers" label={gettext("F number")}/>
-      </div>
-      <div class="px-2 mt-2">
-        <Multiselect.render state={@exposure_times} prefix="exposure_times" label={gettext("Exposure time")}/>
-      </div>
+      <.live_component module={Picture.Filter} id={@picture_filter_id} current_user={@current_user} />
     </div>
     <div class="flex flex-col flex-initial text-xs">
       <%= for {job, count} <- @jobs, count > 0 do %>
@@ -80,16 +63,11 @@
       </Dropzone.render>
     </div>
   </Ui.loading>
-  <FloatingPills.pills>
-    <FloatingPills.pill visible={Enum.any?(@new_pictures)} text={gettext("%{count} new pictures processed", count: length(@new_pictures))} pill_class="bg-yellow-400" button_class="hover:bg-yellow-600">
-      <:button phx_click="clear-new-pictures" icon={:cross} width="10" height="10"/>
-    </FloatingPills.pill>
-  </FloatingPills.pills>
   <%= case {@pictures, @modal} do %>
     <% {_, {_, _} = component} -> %> 
-      <Modal.render component={component} on_keyup="viewer:keyup"/>
+      <Modal.render component={component} />
     <% {%Page{has_next_page: has_next_page, results: %SelectableList{highlighted_index: highlighted_index} = results}, _} when is_integer(highlighted_index) -> %>
-      <.live_component module={Picture.Viewer} id="pictureViewer" results={results} has_next_page={has_next_page} />
+      <.live_component module={Picture.Viewer} id={@picture_viewer_id} results={results} has_next_page={has_next_page} />
     <% _ -> %>
   <% end %>
 </div>

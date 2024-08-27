@@ -1,6 +1,8 @@
 defmodule Galerie.Jobs.ThumbnailGenerator.Generator do
   use Oban.Worker, queue: :thumbnails
 
+  require Galerie.PubSub
+
   alias Galerie.Directory
   alias Galerie.Folders.Folder
   alias Galerie.Pictures

@@ -4,6 +4,7 @@ defmodule Galerie.PubSub do
   every message in a `%Galerie.PubSub.Message{}` structure
   to make them easily distinguishable from other mesages
   """
+  require Logger
   alias Galerie.PubSub.Message
 
   @dispatcher Galerie.PubSub
@@ -26,62 +27,86 @@ defmodule Galerie.PubSub do
   def topic({namespace, id}), do: "#{topic(namespace)}:#{id}"
   def topic({namespace, id, child}), do: "#{topic({namespace, id})}:#{child}"
 
+  defmacro broadcast(topics, function_or_message) do
+    quote do
+      Galerie.PubSub.broadcast(__MODULE__, unquote(topics), unquote(function_or_message))
+    end
+  end
+
   @doc "Broadcasts a message to one or more topics"
-  @spec broadcast(topic() | [topic()] | String.t(), message() | function()) :: :ok
-  def broadcast(topics, function) when is_function(function, 0) do
+  @spec broadcast(module(), topic() | [topic()] | String.t(), message() | function()) :: :ok
+  def broadcast(module, topics, function) when is_function(function, 0) do
     Task.start(fn ->
       result = function.()
 
-      broadcast(topics, result)
+      broadcast(module, topics, result)
     end)
 
     :ok
   end
 
-  def broadcast(topics, message) when is_list(topics) do
-    Enum.each(topics, &broadcast(&1, message))
+  def broadcast(module, topics, message) when is_list(topics) do
+    Enum.each(topics, &broadcast(module, &1, message))
   end
 
-  def broadcast(topic, message) when is_binary(topic) do
+  def broadcast(module, topic, message) when is_binary(topic) do
+    Logger.debug(
+      "[#{inspect(__MODULE__)}] [#{inspect(module)}] [#{topic}] [broadcast] #{inspect(message)}"
+    )
+
     Phoenix.PubSub.broadcast(Galerie.PubSub, topic, {topic, message}, @dispatcher)
   end
 
-  def broadcast(topic, message) do
+  def broadcast(module, topic, message) do
     topic
     |> topic()
-    |> broadcast(message)
+    |> then(&broadcast(module, &1, message))
+  end
+
+  defmacro subscribe(topics) do
+    quote do
+      Galerie.PubSub.subscribe(__MODULE__, unquote(topics))
+    end
   end
 
   @doc "Subscribes to one or more topics"
-  @spec subscribe(topic() | [topic()] | String.t()) :: :ok
-  def subscribe(topics) when is_list(topics) do
-    Enum.each(topics, &subscribe/1)
+  @spec subscribe(module(), topic() | [topic()] | String.t()) :: :ok
+  def subscribe(module, topics) when is_list(topics) do
+    Enum.each(topics, &subscribe(module, &1))
   end
 
-  def subscribe(topic) when is_binary(topic) do
+  def subscribe(module, topic) when is_binary(topic) do
+    Logger.debug("[#{inspect(__MODULE__)}] [#{inspect(module)}] [#{topic}] [subscribe]")
     Phoenix.PubSub.subscribe(Galerie.PubSub, topic)
   end
 
-  def subscribe(topic) do
+  def subscribe(module, topic) do
     topic
     |> topic()
-    |> subscribe()
+    |> then(&subscribe(module, &1))
+  end
+
+  defmacro unsubscribe(topics) do
+    quote do
+      Galerie.PubSub.unsubscribe(__MODULE__, unquote(topics))
+    end
   end
 
   @doc "Unsubscribes to one or more topics"
-  @spec unsubscribe(topic() | [topic()] | String.t()) :: :ok
-  def unsubscribe(topics) when is_list(topics) do
-    Enum.each(topics, &unsubscribe/1)
+  @spec unsubscribe(module(), topic() | [topic()] | String.t()) :: :ok
+  def unsubscribe(module, topics) when is_list(topics) do
+    Enum.each(topics, &unsubscribe(module, &1))
   end
 
-  def unsubscribe(topic) when is_binary(topic) do
+  def unsubscribe(module, topic) when is_binary(topic) do
+    Logger.debug("[#{inspect(__MODULE__)}] [#{inspect(module)}] [#{topic}] [unsubscribe]")
     Phoenix.PubSub.unsubscribe(Galerie.PubSub, topic)
   end
 
-  def unsubscribe(topic) do
+  def unsubscribe(module, topic) do
     topic
     |> topic()
-    |> unsubscribe()
+    |> then(&unsubscribe(module, &1))
   end
 
   @doc "Dispatches a wrapped message to the receipients"

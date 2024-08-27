@@ -5,7 +5,6 @@ export default {
     this.el.addEventListener('ondragover', this.handleDragOver.bind(this))
     this.el.addEventListener('ondragstart', this.handleDragStart.bind(this))
     this.el.addEventListener('ondragend', this.handleDragEnd.bind(this))
-    console.log("Dropzone Mounted")
   },
   handleDragEnter(e) {
     e.preventDefault()

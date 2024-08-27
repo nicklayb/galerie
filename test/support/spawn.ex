@@ -16,7 +16,7 @@ defmodule GalerieTest.Support.Spawn do
   """
   @spec subscriber(Galerie.PubSub.topic(), function() | nil) :: pid()
   def subscriber(topic, function \\ nil) do
-    receiver(fn -> Galerie.PubSub.subscribe(topic) end, function)
+    receiver(fn -> Galerie.PubSub.subscribe(__MODULE__, topic) end, function)
   end
 
   @doc "Spawns a process that awaits message after calling a given function"

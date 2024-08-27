@@ -1,5 +1,6 @@
 defmodule GalerieWeb.Hooks.LiveSession do
   use GalerieWeb.Components.Routes
+  require Galerie.PubSub
 
   def on_mount(:default, _params, _, socket) do
     socket =

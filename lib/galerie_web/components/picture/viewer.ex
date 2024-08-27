@@ -1,17 +1,19 @@
 defmodule GalerieWeb.Components.Picture.Viewer do
   use Phoenix.LiveComponent
-
   use GalerieWeb.Components.Routes
+
+  require Logger
 
   import GalerieWeb.Gettext
 
-  alias Galerie.Pictures
   alias Galerie.Albums
+  alias Galerie.Pictures
   alias Galerie.Pictures.Picture
   alias Galerie.Pictures.Picture.Group
   alias Galerie.Pictures.Picture.Metadata
   alias Galerie.Pictures.PictureItem
   alias Galerie.Repo
+  alias GalerieWeb.Components.Form
   alias GalerieWeb.Components.Icon
   alias GalerieWeb.Components.Stars
   alias GalerieWeb.Components.Ui
@@ -21,6 +23,7 @@ defmodule GalerieWeb.Components.Picture.Viewer do
     on_keyup: "viewer:keyup",
     on_close: "viewer:close",
     selected_pictures: [],
+    editing_metadata: nil,
     rating_range: Group.rating_range()
   ]
 
@@ -34,6 +37,7 @@ defmodule GalerieWeb.Components.Picture.Viewer do
       socket
       |> assign(assigns)
       |> assign_pictures(results)
+      |> assign_metadata_changeset()
 
     {:ok, socket}
   end
@@ -42,6 +46,7 @@ defmodule GalerieWeb.Components.Picture.Viewer do
     processed
     removed_from_album
     rating_updated
+    metadata_updated
   )a
   def update(%{message: %Galerie.PubSub.Message{message: message}}, socket)
       when message in @updatable_messages do
@@ -54,12 +59,54 @@ defmodule GalerieWeb.Components.Picture.Viewer do
     {:ok, socket}
   end
 
+  def interesting_messages, do: @updatable_messages
+
   def handle_event(
         "viewer:remove-from-album",
         %{"album_id" => album_id, "group_id" => group_id},
         socket
       ) do
     Albums.remove_from_album(%{album_id: album_id, group_id: group_id})
+    {:noreply, socket}
+  end
+
+  def handle_event("viewer:edit_metadata", %{"metadata" => string_metadata}, socket) do
+    metadata = String.to_existing_atom(string_metadata)
+
+    socket =
+      socket
+      |> assign(:editing_metadata, metadata)
+      |> assign_metadata_changeset()
+
+    {:noreply, socket}
+  end
+
+  def handle_event(
+        "viewer:metadata:change",
+        %{"_target" => ["metadata", _], "metadata" => metadata},
+        socket
+      ) do
+    socket = assign_metadata_changeset(socket, metadata)
+    {:noreply, socket}
+  end
+
+  def handle_event("viewer:metadata:save", %{"metadata" => metadata}, socket) do
+    socket =
+      case Pictures.update_metadata_manually(socket.assigns.picture.group_id, metadata) do
+        {:ok, _} ->
+          assign(socket, :editing_metadata, nil)
+
+        {:error, error} ->
+          Logger.error("[#{inspect(__MODULE__)}] [viewer:metadata:save] #{inspect(error)}")
+          socket
+      end
+
+    {:noreply, socket}
+  end
+
+  def handle_event("viewer:metadata:cancel", _, socket) do
+    socket = assign(socket, :editing_metadata, nil)
+
     {:noreply, socket}
   end
 
@@ -82,13 +129,24 @@ defmodule GalerieWeb.Components.Picture.Viewer do
 
   def render(assigns) do
     ~H"""
-    <div class="z-50 fixed flex flex-row top-0 left-0 w-screen h-screen bg-gray-800/90 fade-in transition-all" phx-window-keyup={@on_keyup}>
+    <div class="z-50 fixed flex flex-row top-0 left-0 w-screen h-screen bg-gray-800/90 fade-in transition-all" data-on-window-keyup={@on_keyup} phx-hook="Keyup" id="viewerWrapper">
       <div class="flex-1 flex flex-row text-white text-lg">
         <.side_arrow disabled={not @has_previous} icon={:left_chevron} on_keyup={@on_keyup} key="ArrowLeft"/>
         <div class="py-2"><img class={Html.class("h-full m-auto", rotation(@picture))} src={~p(/pictures/#{@picture.id})} /></div>
         <.side_arrow disabled={not @has_next} icon={:right_chevron} on_keyup={@on_keyup} key="ArrowRight"/>
       </div>
-      <.info_panel checked={@checked} picture={@picture} picture_item={@picture_item} rating_range={@rating_range} index={@results.highlighted_index} on_close={@on_close} pictures={@pictures} myself={@myself}/>
+      <.info_panel
+        checked={@checked}
+        picture={@picture}
+        picture_item={@picture_item}
+        rating_range={@rating_range}
+        index={@results.highlighted_index}
+        on_close={@on_close}
+        pictures={@pictures}
+        myself={@myself}
+        editing_metadata={@editing_metadata}
+        metadata_changeset={@metadata_changeset}
+      />
     </div>
     """
   end
@@ -123,17 +181,17 @@ defmodule GalerieWeb.Components.Picture.Viewer do
       </div>
       <div>
         <%= with %Metadata{} = metadata <- @picture.metadata do %>
-          <.info_section title={gettext("Informations")}>
+          <.info_section title={gettext("Informations")} myself={@myself} editing_metadata={@editing_metadata} metadata_changeset={@metadata_changeset} manually_updated_fields={@picture.metadata.manually_updated_fields}>
             <:info_item title={gettext("Taken on")}>
               <%= metadata.datetime_original %>
             </:info_item>
-            <:info_item title={gettext("Camera")}>
+            <:info_item title={gettext("Camera")} editable_name={:camera_model}>
               <%= metadata.camera_make %> <%= metadata.camera_model %>
             </:info_item>
-            <:info_item title={gettext("F stop")} visible={metadata.f_number > 0}>
+            <:info_item title={gettext("F stop")} visible={metadata.f_number > 0} editable_name={:f_number}>
               <%= gettext("f/%{focal}", focal: metadata.f_number) %>
             </:info_item>
-            <:info_item title={gettext("Focal length")} visible={not is_nil(metadata.focal_length) and metadata.focal_length > 0.0}>
+            <:info_item title={gettext("Focal length")} editable_name={:focal_length} visible={not is_nil(metadata.focal_length) and metadata.focal_length > 0.0}>
               <%= metadata.focal_length %>
             </:info_item>
             <:info_item title={gettext("Dimensions")}>
@@ -141,14 +199,16 @@ defmodule GalerieWeb.Components.Picture.Viewer do
               <span class="mx-0.5">x</span>
               <%= metadata.height %>
             </:info_item>
-            <:info_item title={gettext("Exposure")}>
-              <Icon.aperture width="18" height="18" class="mr-1" />
-              <%= Fraction.to_string(metadata.exposure_time) %>
+            <:info_item title={gettext("Exposure")} editable_name={:exposure_time}>
+              <%= with %Fraction{} = fraction <- metadata.exposure_time do %>
+                <Icon.aperture width="18" height="18" class="mr-1" />
+                <%= Fraction.to_string(fraction) %>
+              <% end %>
             </:info_item>
             <:info_item title={gettext("GPS")} visible={metadata.longitude}>
               <.google_map_link longitude={metadata.longitude} latitude={metadata.latitude} />
             </:info_item>
-            <:info_item title={gettext("Lens")} visible={metadata.lens_model}>
+            <:info_item title={gettext("Lens")} visible={metadata.lens_model} editable_name={:lens_model}>
               <%= metadata.lens_model %>
             </:info_item>
           </.info_section>
@@ -185,10 +245,15 @@ defmodule GalerieWeb.Components.Picture.Viewer do
   end
 
   attr(:title, :string, required: true)
+  attr(:myself, :any)
+  attr(:editing_metadata, :atom, default: nil)
+  attr(:metadata_changeset, :map, default: nil)
+  attr(:manually_updated_fields, MapSet, default: MapSet.new())
   slot(:inner_block, required: false)
 
   slot(:info_item, required: false) do
     attr(:title, :string, required: true)
+    attr(:editable_name, :atom)
     attr(:visible, :boolean)
   end
 
@@ -202,8 +267,8 @@ defmodule GalerieWeb.Components.Picture.Viewer do
         <%= render_slot(@inner_block) %>
       <% end %>
       <%= for item <- @info_item do %>
-        <%= if Map.get(item, :visible, true) do %>
-          <.info_section_item title={item.title}>
+        <%= if Map.get(item, :visible, true) != false or not is_nil(Map.get(item, :editable_name)) do %>
+          <.info_section_item title={item.title} editable_name={Map.get(item, :editable_name)} editing_metadata={@editing_metadata} metadata_changeset={@metadata_changeset} myself={@myself} manually_updated_fields={@manually_updated_fields}>
             <%= render_slot(item) %>
           </.info_section_item>
         <% end %>
@@ -213,13 +278,48 @@ defmodule GalerieWeb.Components.Picture.Viewer do
   end
 
   attr(:title, :string, required: true)
+  attr(:myself, :any)
+  attr(:editable_name, :atom, default: nil)
+  attr(:editing_metadata, :atom, default: nil)
+  attr(:metadata_changeset, :map)
+  attr(:manually_updated_fields, MapSet, default: MapSet.new([]))
   slot(:inner_block, required: false)
 
   defp info_section_item(assigns) do
+    editable? = not is_nil(assigns.editable_name)
+
+    assigns =
+      assigns
+      |> assign(
+        :editing?,
+        editable? and assigns.editable_name == assigns.editing_metadata
+      )
+      |> assign(:editable?, editable?)
+      |> assign(
+        :manually_edited?,
+        MapSet.member?(assigns.manually_updated_fields, assigns.editable_name)
+      )
+
     ~H"""
-    <div class="flex flex-row justify-between text-sm py-0.5 border-b border-gray-100">
-      <div class="flex pl-2"><%= @title %></div>
-      <div class="flex pr-2"><%= render_slot(@inner_block) %></div>
+    <div class="flex flex-row justify-between text-sm py-0.5 border-b border-gray-100 group">
+      <div class="flex pl-2">
+        <%= @title %>
+        <%= if @editable? and not @editing? do %>
+          <span phx-click="viewer:edit_metadata" phx-value-metadata={@editable_name} phx-target={@myself} class={Html.class("group-hover:block cursor-pointer hover:text-pink-600", [{@manually_edited?, "block text-gray-300", "hidden"}])}>
+            <Icon.pencil width="18" height="18"/>
+          </span>
+        <% end %>
+      </div>
+      <div class="flex pr-2">
+        <%= if @editing? do %>
+          <.form for={@metadata_changeset} as={:edit_metadata} phx-change="viewer:metadata:change" phx-submit="viewer:metadata:save" phx-target={@myself}>
+            <Form.text_input field={@metadata_changeset[@editable_name]} class="px-1 py-0" phx-hook="EditingMetadata" element_class="mb-0" id="editingMetadata" data-myself={@myself}/>
+            <button type="submit" class="hidden"></button>
+          </.form>
+        <% else %>
+          <%= render_slot(@inner_block) %>
+        <% end %>
+      </div>
     </div>
     """
   end
@@ -262,5 +362,18 @@ defmodule GalerieWeb.Components.Picture.Viewer do
     |> assign(:picture, picture)
     |> assign(:pictures, pictures)
     |> update(:picture, &Repo.preload(&1, [:exif, :metadata, :albums]))
+  end
+
+  defp assign_metadata_changeset(socket, params \\ %{}) do
+    changeset =
+      socket.assigns.picture.metadata
+      |> Metadata.changeset(params)
+      |> to_form()
+
+    assign(
+      socket,
+      :metadata_changeset,
+      changeset
+    )
   end
 end

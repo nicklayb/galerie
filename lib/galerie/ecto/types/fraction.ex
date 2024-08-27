@@ -31,5 +31,14 @@ defmodule Galerie.Ecto.Types.Fraction do
     cast({String.to_integer(numerator), String.to_integer(denominator)})
   end
 
+  def cast(string) when is_binary(string) do
+    string
+    |> Fraction.parse()
+    |> cast()
+  rescue
+    _ ->
+      :error
+  end
+
   def cast(_), do: :error
 end

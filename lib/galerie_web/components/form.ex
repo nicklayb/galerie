@@ -3,7 +3,7 @@ defmodule GalerieWeb.Components.Form do
   alias GalerieWeb.Html
 
   attr(:name, :atom, required: true)
-  attr(:label, :string, required: true)
+  attr(:label, :any, default: nil)
   attr(:multiple, :boolean, default: false)
   attr(:errors, :list, default: [])
   attr(:class, :string, default: "")
@@ -14,11 +14,17 @@ defmodule GalerieWeb.Components.Form do
     assigns = assign(assigns, :name, name)
 
     ~H"""
-    <div class={Html.class("group", [{Enum.any?(@errors), "has-errors"}, {@class != "", @class, "flex flex-col gap-y-2 mb-3"}])}>
+    <div class={Html.class("group", [{Enum.any?(@errors), "has-errors"}, {@class != "", @class, "flex flex-col gap-y-1 mb-3"}])}>
       <%= if @label do %>
-        <label for={@name} class="text-sm pl-0.5 group-[.has-errors]:text-red-400">
-          <%= @label %>
-        </label>
+        <%= case @label do %>
+          <% [_] -> %>
+            <%= render_slot(@label) %>
+
+          <% label -> %>
+            <label for={@name} class="text-sm pl-0.5 group-[.has-errors]:text-red-400">
+              <%= label %>
+            </label>
+        <% end %>
       <% end %>
       <%= render_slot(@inner_block) %>
       <.field_errors errors={@errors} />
@@ -27,7 +33,7 @@ defmodule GalerieWeb.Components.Form do
   end
 
   attr(:field, :any, required: true)
-  attr(:label, :string)
+  attr(:label, :any, default: nil)
   attr(:value, :any, required: true)
   attr(:element_class, :string, default: "")
   attr(:multiple, :boolean, default: false)
@@ -59,19 +65,20 @@ defmodule GalerieWeb.Components.Form do
   defp multiple_name(%{name: name}), do: name
 
   attr(:form, :any, default: nil)
-  attr(:class, :string, default: "")
+  attr(:class, :string, default: "py-1.5 pr-20")
+  attr(:element_class, :string, default: "")
   attr(:name, :atom)
   attr(:field, :any)
-  attr(:label, :string, default: nil)
+  attr(:label, :any, default: nil)
   attr(:autocomplete, :string, default: "")
   attr(:rest, :global)
 
-  @class "block w-full bg-true-gray-100 rounded border-0 py-1.5 pr-20 text-true-gray-900 ring-1 ring-inset ring-true-gray-500 placeholder:text-true-gray-400 focus:ring-2 focus:ring-inset focus:ring-pink-600 sm:text-sm sm:leading-6 group-[.has-errors]:ring-red-400"
+  @class "block w-full bg-true-gray-100 rounded border-0 text-true-gray-900 ring-1 ring-inset ring-true-gray-500 placeholder:text-true-gray-400 focus:ring-2 focus:ring-inset focus:ring-pink-600 sm:text-sm sm:leading-6 group-[.has-errors]:ring-red-400 disabled:bg-true-gray-150 disabled:border-true-gray-300 text-true-gray-500"
   def text_input(%{field: _field} = assigns) do
     assigns = update(assigns, :class, &Html.class(@class, &1))
 
     ~H"""
-    <.element name={@field.name} label={@label} errors={@field.errors}>
+    <.element name={@field.name} label={@label} errors={@field.errors} class={@element_class}>
       <input type="text" id={@field.id} name={@field.name} value={@field.value} class={@class} autocomplete={@autocomplete} onkeyup="event.preventDefault()" {@rest} />
     </.element>
     """
