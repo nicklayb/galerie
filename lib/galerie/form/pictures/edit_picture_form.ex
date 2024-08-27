@@ -11,6 +11,7 @@ defmodule Galerie.Form.Pictures.EditPicturesForm do
       focal_length: :float
     ]
     @field_edited Enum.map(@fields_with_types, fn {key, _} -> :"#{key}_edited" end)
+    @fields Keyword.keys(@fields_with_types)
 
     Enum.map(@fields_with_types, fn {key, type} -> field(key, type) end)
     Enum.map(@field_edited, &field(&1, :boolean))
@@ -19,6 +20,16 @@ defmodule Galerie.Form.Pictures.EditPicturesForm do
       edited_keys = edited_keys(form, params)
 
       Ecto.Changeset.cast(form, params, @field_edited ++ edited_keys)
+    end
+
+    def edited_metadata(%Metadatas{} = metadatas) do
+      Enum.reduce(@field_edited, [], fn field, acc ->
+        if Map.get(metadatas, field) == true do
+          [edited_field_to_field(field) | acc]
+        else
+          acc
+        end
+      end)
     end
 
     defp edited_keys(form, params) do
@@ -40,6 +51,8 @@ defmodule Galerie.Form.Pictures.EditPicturesForm do
       |> String.replace("_edited", "")
       |> String.to_existing_atom()
     end
+
+    def text_inputs, do: @fields
   end
 
   defform do
@@ -53,5 +66,13 @@ defmodule Galerie.Form.Pictures.EditPicturesForm do
     |> Ecto.Changeset.cast(params, form_keys(EditPicturesForm))
     |> Ecto.Changeset.cast_embed(:metadatas)
     |> Ecto.Changeset.validate_required([:group_ids])
+  end
+
+  def post_submit(%EditPicturesForm{} = form) do
+    %EditPicturesForm{
+      form
+      | group_ids: Enum.uniq(form.group_ids),
+        album_ids: Enum.uniq(form.album_ids)
+    }
   end
 end

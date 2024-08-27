@@ -140,7 +140,7 @@ defmodule GalerieWeb.Components.Modals.EditPictures do
       |> then(&assign(&1, :checked?, &1.checked_field.value == true))
 
     ~H"""
-    <Form.text_input field={@field} disabled={not @checked?} show_errors?={@checked?}>
+    <Form.text_input field={@field} disabled={not @checked?}>
       <:label>
         <div class="flex items-center">
           <Form.checkbox field={@checked_field} checked={@checked?} value="true" element_class="flex mb-0 mr-1"/>

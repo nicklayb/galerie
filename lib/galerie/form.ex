@@ -25,14 +25,21 @@ defmodule Galerie.Form do
       end
 
       def submit(%Ecto.Changeset{} = changeset) do
-        Ecto.Changeset.apply_action(changeset, :insert)
+        changeset
+        |> Ecto.Changeset.apply_action(:insert)
+        |> Result.map(&post_submit/1)
       end
 
       def submit(%{} = params) do
         params
         |> new()
+        |> Map.fetch!(:source)
         |> submit()
       end
+
+      def post_submit(form), do: form
+
+      defoverridable(post_submit: 1)
     end
   end
 

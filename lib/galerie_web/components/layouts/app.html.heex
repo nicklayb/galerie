@@ -2,4 +2,6 @@
   <Ui.loading loading={Map.get(assigns, :loading, false)}>
     <%= @inner_content %>
   </Ui.loading>
+
+  <%= live_render(@socket, GalerieWeb.Core.Notifications, id: GalerieWeb.Core.Notifications.id(), session: %{"current_user" => @current_user, "live_session_id" => @live_session_id}) %>
 </main>
