@@ -56,7 +56,9 @@ defmodule GalerieWeb.Components.Modals.CreateAlbum do
             <%= gettext("Create album") %>
           </:header>
           <:body>
-            <Form.text_input field={@form[:name]} label={gettext("Album name")}/>
+            <Form.text_input field={@form[:name]}>
+              <:label><%= gettext("Album name") %></:label>
+            </Form.text_input>
           </:body>
           <:footer class="text-right">
             <Form.button type={:submit} phx-target={@myself}>

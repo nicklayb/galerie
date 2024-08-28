@@ -16,7 +16,6 @@ defmodule GalerieWeb.Library.Live do
   alias Galerie.Repo.Page
 
   alias GalerieWeb.Components.Dropzone
-  alias GalerieWeb.Components.FloatingPills
   alias GalerieWeb.Components.Icon
   alias GalerieWeb.Components.Modal
   alias GalerieWeb.Components.Picture
@@ -480,7 +479,7 @@ defmodule GalerieWeb.Library.Live do
   def handle_info(
         %Galerie.PubSub.Message{
           message: :thumbnail_generated,
-          params: %Galerie.Pictures.Picture{} = picture
+          params: %Galerie.Pictures.Picture{}
         },
         socket
       ) do

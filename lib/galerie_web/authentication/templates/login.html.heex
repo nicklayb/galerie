@@ -1,7 +1,11 @@
 <.container>
   <%= PhoenixForm.form_for @changeset, ~p(/login), [as: :login_form], fn f -> %>
-    <Form.text_input form={f} name={:email} label={gettext("Email")} autocomplete="off"/>
-    <Form.text_input form={f} name={:password} type={:password} label={gettext("Password")} />
+    <Form.text_input form={f} name={:email} autocomplete="off">
+      <:label><%= gettext("Email") %></:label>
+    </Form.text_input>
+    <Form.text_input form={f} name={:password} type={:password}>
+      <:label><%= gettext("Password") %></:label>
+    </Form.text_input>
 
     <div class="text-right flex flex-col text-sm">
       <a href="/forgot_password" class="pb-1"><%= gettext("Forgot your password") %></a>
