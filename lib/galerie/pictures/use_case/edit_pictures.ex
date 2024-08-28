@@ -3,6 +3,7 @@ defmodule Galerie.Pictures.UseCase.EditPictures do
 
   require Ecto.Query
 
+  alias Galerie.Accounts.User
   alias Galerie.Albums.AlbumPictureGroup
   alias Galerie.Form.Pictures.EditPicturesForm
   alias Galerie.Pictures.Picture
@@ -87,12 +88,16 @@ defmodule Galerie.Pictures.UseCase.EditPictures do
   end
 
   @impl Galerie.UseCase
-  def after_run(%{updated_metadata: updated_metadata} = multi_output, _) do
+  def after_run(%{updated_metadata: updated_metadata} = multi_output, options) do
+    with %User{} = user <- Keyword.get(options, :user) do
+      Galerie.PubSub.broadcast(user, {:metadata_updated, updated_metadata})
+    end
+
     Enum.map(multi_output, fn
-      {:updated_group, group} ->
+      {{:updated_metadata, group_id}, _} ->
         Galerie.PubSub.broadcast(
-          {Picture.Group, group.id},
-          {:metadata_updated, {updated_metadata, group}}
+          {Picture.Group, group_id},
+          {:metadata_updated, {updated_metadata, group_id}}
         )
 
       _ ->

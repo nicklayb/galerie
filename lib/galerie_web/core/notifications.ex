@@ -46,6 +46,10 @@ defmodule GalerieWeb.Core.Notifications do
     {:noreply, socket}
   end
 
+  def handle_info(%Galerie.PubSub.Message{}, socket) do
+    {:noreply, socket}
+  end
+
   def handle_info({:notifications, {:clear, id}}, socket) do
     socket = update(socket, :messages, &clear_message(&1, id))
     {:noreply, socket}

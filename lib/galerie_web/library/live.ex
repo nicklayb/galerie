@@ -460,6 +460,18 @@ defmodule GalerieWeb.Library.Live do
     {:noreply, socket}
   end
 
+  def handle_info(
+        %Galerie.PubSub.Message{
+          message: :metadata_updated,
+          params: [_ | _] = updated_metadata
+        },
+        socket
+      ) do
+    send_to_filter(updated_metadata: updated_metadata)
+
+    {:noreply, socket}
+  end
+
   @interesting_messages Picture.Viewer.interesting_messages()
   def handle_info(
         %Galerie.PubSub.Message{

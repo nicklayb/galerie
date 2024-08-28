@@ -55,7 +55,10 @@ defmodule GalerieWeb.Components.Modals.EditPictures do
 
     socket =
       with {:ok, form} <- EditPicturesForm.submit(params),
-           {:ok, _result} <- Galerie.Pictures.UseCase.EditPictures.execute(form) do
+           {:ok, _result} <-
+             Galerie.Pictures.UseCase.EditPictures.execute(form,
+               user: socket.assigns.current_user
+             ) do
         send(self(), :close_modal)
         Notifications.notify(socket, :info, gettext("Pictures edited successfully"))
       else
