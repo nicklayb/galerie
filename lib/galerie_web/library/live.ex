@@ -16,7 +16,6 @@ defmodule GalerieWeb.Library.Live do
   alias Galerie.Repo.Page
 
   alias GalerieWeb.Components.Dropzone
-  alias GalerieWeb.Components.FloatingPills
   alias GalerieWeb.Components.Icon
   alias GalerieWeb.Components.Modal
   alias GalerieWeb.Components.Picture
@@ -461,6 +460,18 @@ defmodule GalerieWeb.Library.Live do
     {:noreply, socket}
   end
 
+  def handle_info(
+        %Galerie.PubSub.Message{
+          message: :metadata_updated,
+          params: [_ | _] = updated_metadata
+        },
+        socket
+      ) do
+    send_to_filter(updated_metadata: updated_metadata)
+
+    {:noreply, socket}
+  end
+
   @interesting_messages Picture.Viewer.interesting_messages()
   def handle_info(
         %Galerie.PubSub.Message{
@@ -480,7 +491,7 @@ defmodule GalerieWeb.Library.Live do
   def handle_info(
         %Galerie.PubSub.Message{
           message: :thumbnail_generated,
-          params: %Galerie.Pictures.Picture{} = picture
+          params: %Galerie.Pictures.Picture{}
         },
         socket
       ) do

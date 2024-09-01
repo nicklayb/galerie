@@ -244,7 +244,7 @@ defmodule GalerieWeb.Components.Picture.Viewer do
     """
   end
 
-  attr(:title, :string, required: true)
+  attr(:title, :string, default: nil)
   attr(:myself, :any)
   attr(:editing_metadata, :atom, default: nil)
   attr(:metadata_changeset, :map, default: nil)
@@ -257,12 +257,20 @@ defmodule GalerieWeb.Components.Picture.Viewer do
     attr(:visible, :boolean)
   end
 
+  slot(:custom_title, required: false)
+
   defp info_section(assigns) do
     assigns = update(assigns, :info_item, fn items -> Enum.sort_by(items, & &1.title) end)
 
     ~H"""
     <div class="mt-2 first:mt-0">
-      <div class="py-1 pl-2 bg-gray-200"><%= @title %></div>
+      <%= if is_binary(@title) do %>
+        <div class="py-1 pl-2 bg-gray-200">
+          <%= @title %>
+        </div>
+      <% else %>
+        <%= render_slot(@custom_title) %>
+      <% end %>
       <%= if Enum.any?(@inner_block) do %>
         <%= render_slot(@inner_block) %>
       <% end %>

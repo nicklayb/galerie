@@ -3,11 +3,11 @@ defmodule GalerieWeb.Components.Form do
   alias GalerieWeb.Html
 
   attr(:name, :atom, required: true)
-  attr(:label, :any, default: nil)
   attr(:multiple, :boolean, default: false)
   attr(:errors, :list, default: [])
   attr(:class, :string, default: "")
   slot(:inner_block, required: true)
+  slot(:label, required: false)
 
   def element(assigns) do
     name = multiple_name(assigns)
@@ -16,15 +16,9 @@ defmodule GalerieWeb.Components.Form do
     ~H"""
     <div class={Html.class("group", [{Enum.any?(@errors), "has-errors"}, {@class != "", @class, "flex flex-col gap-y-1 mb-3"}])}>
       <%= if @label do %>
-        <%= case @label do %>
-          <% [_] -> %>
-            <%= render_slot(@label) %>
-
-          <% label -> %>
-            <label for={@name} class="text-sm pl-0.5 group-[.has-errors]:text-red-400">
-              <%= label %>
-            </label>
-        <% end %>
+        <label for={@name} class="text-sm pl-0.5 group-[.has-errors]:text-red-400">
+          <%= render_slot(@label) %>
+        </label>
       <% end %>
       <%= render_slot(@inner_block) %>
       <.field_errors errors={@errors} />
@@ -33,18 +27,21 @@ defmodule GalerieWeb.Components.Form do
   end
 
   attr(:field, :any, required: true)
-  attr(:label, :any, default: nil)
   attr(:value, :any, required: true)
   attr(:element_class, :string, default: "")
   attr(:multiple, :boolean, default: false)
   attr(:checked, :boolean, required: true)
+  slot(:label, required: false)
 
   def checkbox(assigns) do
     name = multiple_name(assigns)
     assigns = assign(assigns, :name, name)
 
     ~H"""
-    <.element label={@label} name={@field.name} errors={@field.errors} class={@element_class} multiple={@multiple}>
+    <.element name={@field.name} errors={@field.errors} class={@element_class} multiple={@multiple}>
+      <:label>
+        <%= render_slot(@label) %>
+      </:label>
       <input type="checkbox" id={@field.id} name={@name} value={@value} checked={@checked}/>
     </.element>
     """
@@ -69,17 +66,22 @@ defmodule GalerieWeb.Components.Form do
   attr(:element_class, :string, default: "")
   attr(:name, :atom)
   attr(:field, :any)
-  attr(:label, :any, default: nil)
   attr(:autocomplete, :string, default: "")
+  attr(:disabled, :boolean, default: false)
   attr(:rest, :global)
+
+  slot(:label, required: false)
 
   @class "block w-full bg-true-gray-100 rounded border-0 text-true-gray-900 ring-1 ring-inset ring-true-gray-500 placeholder:text-true-gray-400 focus:ring-2 focus:ring-inset focus:ring-pink-600 sm:text-sm sm:leading-6 group-[.has-errors]:ring-red-400 disabled:bg-true-gray-150 disabled:border-true-gray-300 text-true-gray-500"
   def text_input(%{field: _field} = assigns) do
     assigns = update(assigns, :class, &Html.class(@class, &1))
 
     ~H"""
-    <.element name={@field.name} label={@label} errors={@field.errors} class={@element_class}>
-      <input type="text" id={@field.id} name={@field.name} value={@field.value} class={@class} autocomplete={@autocomplete} onkeyup="event.preventDefault()" {@rest} />
+    <.element name={@field.name} errors={@field.errors} class={@element_class}>
+      <:label>
+        <%= render_slot(@label) %>
+      </:label>
+      <input type="text" id={@field.id} name={@field.name} value={@field.value} class={@class} disabled={@disabled} autocomplete={@autocomplete} onkeyup="event.preventDefault()" {@rest} />
     </.element>
     """
   end
@@ -104,7 +106,10 @@ defmodule GalerieWeb.Components.Form do
       |> assign(:errors, errors)
 
     ~H"""
-    <.element name={@name} label={@label} errors={@errors}>
+    <.element name={@name} errors={@errors}>
+      <:label>
+        <%= render_slot(@label) %>
+      </:label>
       <%= Phoenix.HTML.Form.text_input(@form, @name, @attributes) %>
     </.element>
     """

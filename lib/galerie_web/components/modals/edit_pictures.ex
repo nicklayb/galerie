@@ -55,7 +55,10 @@ defmodule GalerieWeb.Components.Modals.EditPictures do
 
     socket =
       with {:ok, form} <- EditPicturesForm.submit(params),
-           {:ok, _result} <- Galerie.Pictures.UseCase.EditPictures.execute(form) do
+           {:ok, _result} <-
+             Galerie.Pictures.UseCase.EditPictures.execute(form,
+               user: socket.assigns.current_user
+             ) do
         send(self(), :close_modal)
         Notifications.notify(socket, :info, gettext("Pictures edited successfully"))
       else
@@ -162,7 +165,9 @@ defmodule GalerieWeb.Components.Modals.EditPictures do
     <ul>
       <%= for {_, album} <- @albums do %>
         <li class="border border-true-gray-300 border-b-0 py-1 pl-1 pr-2 last:border-b first:rounded-t-md last:rounded-b-md">
-          <Form.checkbox label={album.name} field={@form[:album_ids]} checked={album.id in @form[:album_ids].value} multiple={true} value={album.id} element_class="flex flex-row justify-between items-center" />
+          <Form.checkbox field={@form[:album_ids]} checked={album.id in @form[:album_ids].value} multiple={true} value={album.id} element_class="flex flex-row justify-between items-center">
+            <:label><%= album.name %></:label>
+          </Form.checkbox>
         </li>
       <% end %>
     </ul>
