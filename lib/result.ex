@@ -42,10 +42,12 @@ defmodule Result do
   def map({:ok, result}, function), do: {:ok, function.(result)}
   def map(error, _), do: error
 
+  @doc "Apply another result function to a success result"
   @spec and_then(t(any(), any()), (any() -> t(any(), any()))) :: t(any(), any())
   def and_then({:ok, result}, function), do: function.(result)
   def and_then(error, _), do: error
 
+  @doc "Log value using success or error function depending on the result"
   @spec log(t(any(), any()), (any() -> any()), (any() -> any())) :: t(any(), any())
   def log(result, success_function, error_function \\ &Function.identity/1)
 
@@ -65,6 +67,7 @@ defmodule Result do
     {:error, error}
   end
 
+  @doc "Applies a function on success result but without keeping the previous result"
   @spec tap(t(any(), any()), (any() -> any()), (any() -> any())) :: t(any(), any())
   def tap(result, success_function, error_function \\ &Function.identity/1)
 
@@ -78,6 +81,13 @@ defmodule Result do
     {:error, error}
   end
 
+  @doc "Returns success value if success, fallbacks otherwise"
+  @spec with_default(t(any(), any()), any()) :: any()
   def with_default({:ok, result}, _), do: result
   def with_default(_, fallback), do: fallback
+
+  @doc "Creates a result from a boolean value"
+  @spec from_boolean(boolean(), any(), any()) :: t(any(), any())
+  def from_boolean(true, success, _), do: succeed(success)
+  def from_boolean(false, _, error), do: fail(error)
 end

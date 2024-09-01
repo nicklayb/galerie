@@ -1,4 +1,8 @@
 defmodule Galerie.Albums.UseCase.CreateAlbum do
+  @moduledoc """
+  Use case to create an album. Since albums belongs to a given user,
+  the user needs to provided as part of the params.
+  """
   use Galerie.UseCase
   alias Galerie.Accounts.User
   alias Galerie.Albums.Album

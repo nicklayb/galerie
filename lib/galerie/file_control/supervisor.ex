@@ -1,7 +1,23 @@
 defmodule Galerie.FileControl.Supervisor do
+  @moduledoc """
+  The file control supervisor is responsible for starting file
+  watcher for every watched folders. They individual folder's
+  watcher path are kept in a registry.
+
+  The state of the supervisor is under the `:enabled` key in config
+  and watched folders are pulled from the config and are expected
+  to be defined as a list of string under the `:folders` key like
+
+      config :galerie, Galerie.FileControl.Supervisor,
+        enabled: false,
+        folders: [
+            "folder1",
+            "folder2"
+          ]
+  """
   use Supervisor, restart: :transient
 
-  @supervisor __MODULE__
+  @supervisor Galerie.FileControl.Supervisor
   @registry Galerie.FileControl.Registry
   def start_link(args) do
     if enabled?() do
@@ -30,9 +46,7 @@ defmodule Galerie.FileControl.Supervisor do
   end
 
   defp folders do
-    :galerie
-    |> Application.get_env(@supervisor)
-    |> Keyword.fetch!(:folders)
+    Galerie.Env.config!(@supervisor, :folders)
   end
 
   defp enabled? do

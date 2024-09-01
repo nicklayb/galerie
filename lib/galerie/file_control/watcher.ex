@@ -1,4 +1,15 @@
 defmodule Galerie.FileControl.Watcher do
+  @moduledoc """
+  The file watcher will start a `FileSystem` watcher and look
+  for changes in order to synchronize files authomatically.
+
+  When started, the server does a sync where it will load files
+  that are newer or might've been missed.
+
+  *Note*: There is issue when trying to watch *Samba* file share,
+  the server isn't grabbing any change and the server needs to
+  receive a `:synchronize` call in order to catch new file.
+  """
   use GenServer
 
   alias Galerie.Folders.Folder

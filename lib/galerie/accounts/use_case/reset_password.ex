@@ -1,4 +1,9 @@
 defmodule Galerie.Accounts.UseCase.ResetPassword do
+  @moduledoc """
+  Use case to request a user reset password change. The user
+  receives an email and can then use the reset password form
+  to set a new password
+  """
   use Galerie.UseCase
 
   alias Galerie.Accounts.User

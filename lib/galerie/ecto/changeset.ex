@@ -1,4 +1,7 @@
 defmodule Galerie.Ecto.Changeset do
+  @moduledoc """
+  Ecto changeset helper functions.
+  """
   import Ecto.Changeset
 
   @type touch_timestamp_option :: {:key, atom()} | {:setter, atom()}

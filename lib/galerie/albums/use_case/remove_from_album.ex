@@ -1,4 +1,7 @@
 defmodule Galerie.Albums.UseCase.RemoveFromAlbum do
+  @moduledoc """
+  Use case to remove a picture from an album.
+  """
   use Galerie.UseCase
 
   require Ecto.Query
@@ -48,17 +51,11 @@ defmodule Galerie.Albums.UseCase.RemoveFromAlbum do
     )
   end
 
-  def validate_existence(params) do
+  defp validate_existence(params) do
     params
     |> relation_query()
     |> Repo.exists?()
-    |> then(fn
-      true ->
-        {:ok, :found}
-
-      false ->
-        {:error, :not_found}
-    end)
+    |> Result.from_boolean(:found, :not_found)
   end
 
   @types %{group_id: :binary_id, album_id: :binary_id}

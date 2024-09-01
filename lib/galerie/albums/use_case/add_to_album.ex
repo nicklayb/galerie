@@ -1,4 +1,10 @@
 defmodule Galerie.Albums.UseCase.AddToAlbum do
+  @moduledoc """
+  Use case to add one or more pictures to a given album. The 
+  use case support either Picture or Picture.Group but in the
+  end albums still relates to Picture.Group and not individual
+  pictures
+  """
   use Galerie.UseCase
   alias Galerie.Albums.Album
   alias Galerie.Albums.AlbumPictureGroup

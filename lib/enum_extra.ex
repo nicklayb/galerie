@@ -33,6 +33,7 @@ defmodule Enum.Extra do
     end)
   end
 
+  @doc "Maps an enumerable to get a given map's field"
   @spec field(Enumerable.t(), atom() | String.t()) :: Enumerable.t()
   def field(enumerable, field) do
     Enum.map(enumerable, &Map.get(&1, field))

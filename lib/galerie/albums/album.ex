@@ -1,4 +1,8 @@
 defmodule Galerie.Albums.Album do
+  @moduledoc """
+  Album schema. The albums are related to Picture.Group since
+  we want all child pictures to be part of the album at once.
+  """
   use Galerie, :schema
 
   alias Galerie.Accounts.User
@@ -20,6 +24,10 @@ defmodule Galerie.Albums.Album do
   end
 
   @required ~w(name user_id)a
+  @doc """
+  Album insert or update changeset.
+  """
+  @spec changeset(t(), map()) :: Ecto.Changeset.t()
   def changeset(%Album{} = album \\ %Album{}, params) do
     album
     |> Ecto.Changeset.cast(params, @required)

@@ -1,4 +1,9 @@
 defmodule Galerie.Ecto.Types.Fraction do
+  @moduledoc """
+  Ecto type for Fraction. The Fraction type is expected to 
+  be stored as a `fraction` type which is a composite Postgres
+  type.
+  """
   use Ecto.Type
 
   @spec type() :: :fraction

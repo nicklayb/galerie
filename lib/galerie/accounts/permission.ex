@@ -10,7 +10,7 @@ defmodule Galerie.Accounts.Permission do
     :upload_pictures
   ]
 
-  @type permission :: :upload_pictures | :do_stuff
+  @type permission :: :upload_pictures
   @type t :: [permission()]
   @type raw :: non_neg_integer()
 

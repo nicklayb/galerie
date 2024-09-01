@@ -1,6 +1,11 @@
 defmodule Map.Extra do
   @moduledoc """
-  Extra functions to work with map.
+  Extra functions to work with map. 
+
+  Specifically, this include function to work with maps independent
+  of the key type. These functions should be used everywhere we
+  manipulate changeset params to ensure they both work with string
+  and atom maps and support UI inputs as well as console input.
   """
 
   @doc """

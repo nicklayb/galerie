@@ -1,4 +1,7 @@
 defmodule Galerie.Accounts.UseCase.UpdatePassword do
+  @moduledoc """
+  Use case to update a user's password.
+  """
   use Galerie.UseCase
 
   alias Galerie.Accounts.User

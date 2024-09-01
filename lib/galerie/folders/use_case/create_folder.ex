@@ -1,4 +1,10 @@
 defmodule Galerie.Folders.UseCase.CreateFolder do
+  @moduledoc """
+  Use case that creates a global folder. Since user's
+  folder are created in the `Accounts.UseCase.CreateUser`
+  use case, this use case should be uesd *only* by file watcher
+  to create locally sourced folders.
+  """
   use Galerie.UseCase
 
   alias Galerie.Folders.Folder

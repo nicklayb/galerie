@@ -1,4 +1,8 @@
 defmodule Galerie.Accounts.UseCase.CreateUser do
+  @moduledoc """
+  Use case to create a user in the database. The user gets its
+  own folder created as well for uploaded pictures.
+  """
   use Galerie.UseCase
 
   alias Galerie.Accounts.User

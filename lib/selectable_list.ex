@@ -1,4 +1,8 @@
 defmodule SelectableList do
+  @moduledoc """
+  A selectable list indexes a list of items and allow selection
+  and highlighting of these values.
+  """
   defstruct items: %{},
             selected_indexes: MapSet.new(),
             count: 0,

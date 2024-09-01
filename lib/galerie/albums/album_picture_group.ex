@@ -1,4 +1,7 @@
 defmodule Galerie.Albums.AlbumPictureGroup do
+  @moduledoc """
+  Relation between albums and picture groups.
+  """
   use Galerie, :schema
 
   alias Galerie.Albums.Album
@@ -13,6 +16,10 @@ defmodule Galerie.Albums.AlbumPictureGroup do
   end
 
   @required ~w(album_id group_id)a
+  @doc """
+  Changeset for the album / picture group relation
+  """
+  @spec changeset(t(), map()) :: Ecto.Changeset.t()
   def changeset(%AlbumPictureGroup{} = album_picture \\ %AlbumPictureGroup{}, params) do
     album_picture
     |> Ecto.Changeset.cast(params, @required)
