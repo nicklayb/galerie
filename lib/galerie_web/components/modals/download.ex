@@ -1,8 +1,6 @@
 defmodule GalerieWeb.Components.Modals.Download do
-  use Phoenix.LiveComponent
-  use GalerieWeb.Components.Routes
+  use GalerieWeb, :live_component
 
-  import GalerieWeb.Gettext
   alias GalerieWeb.Components.Form
   alias GalerieWeb.Components.Modal
 

@@ -11,9 +11,10 @@ defmodule Seed do
 
   @password "admin"
   def create_user(user_params) do
-    user_params
-    |> Map.merge(%{password: @password, password_confirmation: @password})
-    |> Accounts.create_user(after_run?: false)
+    params = Map.merge(user_params, %{password: @password, password_confirmation: @password})
+
+    Accounts.UseCase.CreateUser
+    |> execute(params)
     |> Result.unwrap!()
   end
 
@@ -22,9 +23,13 @@ defmodule Seed do
   end
 
   def create_album(user, album_name) do
-    user
-    |> Albums.create_album(%{name: album_name}, after_run?: false)
+    Albums.UseCase.CreateAlbum
+    |> execute(%{name: album_name}, user)
     |> Result.unwrap!()
+  end
+
+  defp execute(use_case, params, user \\ :system) do
+    use_case.execute(params, user: user, after_run?: false)
   end
 end
 
@@ -32,3 +37,5 @@ end
   Seed.create_user([
     %{first_name: "John", last_name: "Doe", email: "admin@example.com", is_admin: true}
   ])
+
+Seed.create_album(main_user, ["Dogs", "Cats"])

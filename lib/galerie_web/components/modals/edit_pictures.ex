@@ -1,7 +1,5 @@
 defmodule GalerieWeb.Components.Modals.EditPictures do
-  use Phoenix.LiveComponent
-
-  import GalerieWeb.Gettext
+  use GalerieWeb, :live_component
 
   alias Galerie.Form.Pictures.EditPicturesForm
 
@@ -55,10 +53,7 @@ defmodule GalerieWeb.Components.Modals.EditPictures do
 
     socket =
       with {:ok, form} <- EditPicturesForm.submit(params),
-           {:ok, _result} <-
-             Galerie.Pictures.UseCase.EditPictures.execute(form,
-               user: socket.assigns.current_user
-             ) do
+           {:ok, _result} <- UseCase.execute(socket, Galerie.Pictures.UseCase.EditPictures, form) do
         send(self(), :close_modal)
         Notifications.notify(socket, :info, gettext("Pictures edited successfully"))
       else

@@ -1,10 +1,5 @@
 defmodule GalerieWeb.Components.Picture.Viewer do
-  use Phoenix.LiveComponent
-  use GalerieWeb.Components.Routes
-
-  require Logger
-
-  import GalerieWeb.Gettext
+  use GalerieWeb, :live_component
 
   alias Galerie.Albums
   alias Galerie.Pictures

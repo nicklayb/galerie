@@ -1,9 +1,6 @@
 defmodule GalerieWeb.Components.Modals.CreateAlbum do
-  use Phoenix.LiveComponent
-  use GalerieWeb.Components.Routes
+  use GalerieWeb, :live_component
 
-  import GalerieWeb.Gettext
-  alias Galerie.Albums
   alias GalerieWeb.Components.Form
   alias GalerieWeb.Components.Modal
 
@@ -35,12 +32,12 @@ defmodule GalerieWeb.Components.Modals.CreateAlbum do
 
   def handle_event("save", %{"album" => album}, socket) do
     socket =
-      case Albums.create_album(album, user: socket.assigns.current_user) do
+      case UseCase.execute(socket, Galerie.Albums.UseCase.CreateAlbum, album) do
         {:ok, _} ->
           send(self(), :close_modal)
           socket
 
-        {:error, :album, %Ecto.Changeset{} = changeset} ->
+        {:error, :album, %Ecto.Changeset{} = changeset, _} ->
           assign_form(socket, changeset)
       end
 

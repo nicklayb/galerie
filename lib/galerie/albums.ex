@@ -19,12 +19,6 @@ defmodule Galerie.Albums do
     |> Repo.all()
   end
 
-  @spec create_album(map(), Keyword.t()) ::
-          {:ok, Album.t()} | {:error, atom, Ecto.Changeset.t()}
-  def create_album(params, options \\ []) do
-    UseCase.CreateAlbum.execute(params, options)
-  end
-
   def attach_picture_groups_to_albums(album_ids, group_ids, options \\ []) do
     album_ids
     |> Album.Query.by_ids()

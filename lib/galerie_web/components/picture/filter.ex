@@ -1,7 +1,5 @@
 defmodule GalerieWeb.Components.Picture.Filter do
-  use Phoenix.LiveComponent
-
-  require Galerie.PubSub
+  use GalerieWeb, :live_component
 
   alias GalerieWeb.Components.Multiselect
   alias GalerieWeb.Gettext.Picture, as: PictureGettext
