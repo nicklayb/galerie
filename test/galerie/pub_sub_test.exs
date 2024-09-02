@@ -2,6 +2,7 @@ defmodule Galerie.PubSubTest do
   use Galerie.BaseCase
 
   alias Galerie.PubSub
+  require Galerie.PubSub
 
   describe "topic/1" do
     test "creates session topic" do

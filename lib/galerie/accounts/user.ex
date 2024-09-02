@@ -8,12 +8,18 @@ defmodule Galerie.Accounts.User do
   manually uploaded pictures from the web UI.
   """
   use Galerie, :schema
-  alias Galerie.Accounts.Permission
   alias Galerie.Accounts.User
   alias Galerie.Accounts.User.Password
   alias Galerie.Folders.Folder
 
   require Logger
+
+  @permissions [
+    :upload_pictures,
+    :create_album
+  ]
+
+  @type permission :: :upload_pictures | :create_album
 
   @derive {Inspect, only: [:email]}
   schema("users") do
@@ -24,7 +30,8 @@ defmodule Galerie.Accounts.User do
     field(:password_confirmation, :string, virtual: true)
     field(:reset_password_token, :string)
 
-    field(:permissions, Galerie.Ecto.Types.Permissions)
+    field(:permissions, Galerie.Ecto.Types.BinaryFlags, flags: @permissions, default: [])
+
     field(:is_admin, :boolean)
 
     has_one(:folder, Folder)
@@ -95,7 +102,7 @@ defmodule Galerie.Accounts.User do
   def initials(%User{first_name: first_name, last_name: last_name}),
     do: "#{String.first(first_name)}#{String.first(last_name)}"
 
-  @spec can?(t(), Permission.t()) :: boolean()
+  @spec can?(t(), permission()) :: boolean()
   def can?(%User{is_admin: true}, _), do: true
   def can?(%User{permissions: permissions}, permission), do: permission in permissions
 end

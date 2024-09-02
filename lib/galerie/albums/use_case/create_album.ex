@@ -8,10 +8,10 @@ defmodule Galerie.Albums.UseCase.CreateAlbum do
   alias Galerie.Albums.Album
 
   @impl Galerie.UseCase
-  def validate({%User{id: user_id}, params}, options), do: validate({user_id, params}, options)
-
-  def validate({user_id, params}, _options) do
-    {:ok, Map.Extra.put(params, :user_id, user_id)}
+  def validate(params, options) do
+    with {:ok, %User{id: user_id}} <- Galerie.UseCase.can?(options, :create_album) do
+      {:ok, Map.Extra.put(params, :user_id, user_id)}
+    end
   end
 
   @impl Galerie.UseCase

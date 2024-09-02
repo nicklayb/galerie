@@ -3,12 +3,12 @@ defmodule GalerieWeb.Components.Modals.EditPictures do
 
   import GalerieWeb.Gettext
 
-  alias GalerieWeb.Core.Notifications
   alias Galerie.Form.Pictures.EditPicturesForm
 
   alias GalerieWeb.Components.Form
   alias GalerieWeb.Components.Icon
   alias GalerieWeb.Components.Modal
+  alias GalerieWeb.Core.Notifications
   alias GalerieWeb.Gettext.Picture, as: PictureGettext
   alias GalerieWeb.Html
 
