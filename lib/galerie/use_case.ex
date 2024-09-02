@@ -1,4 +1,5 @@
 defmodule Galerie.UseCase do
+  alias Galerie.Accounts.User
   alias Galerie.Repo
   require Logger
   @type params :: any()
@@ -107,6 +108,22 @@ defmodule Galerie.UseCase do
 
       other ->
         raise "Expected UseCase #{inspect(module)} to return Ecto.Multi.t(), got: #{inspect(other)}"
+    end
+  end
+
+  def can?(use_case_options, permission, options \\ []) do
+    case {Keyword.get(use_case_options, :user), Keyword.get(options, :required, true)} do
+      {nil, true} ->
+        {:error, :unauthorized}
+
+      {nil, false} ->
+        :ok
+
+      {:system, _} ->
+        :ok
+
+      {%User{} = user, _} ->
+        User.can?(user, permission)
     end
   end
 end

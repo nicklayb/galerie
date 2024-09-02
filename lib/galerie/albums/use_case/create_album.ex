@@ -10,7 +10,7 @@ defmodule Galerie.Albums.UseCase.CreateAlbum do
   @impl Galerie.UseCase
   def validate({%User{id: user_id}, params}, options), do: validate({user_id, params}, options)
 
-  def validate({user_id, params}, _options) do
+  def validate({user_id, params}, options) do
     {:ok, Map.Extra.put(params, :user_id, user_id)}
   end
 

@@ -11,6 +11,7 @@ defmodule Galerie.Accounts.User do
   alias Galerie.Accounts.Permission
   alias Galerie.Accounts.User
   alias Galerie.Accounts.User.Password
+  alias Galerie.Accounts.User.Permission, as: UserPermission
   alias Galerie.Folders.Folder
 
   require Logger
@@ -24,7 +25,11 @@ defmodule Galerie.Accounts.User do
     field(:password_confirmation, :string, virtual: true)
     field(:reset_password_token, :string)
 
-    field(:permissions, Galerie.Ecto.Types.Permissions)
+    field(:permissions, Galerie.Ecto.Types.Permissions,
+      module: UserPermission,
+      default: []
+    )
+
     field(:is_admin, :boolean)
 
     has_one(:folder, Folder)
@@ -95,7 +100,7 @@ defmodule Galerie.Accounts.User do
   def initials(%User{first_name: first_name, last_name: last_name}),
     do: "#{String.first(first_name)}#{String.first(last_name)}"
 
-  @spec can?(t(), Permission.t()) :: boolean()
+  @spec can?(t(), UserPermission.t()) :: boolean()
   def can?(%User{is_admin: true}, _), do: true
   def can?(%User{permissions: permissions}, permission), do: permission in permissions
 end
