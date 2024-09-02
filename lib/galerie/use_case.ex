@@ -36,12 +36,12 @@ defmodule Galerie.UseCase do
     transaction_options = Keyword.get(options, :transaction, [])
 
     Logger.info("[#{inspect(module)}] [execute] [#{inspect(options)}] #{inspect(params)}")
-    start_time = System.system_time()
+    start_time = now()
 
     with {:ok, new_params} <- module.validate(params, options),
          {:ok, %Ecto.Multi{} = multi} <- build_multi(module, new_params, options),
          {:ok, result} <- Repo.transaction(multi, transaction_options) do
-      end_time = System.system_time()
+      end_time = now()
 
       Logger.info(
         "[#{inspect(module)}] [success] [#{inspect(options)}] [#{format_duration(start_time, end_time)}] #{inspect(params)}"
@@ -64,13 +64,15 @@ defmodule Galerie.UseCase do
     end
   end
 
-  @units %{
+  defp now, do: System.system_time(:millisecond)
+
+  @units [
     ms: 1000,
     s: 1000,
     m: 60,
     h: 60,
     d: 24
-  }
+  ]
   defp format_duration(start_time, end_time) do
     {duration, unit} =
       Enum.reduce_while(@units, end_time - start_time, fn {unit, divider}, duration ->
@@ -117,13 +119,15 @@ defmodule Galerie.UseCase do
         {:error, :unauthorized}
 
       {nil, false} ->
-        :ok
+        {:ok, nil}
 
       {:system, _} ->
-        :ok
+        {:ok, :system}
 
       {%User{} = user, _} ->
-        User.can?(user, permission)
+        user
+        |> User.can?(permission)
+        |> Result.from_boolean(user, :unauthorized)
     end
   end
 end

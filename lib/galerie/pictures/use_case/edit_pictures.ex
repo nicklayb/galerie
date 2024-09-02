@@ -89,6 +89,12 @@ defmodule Galerie.Pictures.UseCase.EditPictures do
 
   @impl Galerie.UseCase
   def after_run(%{updated_metadata: updated_metadata} = multi_output, options) do
+    with [_ | _] <- updated_metadata do
+      broadcast_metadata(multi_output, options)
+    end
+  end
+
+  defp broadcast_metadata(%{updated_metadata: updated_metadata} = multi_output, options) do
     with %User{} = user <- Keyword.get(options, :user) do
       Galerie.PubSub.broadcast(user, {:metadata_updated, updated_metadata})
     end

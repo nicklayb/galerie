@@ -35,7 +35,7 @@ defmodule GalerieWeb.Components.Modals.CreateAlbum do
 
   def handle_event("save", %{"album" => album}, socket) do
     socket =
-      case Albums.create_album(socket.assigns.current_user, album) do
+      case Albums.create_album(album, user: socket.assigns.current_user) do
         {:ok, _} ->
           send(self(), :close_modal)
           socket
