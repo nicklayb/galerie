@@ -72,18 +72,22 @@ defmodule Galerie.Pictures.UseCase.EditPictures do
     |> Ecto.Multi.run({:updated_metadata, group_id}, fn repo, changes ->
       changes
       |> Map.fetch!({:group, group_id})
-      |> Enum.reduce_while({:ok, %{}}, fn metadata, {:ok, acc} ->
-        changeset =
-          Picture.Metadata.manual_edit_changeset(metadata, Map.from_struct(metadatas))
+      |> update_group_metadatas(repo, metadatas)
+    end)
+  end
 
-        case repo.update(changeset) do
-          {:ok, metadata} ->
-            {:cont, {:ok, Map.put(acc, metadata.id, metadata)}}
+  defp update_group_metadatas(group, repo, metadatas) do
+    Enum.reduce_while(group, {:ok, %{}}, fn metadata, {:ok, acc} ->
+      changeset =
+        Picture.Metadata.manual_edit_changeset(metadata, Map.from_struct(metadatas))
 
-          error ->
-            {:halt, error}
-        end
-      end)
+      case repo.update(changeset) do
+        {:ok, metadata} ->
+          {:cont, {:ok, Map.put(acc, metadata.id, metadata)}}
+
+        error ->
+          {:halt, error}
+      end
     end)
   end
 
