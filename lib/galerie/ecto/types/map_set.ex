@@ -25,6 +25,10 @@ defmodule Galerie.Ecto.Types.MapSet do
     load_inner_type(list, loader, params)
   end
 
+  def load(nil, _loader, _params) do
+    {:ok, MapSet.new()}
+  end
+
   def dump(%MapSet{} = map_set, dumper, params) do
     dump_inner_type(map_set, dumper, params)
   end
