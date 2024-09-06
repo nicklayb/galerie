@@ -42,6 +42,7 @@ defmodule GalerieWeb.Components.Picture.Viewer do
     removed_from_album
     rating_updated
     metadata_updated
+    main_picture_updated
   )a
   def update(%{message: %Galerie.PubSub.Message{message: message}}, socket)
       when message in @updatable_messages do
@@ -62,6 +63,11 @@ defmodule GalerieWeb.Components.Picture.Viewer do
         socket
       ) do
     Albums.remove_from_album(%{album_id: album_id, group_id: group_id})
+    {:noreply, socket}
+  end
+
+  def handle_event("viewer:set-main-picture", %{"picture_id" => picture_id}, socket) do
+    UseCase.execute(socket, Galerie.Pictures.UseCase.SetMainPicture, picture_id)
     {:noreply, socket}
   end
 
@@ -211,9 +217,7 @@ defmodule GalerieWeb.Components.Picture.Viewer do
         <.info_section title={gettext("Versions (%{count})", count: length(@pictures))}>
           <%= for picture <- @pictures do %>
             <.info_section_item title={picture.original_name}>
-              <Ui.link href={~p(/pictures/#{picture.id}?#{[type: "original"]})}>
-                <Icon.download height="20" width="20"/>
-              </Ui.link>
+              <.picture_row main_picture={@picture} picture={picture} myself={@myself} />
             </.info_section_item>
           <% end %>
         </.info_section>
@@ -227,6 +231,27 @@ defmodule GalerieWeb.Components.Picture.Viewer do
           <% end %>
         </.info_section>
       </div>
+    </div>
+    """
+  end
+
+  defp picture_row(assigns) do
+    assigns = assign(assigns, :main_picture?, assigns.picture.id == assigns.main_picture.id)
+
+    ~H"""
+    <div class="flex">
+      <div
+        phx-click={if not @main_picture?, do: "viewer:set-main-picture", else: ""}
+        class={Html.class("mr-2", {not @main_picture?, "text-pink-600 cursor-pointer", "text-gray-400"})}
+        title={if not @main_picture?, do: gettext("Set as main picture for the group")}
+        phx-value-picture_id={@picture.id}
+        phx-target={@myself}
+      >
+        <Icon.focus height="20" width="20" />
+      </div>
+      <Ui.link href={~p(/pictures/#{@picture.id}?#{[type: "original"]})} target="_blank">
+        <Icon.download height="20" width="20"/>
+      </Ui.link>
     </div>
     """
   end

@@ -6,6 +6,7 @@ defmodule Galerie.Ports.Autoraw do
 
   - `dcraw`
   - `imagemagick`
+  - `nice`
   """
   use GenServer
 
