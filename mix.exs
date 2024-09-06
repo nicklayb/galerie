@@ -35,8 +35,8 @@ defmodule Galerie.MixProject do
     ]
   end
 
-  defp elixirc_paths(env) when env in ~w(test dev)a, do: ["lib", "test/support"]
-  defp elixirc_paths(_), do: ["lib"]
+  defp elixirc_paths(env) when env in ~w(test dev)a, do: ["tasks", "lib", "test/support"]
+  defp elixirc_paths(_), do: ["tasks", "lib"]
 
   defp deps do
     [
