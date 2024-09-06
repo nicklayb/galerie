@@ -84,6 +84,10 @@ defmodule Result do
   @doc "Returns success value if success, fallbacks otherwise"
   @spec with_default(t(any(), any()), any()) :: any()
   def with_default({:ok, result}, _), do: result
+
+  def with_default(_, fallback_function) when is_function(fallback_function, 0),
+    do: fallback_function.()
+
   def with_default(_, fallback), do: fallback
 
   @doc "Creates a result from a boolean value"

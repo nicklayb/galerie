@@ -133,7 +133,7 @@ defmodule GalerieWeb.Components.Picture.Viewer do
     <div class="z-50 fixed flex flex-row top-0 left-0 w-screen h-screen bg-gray-800/90 fade-in transition-all" data-on-window-keyup={@on_keyup} phx-hook="Keyup" id="viewerWrapper">
       <div class="flex-1 flex flex-row text-white text-lg">
         <.side_arrow disabled={not @has_previous} icon={:left_chevron} on_keyup={@on_keyup} key="ArrowLeft"/>
-        <div class="py-2"><img class={Html.class("h-full m-auto", rotation(@picture))} src={~p(/pictures/#{@picture.id})} /></div>
+        <div class="py-2"><img class="h-full m-auto" src={~p(/pictures/#{@picture.id})} /></div>
         <.side_arrow disabled={not @has_next} icon={:right_chevron} on_keyup={@on_keyup} key="ArrowRight"/>
       </div>
       <.info_panel
@@ -351,16 +351,6 @@ defmodule GalerieWeb.Components.Picture.Viewer do
     </div>
     """
   end
-
-  defp rotation(%Picture{} = picture) do
-    picture
-    |> Picture.rotation()
-    |> rotation()
-  end
-
-  defp rotation(90), do: "rotate-270"
-  defp rotation(180), do: "rotate-180"
-  defp rotation(_), do: nil
 
   defp assign_pictures(%{assigns: %{picture_item: picture_item}} = socket) do
     assign_pictures(socket, picture_item)

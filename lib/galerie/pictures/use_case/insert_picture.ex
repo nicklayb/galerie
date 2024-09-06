@@ -1,4 +1,13 @@
 defmodule Galerie.Pictures.UseCase.InsertPicture do
+  @moduledoc """
+  Use case to import pictures in the database. If the picture already has 
+  a group existing (another file with exact same name and path but different
+  extension) it'll be reused or a new one will be created.
+
+  If a given group includes a JPG, this one will be prioritized as main picture
+  since they will probably more inlined with what the photographer saw when
+  shooting since the raw is converted.
+  """
   use Galerie.UseCase
   alias Galerie.Folders.Folder
   alias Galerie.Pictures.Picture
@@ -28,28 +37,29 @@ defmodule Galerie.Pictures.UseCase.InsertPicture do
            }
          }
        ) do
-    case repo.get_by(Group, group_name: group_name) do
-      %Group{} = group ->
-        {:ok, group}
-
-      nil ->
+    Group
+    |> repo.get_by(group_name: group_name)
+    |> Result.from_nil()
+    |> Result.with_default(fn ->
         %{group_name: group_name, name: name, folder_id: folder_id}
         |> Group.changeset()
-        |> repo.insert()
-    end
+        |> repo.insert!()
+    end)
+    |> repo.preload([:main_picture])
+    |> Result.succeed()
   end
 
   defp put_main_picture_id(repo, %{
-         picture_group: %Group{main_picture_id: nil} = picture_group,
-         picture: %Picture{id: picture_id}
+         picture_group: %Group{main_picture_id: main_picture_id} = picture_group,
+         picture: %Picture{id: picture_id} = picture
        }) do
+    if is_nil(main_picture_id) or prioritized?(picture, picture_group.main_picture) do
     picture_group
     |> Group.main_picture_changeset(%{main_picture_id: picture_id})
     |> repo.update()
-  end
-
-  defp put_main_picture_id(_repo, %{picture_group: %Group{} = picture_group}) do
-    {:ok, picture_group}
+    else
+      {:ok, picture_group}
+    end
   end
 
   @impl Galerie.UseCase
@@ -61,4 +71,7 @@ defmodule Galerie.Pictures.UseCase.InsertPicture do
   def return(%{picture_with_group: picture}, _options) do
     picture
   end
+
+  defp prioritized?(%Picture{type: :jpeg}, %Picture{type: :tiff}), do: true
+  defp prioritized?(%Picture{}, %Picture{}), do: false
 end
