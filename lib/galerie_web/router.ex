@@ -78,6 +78,7 @@ defmodule GalerieWeb.Router do
     scope("/") do
       pipe_through(:browser)
       live_dashboard("/dashboard", metrics: GalerieWeb.Telemetry)
+      live("/logger", GalerieWeb.Logger.Index)
       forward("/mailbox", Plug.Swoosh.MailboxPreview)
     end
   end

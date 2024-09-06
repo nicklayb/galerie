@@ -40,6 +40,12 @@ config :galerie, GalerieWeb.Endpoint,
 
 config :logger, :console, format: "[$level] $message\n"
 
+config :logger, backends: [:console, GalerieWeb.Logger.Backend]
+
+config :logger, GalerieWeb.Logger.Backend,
+  pub_sub_server: Galerie.PubSub,
+  config_file: "../.logger.astral.json"
+
 config :phoenix, :plug_init_mode, :runtime
 
 config :phoenix, :stacktrace_depth, 20
