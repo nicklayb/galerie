@@ -10,6 +10,10 @@ config :galerie, Galerie.Generator, default_max_tries: 3
 
 config :galerie, Galerie.Repo, migration_primary_key: [name: :id, type: :binary_id]
 
+config :galerie, Oban,
+  repo: Galerie.ObanRepo,
+  plugins: [{Oban.Plugins.Lifeline, rescue_after: :timer.minutes(30)}]
+
 config :galerie, GalerieWeb.Endpoint,
   url: [host: "localhost"],
   secret_key_base: "czNpciKyTe+8fnrhDOJB4j1v2EyoExjgKsDy1KWYWXyHadR0ZbwtmnLDoWGKaE+h",

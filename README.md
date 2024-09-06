@@ -7,7 +7,7 @@ Web photos library with processing various operations.
 - [`asdf`](https://asdf-vm.com/) (with `elixir`, `erlang` and `nodejs` plugins)
 - [`make`](https://www.gnu.org/software/make/manual/make.html)
 - [`direnv`](https://direnv.net/)
-- [`exiftool`](https://exiftool.org/)
+- [`perl-image-exiftool`](https://archlinux.org/packages/extra/any/perl-image-exiftool/)
 - [`dcraw`](https://github.com/ncruces/dcraw)
 - [`imagemagick`](https://imagemagick.org/index.php)
 

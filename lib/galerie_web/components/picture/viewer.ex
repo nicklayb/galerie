@@ -200,7 +200,7 @@ defmodule GalerieWeb.Components.Picture.Viewer do
                 <%= Fraction.to_string(fraction) %>
               <% end %>
             </:info_item>
-            <:info_item title={gettext("GPS")} visible={metadata.longitude}>
+            <:info_item title={gettext("GPS")} visible={not is_nil(metadata.longitude)}>
               <.google_map_link longitude={metadata.longitude} latitude={metadata.latitude} />
             </:info_item>
             <:info_item title={gettext("Lens")} visible={metadata.lens_model} editable_name={:lens_model}>

@@ -8,6 +8,10 @@ config :galerie, Galerie.ObanRepo,
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
 
+config :galerie, Oban,
+  repo: Galerie.ObanRepo,
+  plugins: [{Oban.Plugins.Lifeline, rescue_after: :timer.minutes(1)}]
+
 config :galerie, GalerieWeb.Endpoint,
   http: [port: 4000],
   debug_errors: true,

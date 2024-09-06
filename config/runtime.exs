@@ -78,7 +78,6 @@ end
 release_stage = Env.get("RELEASE_STAGE", to_string(config_env()))
 
 config :galerie, Oban,
-  repo: Galerie.ObanRepo,
   queues: [
     imports: Env.integer("GALERIE_QUEUE_IMPORTERS", 10),
     processors: Env.integer("GALERIE_QUEUE_PROCESSORS", 10),

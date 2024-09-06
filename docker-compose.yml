@@ -6,19 +6,5 @@ services:
       - db:/var/lib/postgresql/data
     ports:
       - "${DB_PORT-5432}:5432"
-
-  s3:
-    image: minio/minio
-    ports:
-      - 9000:9000
-      - 9090:9090
-    volumes:
-      - s3:/data
-    user: "${UID}:${GID}"
-    environment:
-      - "MINIO_ROOT_USER=admin"
-      - "MINIO_ROOT_PASSWORD=shawi1234"
-    command: server /data --console-address ":9090"
 volumes:
   db:
-  s3:
