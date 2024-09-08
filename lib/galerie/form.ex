@@ -17,11 +17,16 @@ defmodule Galerie.Form do
         unquote(fields)
       end
 
+      def new(%Ecto.Changeset{} = changeset) do
+        changeset
+        |> then(&%Ecto.Changeset{&1 | action: :validate})
+        |> Phoenix.Component.to_form(as: @form_name)
+      end
+
       def new(params) do
         params
         |> changeset()
-        |> then(&%Ecto.Changeset{&1 | action: :validate})
-        |> Phoenix.Component.to_form(as: @form_name)
+        |> new()
       end
 
       def submit(%Ecto.Changeset{} = changeset) do

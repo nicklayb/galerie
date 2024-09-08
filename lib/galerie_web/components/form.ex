@@ -41,8 +41,8 @@ defmodule GalerieWeb.Components.Form do
     <.element name={@field.name} errors={@field.errors} class={@element_class} multiple={@multiple}>
       <:label>
         <%= render_slot(@label) %>
+        <input type="checkbox" id={@field.id} name={@name} value={@value} checked={@checked}/>
       </:label>
-      <input type="checkbox" id={@field.id} name={@name} value={@value} checked={@checked}/>
     </.element>
     """
   end

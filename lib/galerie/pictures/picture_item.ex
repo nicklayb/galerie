@@ -14,13 +14,15 @@ defmodule Galerie.Pictures.PictureItem do
     :inserted_at
   ]
 
+  alias Galerie.Albums.Album
+  alias Galerie.Albums.AlbumPictureGroup
   alias Galerie.Pictures.Picture.Group
   alias Galerie.Pictures.PictureItem
 
   require Ecto.Query
 
   def from do
-    Group
+    Ecto.Query.from(Group, as: :group)
     |> Ecto.Query.join(:inner, [group], picture in assoc(group, :main_picture), as: :picture)
     |> Ecto.Query.join(:left, [picture: picture], metadata in assoc(picture, :metadata),
       as: :metadata
@@ -50,7 +52,21 @@ defmodule Galerie.Pictures.PictureItem do
   end
 
   def by_album_ids(query \\ from(), album_ids)
-  def by_album_ids(query, []), do: query
+
+  def by_album_ids(query, []) do
+    Ecto.Query.where(
+      query,
+      [group],
+      not exists(
+        Ecto.Query.from(album_picture_group in AlbumPictureGroup,
+          inner_join: album in Album,
+          on: album_picture_group.group_id == parent_as(:group).id,
+          where: album.hide_from_main_library == true,
+          limit: 1
+        )
+      )
+    )
+  end
 
   def by_album_ids(query, album_ids) do
     query

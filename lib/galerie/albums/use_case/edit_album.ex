@@ -9,7 +9,7 @@ defmodule Galerie.Albums.UseCase.EditAlbum do
   alias Galerie.Form.Albums.EditAlbumForm
 
   @impl Galerie.UseCase
-  def validate(%EditAlbumForm{album_id: album_id} = form, options) do
+  def validate(%EditAlbumForm{id: album_id} = form, options) do
     with {:ok, %Album{} = album} <-
            Galerie.Albums.get_album_belonging_to_user(album_id, Keyword.get(options, :user)) do
       {:ok, {form, album}}
@@ -18,7 +18,14 @@ defmodule Galerie.Albums.UseCase.EditAlbum do
 
   @impl Galerie.UseCase
   def run(multi, {%EditAlbumForm{} = form, %Album{} = album}, _options) do
-    Ecto.Multi.update(multi, :album, Album.changeset(album, %{name: form.name}))
+    Ecto.Multi.update(
+      multi,
+      :album,
+      Album.changeset(album, %{
+        name: form.name,
+        hide_from_main_library: form.hide_from_main_library
+      })
+    )
   end
 
   @impl Galerie.UseCase

@@ -17,6 +17,11 @@
                   <%= item.name %>
                 </div>
                 <div class="flex">
+                  <%= if item.hide_from_main_library do %>
+                    <div class="text-true-gray-400">
+                      <Icon.eye_disabled width="22" height="22" />
+                    </div>
+                  <% end %>
                   <div class="w-5 h-5 text-sm text-center rounded-full bg-true-gray-400 text-true-gray-100">
                     <%= item.picture_count %>
                   </div>

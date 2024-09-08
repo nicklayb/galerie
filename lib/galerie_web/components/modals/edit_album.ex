@@ -22,7 +22,14 @@ defmodule GalerieWeb.Components.Modals.EditAlbum do
 
     socket
     |> assign(:album, album)
-    |> assign(:form, EditAlbumForm.new(%{album_id: album.id, name: album.name}))
+    |> assign(
+      :form,
+      EditAlbumForm.new(%{
+        id: album.id,
+        name: album.name,
+        hide_from_main_library: album.hide_from_main_library
+      })
+    )
   end
 
   def handle_event("edit_album:change", %{"edit_album" => edit_album}, socket) do
@@ -37,7 +44,12 @@ defmodule GalerieWeb.Components.Modals.EditAlbum do
         send(self(), :close_modal)
         Notifications.notify(socket, :info, gettext("Album edited successfully"))
       else
-        _error ->
+        {:error, :album, %Ecto.Changeset{} = changeset, _} ->
+          assign(socket, :form, EditAlbumForm.new(changeset))
+
+        error ->
+          IO.inspect(error)
+
           Notifications.notify(
             socket,
             :error,
@@ -82,9 +94,14 @@ defmodule GalerieWeb.Components.Modals.EditAlbum do
             <Form.text_input field={@form[:name]}>
               <:label><%= gettext("Album name") %></:label>
             </Form.text_input>
+            <div class="text-right">
+              <Form.checkbox field={@form[:hide_from_main_library]} value="true" checked={@form[:hide_from_main_library].value}>
+                <:label><%= gettext("Hide from main library") %></:label>
+              </Form.checkbox>
+            </div>
           </:body>
           <:footer class="text-right">
-            <Form.hidden field={@form[:album_id]} value={@form[:album_id].value}/>
+            <Form.hidden field={@form[:id]} value={@form[:id].value}/>
             <Form.button type={:button} style={:danger} phx-target={@myself} phx-click="edit_album:delete">
               <%= gettext("Delete") %>
             </Form.button>

@@ -14,6 +14,8 @@ defmodule Galerie.Albums.Album do
 
     field(:picture_count, :integer, virtual: true)
 
+    field(:hide_from_main_library, :boolean, default: false)
+
     belongs_to(:user, User)
 
     has_many(:albums_picture_groups, AlbumPictureGroup)
@@ -24,13 +26,15 @@ defmodule Galerie.Albums.Album do
   end
 
   @required ~w(name user_id)a
+  @optional ~w(hide_from_main_library)a
+  @castable @required ++ @optional
   @doc """
   Album insert or update changeset.
   """
   @spec changeset(t(), map()) :: Ecto.Changeset.t()
   def changeset(%Album{} = album \\ %Album{}, params) do
     album
-    |> Ecto.Changeset.cast(params, @required)
+    |> Ecto.Changeset.cast(params, @castable)
     |> Ecto.Changeset.validate_required(@required)
     |> Ecto.Changeset.unique_constraint(:name, name: :albums_user_id_name_index)
   end
