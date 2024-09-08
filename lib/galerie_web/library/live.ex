@@ -242,6 +242,18 @@ defmodule GalerieWeb.Library.Live do
     {:noreply, socket}
   end
 
+  def handle_event("filter:edit-album", %{"album_id" => album_id}, socket) do
+    socket =
+      assign(
+        socket,
+        :modal,
+        {GalerieWeb.Components.Modals.EditAlbum,
+         [album_id: album_id, current_user: socket.assigns.current_user]}
+      )
+
+    {:noreply, socket}
+  end
+
   def handle_event(
         "picture-click",
         %{"shift_key" => true, "index" => index},
@@ -539,12 +551,14 @@ defmodule GalerieWeb.Library.Live do
     {:noreply, socket}
   end
 
+  @album_message ~w(album_created album_deleted album_updated)a
   def handle_info(
         %Galerie.PubSub.Message{
-          message: :album_created
+          message: album_message
         },
         socket
-      ) do
+      )
+      when album_message in @album_message do
     current_user = socket.assigns.current_user
     socket = start_async(socket, :load_albums, fn -> load_albums(current_user) end)
 

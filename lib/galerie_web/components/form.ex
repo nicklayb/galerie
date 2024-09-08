@@ -126,6 +126,7 @@ defmodule GalerieWeb.Components.Form do
   @default_classes "inline-block rounded"
   @styles %{
     default: "bg-pink-500 hover:bg-pink-600 text-true-gray-50",
+    danger: "bg-red-500 hover:bg-red-600 text-true-gray-50",
     white: "bg-true-gray-100 text-true-gray-900 hover:bg-true-gray-200",
     clear: "bg-transparent text-true-gray-200 hover:text-pink-400",
     link: "bg-transparent text-pink-600 hover:text-pink-400",

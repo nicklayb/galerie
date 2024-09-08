@@ -31,4 +31,19 @@ defmodule Galerie.Albums do
   def remove_from_album(params, options \\ []) do
     UseCase.RemoveFromAlbum.execute(params, options)
   end
+
+  def get_album_belonging_to_user(album_id, %User{id: user_id}) do
+    case Repo.fetch(Album, album_id) do
+      {:ok, %Album{user_id: ^user_id} = album} ->
+        {:ok, album}
+
+      {:ok, %Album{}} ->
+        {:error, :unauthorized}
+
+      error ->
+        error
+    end
+  end
+
+  def get_album_belonging_to_user(_album_id, _), do: {:error, :unauthorized}
 end

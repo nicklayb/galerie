@@ -3,7 +3,6 @@ defmodule GalerieWeb.Components.Picture.Viewer do
 
   alias Galerie.Albums
   alias Galerie.Pictures
-  alias Galerie.Pictures.Picture
   alias Galerie.Pictures.Picture.Group
   alias Galerie.Pictures.Picture.Metadata
   alias Galerie.Pictures.PictureItem
