@@ -37,10 +37,10 @@ reset-samples:
 	rm -rf _temp_files
 
 boot-db:
-	docker-compose up -d db
+	docker compose up -d db
 
 boot-docker:
-	docker-compose up -d
+	docker compose up -d
 
 iex:
 	iex -S mix
@@ -60,10 +60,10 @@ docker-push:
 release-docker: docker-build docker-tag docker-push
 
 destroy-docker:
-	docker-compose down --volumes
+	docker compose down --volumes
 
 down:
-	docker-compose down
+	docker compose down
 
 clean:
 	rm -rf _build deps
