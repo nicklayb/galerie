@@ -1,7 +1,7 @@
 <main class="flex flex-1 h-full">
-  <div class="flex">
+  <div class="flex w-full">
     <.settings_nav uri={@current_uri}/>
-    <div class="pt-4 px-3">
+    <div class="pt-4 px-3 w-full">
       <h1 class="text-3xl font-bold mb-4"><%= @page_title %></h1>
       <Ui.loading loading={Map.get(assigns, :loading, false)}>
         <%= @inner_content %>

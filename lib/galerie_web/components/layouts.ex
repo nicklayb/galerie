@@ -38,8 +38,6 @@ defmodule GalerieWeb.Components.Layouts do
   end
 
   defp settings_nav(assigns) do
-    IO.inspect(assigns)
-
     items =
       Enum.sort_by(
         [

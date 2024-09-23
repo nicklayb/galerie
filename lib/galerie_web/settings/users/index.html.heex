@@ -1,2 +1,25 @@
-<div>
+<div class="w-full">
+  <Table.render rows={@users}>
+    <:cell header={gettext("First name")} :let={user}>
+      <%= user.first_name %>
+    </:cell>
+    <:cell header={gettext("Last name")} :let={user}>
+      <%= user.last_name %>
+    </:cell>
+    <:cell header={gettext("Email")} :let={user}>
+      <%= user.email %>
+    </:cell>
+    <:cell header={gettext("Type")} :let={user}>
+      <%= if user.is_admin do %>
+        <%= gettext("Admin") %>
+      <% else %>
+        <%= gettext("User") %>
+      <% end %>
+    </:cell>
+    <:cell header="" :let={_user}>
+      <Form.button phx-click="users:edit" style={:link} size={:small} class="text-pink-600">
+        <Icon.pencil width="16" height="16"/>
+      </Form.button>
+    </:cell>
+  </Table.render>
 </div>
