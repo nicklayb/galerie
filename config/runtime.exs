@@ -89,17 +89,22 @@ config :galerie, release_stage: release_stage
 
 config :logger, level: Env.atom("LOGGER_LEVEL", "info")
 
+db_hostname = Env.get("DB_HOST", "localhost")
+db_name = Env.get("DB_NAME", "galerie")
+db_user = Env.get("DB_USER", "postgres")
+db_pass = Env.get("DB_PASS", "postgres")
+
 config :galerie, Galerie.Repo,
-  hostname: Env.get("DB_HOST", "localhost"),
-  database: Env.get("DB_NAME", "galerie"),
-  username: Env.get("DB_USER", "postgres"),
-  password: Env.get("DB_PASS", "postgres")
+  hostname: db_hostname,
+  database: db_name,
+  username: db_user,
+  password: db_pass
 
 config :galerie, Galerie.ObanRepo,
-  hostname: Env.get("OBAN_DB_HOST", "localhost"),
-  database: Env.get("OBAN_DB_NAME", "galerie_oban"),
-  username: Env.get("OBAN_DB_USER", "postgres"),
-  password: Env.get("OBAN_DB_PASS", "postgres")
+  hostname: Env.get("OBAN_DB_HOST", db_hostname),
+  database: Env.get("OBAN_DB_NAME", "#{db_name}_oban"),
+  username: Env.get("OBAN_DB_USER", db_user),
+  password: Env.get("OBAN_DB_PASS", db_pass)
 
 if config_env() == :test do
   config :galerie, Galerie.Repo, database: "galerie_test"

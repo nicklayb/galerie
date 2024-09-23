@@ -11,8 +11,11 @@
         <ul class="px-1">
           <Ui.list items={@albums}>
             <:item :let={{index, item}}>
-              <li phx-click="filter:album" phx-value-index={index} class={Html.class("flex flex-row group items-center justify-between px-1 border border-true-gray-300 border-t-0 first:border-t py-0.5 cursor-pointer first:rounded-t-md last:rounded-b-md", {SelectableList.index_selected?(@albums, index), "bg-pink-500 text-white border-pink-500"})}>
+              <li phx-click="filter:album" phx-value-index={index} class="flex flex-row group items-center justify-between px-1 border border-true-gray-300 border-t-0 first:border-t py-0.5 cursor-pointer first:rounded-t-md last:rounded-b-md">
                 <div class="flex items-center">
+                  <div class="">
+                    <Ui.select_marker checked={SelectableList.index_selected?(@albums, index)} size="w-5 h-5" />
+                  </div>
                   <Icon.picture width="18" height="18" class="mx-1"/>
                   <%= item.name %>
                 </div>
@@ -22,15 +25,30 @@
                       <Icon.eye_disabled width="22" height="22" />
                     </div>
                   <% end %>
-                  <div class="w-5 h-5 text-sm text-center rounded-full bg-true-gray-400 text-true-gray-100">
-                    <%= item.picture_count %>
-                  </div>
+
+                  <%= if item.picture_count > 0 do %>
+                    <div class="w-5 h-5 text-sm text-center rounded-full bg-true-gray-400 text-true-gray-100">
+                      <%= item.picture_count %>
+                    </div>
+                  <% end %>
                   <div class="ml-1 hidden group-hover:block group" phx-click="filter:edit-album" phx-value-album_id={item.id}>
                     <Icon.gear width="22" height="22"/>
                   </div>
                 </div>
               </li>
             </:item>
+            <:bottom>
+              <li phx-click="filter:album" phx-value-index="without_albums" class="flex flex-row group items-center justify-between px-1 border border-true-gray-300 border-t-0 first:border-t py-0.5 cursor-pointer first:rounded-t-md last:rounded-b-md">
+                <div class=" flex items-center">
+                  <div class="">
+                    <Ui.select_marker checked={@without_albums?} size="w-5 h-5" />
+                  </div>
+                  <Icon.picture_cross width="18" height="18" class="mx-1" />
+                  <%= gettext("Without albums") %>
+                  <div></div>
+                </div>
+              </li>
+            </:bottom>
             <:empty>
               <div class="bg-true-gray-200 text-true-gray-500 rounded-lg p-2 text-center"><%= gettext("No albums") %></div>
             </:empty>
@@ -64,7 +82,7 @@
           <Icon.picture class="m-auto" width="15" height="15" />
         </Picture.selection_button>
       </Picture.selection_bar>
-      <Dropzone.render upload={@uploads.upload_pictures} class="overflow-y-hidden flex-1 h-full" id="libraryDropzone">
+      <Dropzone.render upload={@uploads.upload_pictures} current_user={@current_user} class="overflow-y-hidden flex-1 h-full" id="libraryDropzone">
         <div class="flex-1 h-full overflow-y-auto pr-2" id="library" phx-viewport-bottom={if @pictures.has_next_page and not @scroll_disabled, do: "scrolled-bottom"}>
           <%= case @pictures do %>
             <% %Page{results: pictures} -> %>

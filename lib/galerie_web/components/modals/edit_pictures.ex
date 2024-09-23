@@ -159,7 +159,7 @@ defmodule GalerieWeb.Components.Modals.EditPictures do
     ~H"""
     <ul>
       <%= for {_, album} <- @albums do %>
-        <li class="border border-true-gray-300 border-b-0 py-1 pl-1 pr-2 last:border-b first:rounded-t-md last:rounded-b-md">
+        <li class="flex border border-true-gray-300 border-b-0 py-1 pl-1 pr-2 last:border-b first:rounded-t-md last:rounded-b-md">
           <Form.checkbox field={@form[:album_ids]} checked={album.id in @form[:album_ids].value} multiple={true} value={album.id} element_class="flex flex-row justify-between items-center">
             <:label><%= album.name %></:label>
           </Form.checkbox>

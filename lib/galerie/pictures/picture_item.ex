@@ -68,6 +68,15 @@ defmodule Galerie.Pictures.PictureItem do
     )
   end
 
+  def by_album_ids(query, :without_albums) do
+    query
+    |> ensure_joined(:album_picture_groups)
+    |> Ecto.Query.where(
+      [albums_picture_groups: albums_picture_groups],
+      is_nil(albums_picture_groups.id)
+    )
+  end
+
   def by_album_ids(query, album_ids) do
     query
     |> ensure_joined(:album_picture_groups)

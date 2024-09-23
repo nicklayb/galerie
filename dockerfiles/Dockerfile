@@ -51,12 +51,16 @@ WORKDIR ${ROOT_FOLDER}
 # Update kernel and install runtime dependencies
 RUN apk --no-cache update && \
     apk --no-cache upgrade && \
-    apk --no-cache add bash openssl wget \
+    apk --no-cache add musl-dev bash openssl wget \
             build-base \
             gcc \
             imagemagick \
             exiftool \
-            jasper
+            jasper \
+            jpeg \
+            jasper-dev \
+            libjpeg-turbo-dev \
+            inotify-tools
 
 # Copy the OTP binary from the build step
 COPY --from=builder /opt/build .

@@ -35,6 +35,21 @@ defmodule GalerieWeb.Components.Ui do
     """
   end
 
+  attr(:href, :string, required: true)
+  attr(:class, :string, default: "")
+  slot(:inner_block, required: true)
+  attr(:rest, :global)
+
+  def link_local(assigns) do
+    assigns = update(assigns, :class, &Html.class(@default_class, &1))
+
+    ~H"""
+    <Phoenix.Component.link navigate={@href} class={@class} {@rest}>
+      <%= render_slot(@inner_block) %>
+    </Phoenix.Component.link>
+    """
+  end
+
   def logo(assigns) do
     ~H"""
     <h1 class="text-4xl font-bold uppercase tracking-wide">Galerie</h1>
@@ -47,7 +62,7 @@ defmodule GalerieWeb.Components.Ui do
   def loading(assigns) do
     ~H"""
     <%= if @loading do %>
-      <div class="">
+      <div class="flex w-full items-center justify-center">
         <Icon.loading />
       </div>
     <% else %>
@@ -57,14 +72,14 @@ defmodule GalerieWeb.Components.Ui do
   end
 
   attr(:checked, :boolean, required: true)
-  attr(:on_select, :string, required: true)
-  attr(:on_deselect, :string, required: true)
+  attr(:on_select, :string, default: nil)
+  attr(:on_deselect, :string, default: nil)
 
   attr(:class, :string, default: "")
+  attr(:size, :string, default: "h-7 w-7")
 
   attr(:check_class, :string,
-    default:
-      "text-white border-2 w-7 h-7 flex items-center justify-center rounded-full cursor-pointer"
+    default: "text-white border-2 flex items-center justify-center rounded-full cursor-pointer"
   )
 
   attr(:rest, :global)
@@ -72,11 +87,11 @@ defmodule GalerieWeb.Components.Ui do
   def select_marker(assigns) do
     ~H"""
     <%= if @checked do %>
-      <div class={Html.class(@check_class, ["border-pink-600 hover:border-pink-600 bg-pink-600", @class])} phx-click={@on_deselect} {@rest}>
+      <div class={Html.class(@check_class, ["border-pink-600 hover:border-pink-600 bg-pink-600", @size, @class])} phx-click={@on_deselect} {@rest}>
         <Icon.check width="15" height="15" />
       </div>
     <% else %>
-      <div class={Html.class(@check_class, ["border-gray-200 hover:border-pink-600", @class])} phx-click={@on_select} {@rest} />
+      <div class={Html.class(@check_class, ["border-gray-200 hover:border-pink-600", @size, @class])} phx-click={@on_select} {@rest} />
     <% end %>
     """
   end
@@ -84,6 +99,7 @@ defmodule GalerieWeb.Components.Ui do
   attr(:items, :list, required: true)
   slot(:item, required: true)
   slot(:empty, required: false)
+  slot(:bottom, required: false)
 
   def list(assigns) do
     ~H"""
@@ -91,6 +107,7 @@ defmodule GalerieWeb.Components.Ui do
       <%= for item <- @items do %>
         <%= render_slot(@item, item) %>
       <% end %>
+      <%= render_slot(@bottom) %>
     <% else %>
       <%= render_slot(@empty) %>
     <% end %>

@@ -7,6 +7,7 @@ defmodule GalerieWeb.Components.Picture do
 
   alias Galerie.Pictures.PictureItem
   alias GalerieWeb.Components.Form
+  alias GalerieWeb.Components.Icon
   alias GalerieWeb.Components.Ui
   alias GalerieWeb.Html
 
@@ -44,8 +45,11 @@ defmodule GalerieWeb.Components.Picture do
           <%= render_slot(@inner_block) %>
         <% end %>
       </div>
-      <div class="flex-initial">
+      <div class="flex items-center justify-center flex-initial">
         <%= gettext("%{count} selected", count: Enum.count(@selectable_list.selected_indexes)) %>
+        <Ui.link_local href={~p(/app/settings/access_links)} class="ml-2">
+          <Icon.gear width="30" height="30" />
+        </Ui.link_local>
       </div>
     </div>
     """

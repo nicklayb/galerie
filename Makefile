@@ -87,7 +87,7 @@ remove-uploaded-files:
 	rm -rf ./priv/uploads/*
 
 run-bash:
-	docker run --rm -it --entrypoint bash --mount type=bind,source=./samples,destination=/samples $(DOCKER_IMAGE)
+	docker run --rm -it --entrypoint bash --mount type=bind,source=./samples,destination=/samples -e MAILER_FROM=someone@gmail.com -e GALERIE_FOLDERS=/samples -e LIVE_VIEW_SALT=$(LIVE_VIEW_SALT)  -e SECRET_KEY_BASE=$(SECRET_KEY_BASE) $(DOCKER_IMAGE)
 
 stop-processors:
 	-sudo killall magick

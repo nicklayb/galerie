@@ -20,7 +20,6 @@ defmodule GalerieWeb.Library.Live do
   alias GalerieWeb.Components.Modal
   alias GalerieWeb.Components.Picture
   alias GalerieWeb.Components.Ui
-  alias GalerieWeb.Html
 
   import GalerieWeb.Gettext
 
@@ -37,6 +36,7 @@ defmodule GalerieWeb.Library.Live do
     jobs: %{},
     folders: [],
     filters: [],
+    without_albums?: false,
     albums: SelectableList.new([])
   }
 
@@ -180,8 +180,15 @@ defmodule GalerieWeb.Library.Live do
   end
 
   defp load_pictures(assigns) do
+    album_ids =
+      if assigns.without_albums? do
+        :without_albums
+      else
+        SelectableList.selected_items(assigns.albums, fn {_, item} -> item.id end)
+      end
+
     query_options = [
-      {:album_ids, SelectableList.selected_items(assigns.albums, fn {_, item} -> item.id end)}
+      {:album_ids, album_ids}
       | assigns.filters
     ]
 
@@ -198,17 +205,6 @@ defmodule GalerieWeb.Library.Live do
         :modal,
         {GalerieWeb.Components.Modals.CreateAlbum, current_user: socket.assigns.current_user}
       )
-
-    {:noreply, socket}
-  end
-
-  def handle_event("filter:album", %{"index" => index}, socket) do
-    index = String.to_integer(index)
-
-    socket =
-      socket
-      |> update(:albums, &SelectableList.toggle_only(&1, index))
-      |> reload_pictures()
 
     {:noreply, socket}
   end
@@ -230,11 +226,23 @@ defmodule GalerieWeb.Library.Live do
     {:noreply, socket}
   end
 
-  def handle_event("filter-album", %{"index" => index}, socket) do
+  def handle_event("filter:album", %{"index" => "without_albums"}, socket) do
+    socket =
+      socket
+      |> assign(:without_albums?, not socket.assigns.without_albums?)
+      |> update(:albums, &SelectableList.deselect_all/1)
+      |> assign(:updating, true)
+      |> reload_pictures()
+
+    {:noreply, socket}
+  end
+
+  def handle_event("filter:album", %{"index" => index}, socket) do
     index = String.to_integer(index)
 
     socket =
       socket
+      |> assign(:without_albums?, false)
       |> update(:albums, &SelectableList.toggle_only(&1, index))
       |> assign(:updating, true)
       |> reload_pictures()

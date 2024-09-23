@@ -1,0 +1,30 @@
+version: '3.6'
+services:
+  app:
+    image: galerie:latest
+    build:
+      context: .
+      dockerfile: ./dockerfiles/Dockerfile
+    environment:
+      - SECRET_KEY_BASE=${SECRET_KEY_BASE}
+      - LIVE_VIEW_SALT=${LIVE_VIEW_SALT}
+      - MAILER_FROM=${MAILER_FROM}
+      - DB_HOST=db
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
+      - GALERIE_FILE_CONTROL=true
+      - GALERIE_FOLDERS=/samples
+    ports:
+      - 4000:4000
+    volumes:
+      - ./samples:/samples
+  db:
+    image: postgres:10.4
+    volumes:
+      - db:/var/lib/postgresql/data
+    ports:
+      - "${DB_PORT-5432}:5432"
+
+volumes:
+  db:

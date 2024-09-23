@@ -1,0 +1,13 @@
+<main class="flex flex-1 h-full">
+  <div class="flex">
+    <.settings_nav uri={@current_uri}/>
+    <div class="pt-4 px-3">
+      <h1 class="text-3xl font-bold mb-4"><%= @page_title %></h1>
+      <Ui.loading loading={Map.get(assigns, :loading, false)}>
+        <%= @inner_content %>
+      </Ui.loading>
+    </div>
+  </div>
+
+  <%= live_render(@socket, GalerieWeb.Core.Notifications, id: GalerieWeb.Core.Notifications.id(), session: %{"current_user" => @current_user, "live_session_id" => @live_session_id}) %>
+</main>
