@@ -22,6 +22,8 @@ defmodule GalerieWeb.Library.Live do
   alias GalerieWeb.Components.Ui
   alias GalerieWeb.Html
 
+  alias Phoenix.LiveView.AsyncResult
+
   import GalerieWeb.Gettext
 
   @picture_viewer_id "pictureViewer"
@@ -37,6 +39,8 @@ defmodule GalerieWeb.Library.Live do
     jobs: %{},
     folders: [],
     filters: [],
+    selected_album: nil,
+    selected_album_id: nil,
     albums: SelectableList.new([])
   }
 
@@ -49,6 +53,9 @@ defmodule GalerieWeb.Library.Live do
       |> setup_upload()
       |> start_async(:load_folders, fn -> Folders.get_user_folders(current_user) end)
       |> start_async(:load_jobs, fn -> {true, Galerie.ObanRepo.pending_jobs()} end)
+      |> assign_async(:album_explorer, fn ->
+        {:ok, %{album_explorer: Albums.explore_user_albums(current_user)}}
+      end)
       |> reload_albums()
 
     Galerie.PubSub.subscribe(current_user)
@@ -180,8 +187,10 @@ defmodule GalerieWeb.Library.Live do
   end
 
   defp load_pictures(assigns) do
+    album_ids = List.wrap(assigns.selected_album_id)
+
     query_options = [
-      {:album_ids, SelectableList.selected_items(assigns.albums, fn {_, item} -> item.id end)}
+      {:album_ids, album_ids}
       | assigns.filters
     ]
 
@@ -198,6 +207,46 @@ defmodule GalerieWeb.Library.Live do
         :modal,
         {GalerieWeb.Components.Modals.CreateAlbum, current_user: socket.assigns.current_user}
       )
+
+    {:noreply, socket}
+  end
+
+  def handle_event("album-explorer:enter", %{"id" => id}, socket) do
+    socket =
+      update(
+        socket,
+        :album_explorer,
+        &%AsyncResult{&1 | result: Galerie.Explorer.enter(&1.result, id)}
+      )
+
+    {:noreply, socket}
+  end
+
+  def handle_event("album-explorer:back", _, socket) do
+    socket =
+      update(
+        socket,
+        :album_explorer,
+        &%AsyncResult{&1 | result: Galerie.Explorer.back(&1.result)}
+      )
+
+    {:noreply, socket}
+  end
+
+  def handle_event("album-explorer:set-active", %{"id" => id}, socket) do
+    {selected_album, selected_album_id} =
+      if id == socket.assigns.selected_album_id do
+        {nil, nil}
+      else
+        item = Galerie.Explorer.find_by_identity(socket.assigns.album_explorer.result, id)
+        {item, id}
+      end
+
+    socket =
+      socket
+      |> assign(:selected_album, selected_album)
+      |> assign(:selected_album_id, selected_album_id)
+      |> reload_pictures()
 
     {:noreply, socket}
   end
