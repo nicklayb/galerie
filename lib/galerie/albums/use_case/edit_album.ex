@@ -21,10 +21,7 @@ defmodule Galerie.Albums.UseCase.EditAlbum do
     Ecto.Multi.update(
       multi,
       :album,
-      Album.changeset(album, %{
-        name: form.name,
-        hide_from_main_library: form.hide_from_main_library
-      })
+      Album.changeset(album, Map.from_struct(form))
     )
   end
 

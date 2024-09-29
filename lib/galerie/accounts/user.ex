@@ -10,6 +10,8 @@ defmodule Galerie.Accounts.User do
   use Galerie, :schema
   alias Galerie.Accounts.User
   alias Galerie.Accounts.User.Password
+  alias Galerie.Albums.Album
+  alias Galerie.Albums.AlbumFolder
   alias Galerie.Folders.Folder
 
   require Logger
@@ -35,6 +37,9 @@ defmodule Galerie.Accounts.User do
     field(:is_admin, :boolean)
 
     has_one(:folder, Folder)
+
+    has_many(:albums, Album)
+    has_many(:album_folders, AlbumFolder)
 
     timestamps()
   end

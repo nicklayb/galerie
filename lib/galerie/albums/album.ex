@@ -32,10 +32,23 @@ defmodule Galerie.Albums.Album do
   @optional ~w(hide_from_main_library album_folder_id)a
   @castable @required ++ @optional
   @doc """
-  Album insert or update changeset.
+  Album insert changeset.
   """
   @spec changeset(t(), map()) :: Ecto.Changeset.t()
   def changeset(%Album{} = album \\ %Album{}, params) do
+    album
+    |> Ecto.Changeset.cast(params, @castable)
+    |> Ecto.Changeset.validate_required(@required)
+    |> Ecto.Changeset.unique_constraint(:name, name: :albums_user_id_name_index)
+  end
+
+  @doc """
+  Album update changeset.
+  """
+  @required ~w(name)a
+  @castable @required ++ @optional
+  @spec update_changeset(t(), map()) :: Ecto.Changeset.t()
+  def update_changeset(%Album{} = album \\ %Album{}, params) do
     album
     |> Ecto.Changeset.cast(params, @castable)
     |> Ecto.Changeset.validate_required(@required)

@@ -18,9 +18,9 @@ defmodule Seed do
     |> Result.unwrap!()
   end
 
-  def create_album_folder(user, name) do
+  def create_album_folder(user, name, parent_folder_id \\ nil) do
     Albums.UseCase.CreateAlbumFolder
-    |> execute(%{name: name}, user)
+    |> execute(%{name: name, parent_folder_id: parent_folder_id}, user)
     |> Result.unwrap!()
   end
 
@@ -47,5 +47,10 @@ end
   ])
 
 animals_folder = Seed.create_album_folder(main_user, "Animals")
+cats_folder = Seed.create_album_folder(main_user, "Cats", animals_folder.id)
+dogs_folder = Seed.create_album_folder(main_user, "Dogs", animals_folder.id)
 
-Seed.create_album(main_user, ["Dogs", "Cats"], %{album_folder_id: animals_folder.id})
+Seed.create_album(main_user, ["Louise", "Lili"], %{album_folder_id: cats_folder.id})
+Seed.create_album(main_user, ["Marcus"], %{album_folder_id: dogs_folder.id})
+Seed.create_album(main_user, ["Other"], %{album_folder_id: animals_folder.id})
+Seed.create_album(main_user, ["Family photos", "Friends"])

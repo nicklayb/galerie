@@ -11,6 +11,7 @@ defmodule Galerie.Albums.AlbumFolder do
     belongs_to(:parent_folder, AlbumFolder)
     belongs_to(:user, User)
 
+    has_many(:folders, AlbumFolder, foreign_key: :parent_folder_id)
     has_many(:albums, Album)
   end
 

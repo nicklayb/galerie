@@ -2,6 +2,8 @@ defmodule Galerie.Albums do
   require Ecto.Query
   alias Galerie.Accounts.User
   alias Galerie.Albums.Album
+  alias Galerie.Albums.AlbumFolder
+  alias Galerie.Albums.AlbumFolderExplorer
   alias Galerie.Albums.UseCase
   alias Galerie.Pictures.Picture
   alias Galerie.Repo
@@ -46,4 +48,10 @@ defmodule Galerie.Albums do
   end
 
   def get_album_belonging_to_user(_album_id, _), do: {:error, :unauthorized}
+
+  def explore_user_albums(%User{} = user) do
+    user
+    |> AlbumFolderExplorer.children()
+    |> then(&Galerie.Explorer.new(AlbumFolderExplorer, &1))
+  end
 end
