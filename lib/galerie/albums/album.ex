@@ -7,6 +7,7 @@ defmodule Galerie.Albums.Album do
 
   alias Galerie.Accounts.User
   alias Galerie.Albums.Album
+  alias Galerie.Albums.AlbumFolder
   alias Galerie.Albums.AlbumPictureGroup
 
   schema("albums") do
@@ -18,6 +19,8 @@ defmodule Galerie.Albums.Album do
 
     belongs_to(:user, User)
 
+    belongs_to(:album_folder, AlbumFolder)
+
     has_many(:albums_picture_groups, AlbumPictureGroup)
     has_many(:groups, through: [:albums_picture_groups, :group])
     has_many(:pictures, through: [:groups, :picture])
@@ -26,7 +29,7 @@ defmodule Galerie.Albums.Album do
   end
 
   @required ~w(name user_id)a
-  @optional ~w(hide_from_main_library)a
+  @optional ~w(hide_from_main_library album_folder_id)a
   @castable @required ++ @optional
   @doc """
   Album insert or update changeset.

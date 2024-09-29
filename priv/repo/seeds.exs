@@ -18,13 +18,21 @@ defmodule Seed do
     |> Result.unwrap!()
   end
 
-  def create_album(user, albums) when is_list(albums) do
-    Enum.map(albums, &create_album(user, &1))
+  def create_album_folder(user, name) do
+    Albums.UseCase.CreateAlbumFolder
+    |> execute(%{name: name}, user)
+    |> Result.unwrap!()
   end
 
-  def create_album(user, album_name) do
+  def create_album(user, albums, attributes \\ %{})
+
+  def create_album(user, albums, attributes) when is_list(albums) do
+    Enum.map(albums, &create_album(user, &1, attributes))
+  end
+
+  def create_album(user, album_name, attributes) do
     Albums.UseCase.CreateAlbum
-    |> execute(%{name: album_name}, user)
+    |> execute(Map.merge(attributes, %{name: album_name}), user)
     |> Result.unwrap!()
   end
 
@@ -38,4 +46,6 @@ end
     %{first_name: "John", last_name: "Doe", email: "admin@example.com", is_admin: true}
   ])
 
-Seed.create_album(main_user, ["Dogs", "Cats"])
+animals_folder = Seed.create_album_folder(main_user, "Animals")
+
+Seed.create_album(main_user, ["Dogs", "Cats"], %{album_folder_id: animals_folder.id})
