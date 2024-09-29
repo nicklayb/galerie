@@ -16,6 +16,7 @@ pkgs.mkShell {
   docker compose up -d
   eval "$(direnv hook bash)"
   direnv allow
+  mix deps.get
   '';
   permittedInsecurePackages = [
     "dcraw-9.28.0"

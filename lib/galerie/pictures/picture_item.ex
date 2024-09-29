@@ -58,9 +58,12 @@ defmodule Galerie.Pictures.PictureItem do
       query,
       [group],
       not exists(
-        Ecto.Query.from(album_picture_group in AlbumPictureGroup,
-          inner_join: album in Album,
-          on: album_picture_group.group_id == parent_as(:group).id,
+        Ecto.Query.from(album in Album,
+          inner_join: album_picture_group in AlbumPictureGroup,
+          on:
+            album_picture_group.group_id == parent_as(:group).id and
+              album_picture_group.album_id ==
+                album.id,
           where: album.hide_from_main_library == true,
           limit: 1
         )
