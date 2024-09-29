@@ -38,12 +38,7 @@ defmodule Galerie.Explorer do
     {children, updated_items} =
       Enum.reduce(items, {[], []}, fn {type, item}, {current_children, updated_items} ->
         if identity(explorer, item) == identity do
-          {new_item, children} =
-            case children(explorer, item) do
-              {new_item, children} -> {new_item, children}
-              children -> {item, children}
-            end
-
+          {new_item, children} = children(explorer, item)
           {children, [{type, new_item} | updated_items]}
         else
           {current_children, [{type, item} | updated_items]}
@@ -58,6 +53,9 @@ defmodule Galerie.Explorer do
   end
 
   defp children(%Explorer{implementation: implementation}, item) do
-    implementation.children(item)
+    case implementation.children(item) do
+      {new_item, children} -> {new_item, children}
+      children -> {item, children}
+    end
   end
 end
