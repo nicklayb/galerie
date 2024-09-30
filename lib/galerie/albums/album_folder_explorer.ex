@@ -2,9 +2,10 @@ defmodule Galerie.Albums.AlbumFolderExplorer do
   @behaviour Galerie.Explorer
 
   require Ecto.Query
+
+  alias Galerie.Accounts.User
   alias Galerie.Albums.Album
   alias Galerie.Albums.AlbumFolder
-  alias Galerie.Accounts.User
   alias Galerie.Repo
 
   @impl Galerie.Explorer

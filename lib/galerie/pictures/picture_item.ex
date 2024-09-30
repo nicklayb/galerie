@@ -22,7 +22,8 @@ defmodule Galerie.Pictures.PictureItem do
   require Ecto.Query
 
   def from do
-    Ecto.Query.from(Group, as: :group)
+    Group
+    |> Ecto.Query.from(as: :group)
     |> Ecto.Query.join(:inner, [group], picture in assoc(group, :main_picture), as: :picture)
     |> Ecto.Query.join(:left, [picture: picture], metadata in assoc(picture, :metadata),
       as: :metadata

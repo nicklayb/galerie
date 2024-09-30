@@ -65,7 +65,7 @@ defmodule GalerieWeb.Components.Modals.EditAlbumFolder do
           assign_form(socket, changeset)
 
         error ->
-          IO.inspect(error)
+          Logger.debug("[#{inspect(__MODULE__)}] [edit_album_folder:save] #{error}")
 
           Notifications.notify(
             socket,

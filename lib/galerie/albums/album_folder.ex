@@ -1,9 +1,9 @@
 defmodule Galerie.Albums.AlbumFolder do
   use Galerie, :schema
 
+  alias Galerie.Accounts.User
   alias Galerie.Albums.Album
   alias Galerie.Albums.AlbumFolder
-  alias Galerie.Accounts.User
 
   schema("album_folders") do
     field(:name, :string)
