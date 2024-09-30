@@ -4,7 +4,6 @@ defmodule GalerieWeb.Library.Live do
   require Galerie.PubSub
   require Logger
 
-  alias Galerie.Accounts.User
   alias Galerie.Albums
   alias Galerie.Albums.Album
   alias Galerie.Folders
