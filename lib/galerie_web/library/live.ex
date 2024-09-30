@@ -40,8 +40,7 @@ defmodule GalerieWeb.Library.Live do
     folders: [],
     filters: [],
     selected_album: nil,
-    selected_album_id: nil,
-    albums: SelectableList.new([])
+    selected_album_id: nil
   }
 
   def mount(_params, _session, socket) do
@@ -56,7 +55,6 @@ defmodule GalerieWeb.Library.Live do
       |> assign_async(:album_explorer, fn ->
         {:ok, %{album_explorer: Albums.explore_user_albums(current_user)}}
       end)
-      |> reload_albums()
 
     Galerie.PubSub.subscribe(current_user)
 
@@ -112,22 +110,6 @@ defmodule GalerieWeb.Library.Live do
     with :ok <- File.cp(source, destination) do
       {:ok, destination}
     end
-  end
-
-  defp load_albums(%User{} = current_user) do
-    current_user
-    |> Albums.get_user_albums()
-    |> SelectableList.new()
-  end
-
-  def handle_async(:load_albums, {:ok, albums}, %{assigns: %{albums: old_albums}} = socket) do
-    socket = assign(socket, :albums, albums)
-
-    Enum.each(old_albums, fn {_, album} -> Galerie.PubSub.unsubscribe(album) end)
-
-    Enum.each(albums, fn {_, album} -> Galerie.PubSub.subscribe(album) end)
-
-    {:noreply, socket}
   end
 
   def handle_async(:load_folders, {:ok, folders}, socket) do
@@ -200,6 +182,18 @@ defmodule GalerieWeb.Library.Live do
     |> Repo.Page.map_results(&SelectableList.new/1)
   end
 
+  def handle_event("create-album-folder", _, socket) do
+    socket =
+      assign(
+        socket,
+        :modal,
+        {GalerieWeb.Components.Modals.CreateAlbumFolder,
+         current_user: socket.assigns.current_user}
+      )
+
+    {:noreply, socket}
+  end
+
   def handle_event("create-album", _, socket) do
     socket =
       assign(
@@ -213,10 +207,10 @@ defmodule GalerieWeb.Library.Live do
 
   def handle_event("album-explorer:enter", %{"id" => id}, socket) do
     socket =
-      update(
+      update_async_result(
         socket,
         :album_explorer,
-        &%AsyncResult{&1 | result: Galerie.Explorer.enter(&1.result, id)}
+        &Galerie.Explorer.enter(&1, id)
       )
 
     {:noreply, socket}
@@ -224,10 +218,10 @@ defmodule GalerieWeb.Library.Live do
 
   def handle_event("album-explorer:back", _, socket) do
     socket =
-      update(
+      update_async_result(
         socket,
         :album_explorer,
-        &%AsyncResult{&1 | result: Galerie.Explorer.back(&1.result)}
+        &Galerie.Explorer.back(&1)
       )
 
     {:noreply, socket}
@@ -251,17 +245,6 @@ defmodule GalerieWeb.Library.Live do
     {:noreply, socket}
   end
 
-  def handle_event("filter:album", %{"index" => index}, socket) do
-    index = String.to_integer(index)
-
-    socket =
-      socket
-      |> update(:albums, &SelectableList.toggle_only(&1, index))
-      |> reload_pictures()
-
-    {:noreply, socket}
-  end
-
   def handle_event("scrolled-bottom", _params, socket) do
     assigns = socket.assigns
 
@@ -279,14 +262,14 @@ defmodule GalerieWeb.Library.Live do
     {:noreply, socket}
   end
 
-  def handle_event("filter-album", %{"index" => index}, socket) do
-    index = String.to_integer(index)
-
+  def handle_event("filter:edit-album-folder", %{"album_folder_id" => album_folder_id}, socket) do
     socket =
-      socket
-      |> update(:albums, &SelectableList.toggle_only(&1, index))
-      |> assign(:updating, true)
-      |> reload_pictures()
+      assign(
+        socket,
+        :modal,
+        {GalerieWeb.Components.Modals.EditAlbumFolder,
+         [album_folder_id: album_folder_id, current_user: socket.assigns.current_user]}
+      )
 
     {:noreply, socket}
   end
@@ -374,8 +357,7 @@ defmodule GalerieWeb.Library.Live do
         {GalerieWeb.Components.Modals.EditPictures,
          [
            selectable_list: socket.assigns.pictures.results,
-           current_user: socket.assigns.current_user,
-           albums: SelectableList.new(socket.assigns.albums)
+           current_user: socket.assigns.current_user
          ]}
       )
 
@@ -479,11 +461,6 @@ defmodule GalerieWeb.Library.Live do
     {:noreply, socket}
   end
 
-  def handle_info(:sync_albums, socket) do
-    socket = reload_albums(socket)
-    {:noreply, socket}
-  end
-
   def handle_info(:close_modal, socket) do
     socket = assign(socket, :modal, nil)
     {:noreply, socket}
@@ -492,12 +469,10 @@ defmodule GalerieWeb.Library.Live do
   def handle_info(
         %Galerie.PubSub.Message{
           message: :removed_from_album,
-          params: %{album: album, group: group}
+          params: %{group: group}
         } = message,
         socket
       ) do
-    socket = update(socket, :albums, &put_album(&1, album))
-
     if highlighted?(socket, group) do
       send_to_viewer(message: message)
     end
@@ -608,8 +583,7 @@ defmodule GalerieWeb.Library.Live do
         socket
       )
       when album_message in @album_message do
-    current_user = socket.assigns.current_user
-    socket = start_async(socket, :load_albums, fn -> load_albums(current_user) end)
+    socket = reload_explorer(socket)
 
     {:noreply, socket}
   end
@@ -617,12 +591,6 @@ defmodule GalerieWeb.Library.Live do
   def handle_info(%Galerie.PubSub.Message{message: message}, socket) do
     Logger.warning("[#{inspect(__MODULE__)}] [handle_info] [unhandled_pub_sub] #{message}")
     {:noreply, socket}
-  end
-
-  defp put_album(%SelectableList{} = albums, %Album{id: album_id} = album) do
-    SelectableList.update(albums, fn current_album ->
-      {current_album.id == album_id, album}
-    end)
   end
 
   defp update_jobs(socket, updates) do
@@ -746,8 +714,20 @@ defmodule GalerieWeb.Library.Live do
     send_update(self(), Picture.Viewer, [{:id, @picture_viewer_id} | assigns])
   end
 
-  defp reload_albums(socket) do
-    current_user = socket.assigns.current_user
-    start_async(socket, :load_albums, fn -> load_albums(current_user) end)
+  defp reload_explorer(socket) do
+    update_async_result(
+      socket,
+      :album_explorer,
+      fn
+        %Galerie.Explorer{path: path} ->
+          socket.assigns.current_user
+          |> Albums.explore_user_albums()
+          |> Galerie.Explorer.enter(Enum.reverse(path))
+      end
+    )
+  end
+
+  defp update_async_result(socket, key, function) do
+    update(socket, key, &%AsyncResult{&1 | result: function.(&1.result)})
   end
 end

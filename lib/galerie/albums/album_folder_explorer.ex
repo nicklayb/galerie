@@ -38,7 +38,7 @@ defmodule Galerie.Albums.AlbumFolderExplorer do
 
   defp branches(%AlbumFolder{} = album_folder) do
     album_folder = Repo.preload(album_folder, :folders)
-    {album_folder, branches(album_folder.folders)}
+    branches(album_folder.folders)
   end
 
   defp branches(folders) do
@@ -57,7 +57,7 @@ defmodule Galerie.Albums.AlbumFolderExplorer do
 
   defp leaves(%AlbumFolder{} = album_folder) do
     album_folder = Repo.preload(album_folder, :albums)
-    {album_folder, leaves(album_folder.albums)}
+    leaves(album_folder.albums)
   end
 
   defp leaves(albums) do

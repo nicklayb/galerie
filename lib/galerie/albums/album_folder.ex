@@ -24,4 +24,13 @@ defmodule Galerie.Albums.AlbumFolder do
     |> Ecto.Changeset.validate_required(@required)
     |> Ecto.Changeset.unique_constraint(:name, name: :album_folders_parent_folder_id_name_index)
   end
+
+  @required ~w(name)a
+  @castable @required ++ @optional
+  def update_changeset(%AlbumFolder{} = album_folder \\ %AlbumFolder{}, params) do
+    album_folder
+    |> Ecto.Changeset.cast(params, @castable)
+    |> Ecto.Changeset.validate_required(@required)
+    |> Ecto.Changeset.unique_constraint(:name, name: :album_folders_parent_folder_id_name_index)
+  end
 end

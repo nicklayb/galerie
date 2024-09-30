@@ -2,6 +2,7 @@ defmodule Galerie.Albums do
   require Ecto.Query
   alias Galerie.Accounts.User
   alias Galerie.Albums.Album
+  alias Galerie.Albums.AlbumFolder
   alias Galerie.Albums.AlbumFolderExplorer
   alias Galerie.Albums.UseCase
   alias Galerie.Pictures.Picture
@@ -33,6 +34,21 @@ defmodule Galerie.Albums do
     UseCase.RemoveFromAlbum.execute(params, options)
   end
 
+  def get_album_folder_belonging_to_user(album_folder_id, %User{id: user_id}) do
+    case Repo.fetch(AlbumFolder, album_folder_id) do
+      {:ok, %AlbumFolder{user_id: ^user_id} = album_folder} ->
+        {:ok, album_folder}
+
+      {:ok, %AlbumFolder{}} ->
+        {:error, :unauthorized}
+
+      error ->
+        error
+    end
+  end
+
+  def get_album_folder_belonging_to_user(_album_folder_id, _), do: {:error, :unauthorized}
+
   def get_album_belonging_to_user(album_id, %User{id: user_id}) do
     case Repo.fetch(Album, album_id) do
       {:ok, %Album{user_id: ^user_id} = album} ->
@@ -47,6 +63,40 @@ defmodule Galerie.Albums do
   end
 
   def get_album_belonging_to_user(_album_id, _), do: {:error, :unauthorized}
+
+  def user_album_folders(%User{id: user_id}), do: user_album_folders(user_id)
+
+  def user_album_folders(user_id) do
+    {root_folders, nested_folders} =
+      AlbumFolder
+      |> Ecto.Query.where([album_folder], album_folder.user_id == ^user_id)
+      |> Repo.all()
+      |> Enum.split_with(&is_nil(&1.parent_folder_id))
+
+    nested_folders_by_parent_id = Enum.group_by(nested_folders, & &1.parent_folder_id)
+
+    root_folders
+    |> build_tree(nested_folders_by_parent_id, &{&1.id, &1.name})
+    |> flatten_tree()
+  end
+
+  defp flatten_tree(items, root \\ []) do
+    Enum.flat_map(items, fn {{id, item}, nested} ->
+      new_root = root ++ [item]
+      [{id, new_root} | flatten_tree(nested, new_root)]
+    end)
+  end
+
+  defp build_tree(root_folders, nested_folders, mapper) do
+    Enum.map(root_folders, fn root_folder ->
+      child_folders = Map.get(nested_folders, root_folder.id, [])
+
+      mapped_root_folder = mapper.(root_folder)
+
+      child_folders = build_tree(child_folders, nested_folders, mapper)
+      {mapped_root_folder, child_folders}
+    end)
+  end
 
   def explore_user_albums(%User{} = user) do
     folders = AlbumFolderExplorer.children(user, :branches)

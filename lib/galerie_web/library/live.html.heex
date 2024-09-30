@@ -4,9 +4,14 @@
       <div class="px-1">
         <div class="pl-1 flex flex-row justify-between items-center text-true-gray-700">
           <span><%= gettext("Albums") %></span>
-          <span class="mr-2 hover:text-pink-600 cursor-pointer" phx-click="create-album">
-            <Icon.add width="14" height="14" />
-          </span>
+          <div class="flex">
+            <span class="mr-2 hover:text-pink-600 cursor-pointer" phx-click="create-album-folder">
+              <Icon.folder_plus width="14" height="14" />
+            </span>
+            <span class="mr-2 hover:text-pink-600 cursor-pointer" phx-click="create-album">
+              <Icon.picture_plus width="15" height="15" />
+            </span>
+          </div>
         </div>
         <%= case @album_explorer do %>
           <% %AsyncResult{result: %Galerie.Explorer{parent: parent, items: items}} -> %>
@@ -15,15 +20,23 @@
                 <Icon.left_chevron width="20" height="20" class="mr-1" /> <%= gettext("Back") %>
               </div>
               <Ui.list items={items}>
+                <:empty>
+                  <div class="text-gray-500 text-center py-1"><%= gettext("Folder empty") %></div>
+                </:empty>
                 <:item :let={item}>
                   <%= case item do %>
                     <% {:branch, %Albums.AlbumFolder{id: id, name: name}} -> %>
-                      <div class="flex justify-between items-center px-2 py-1 rounded-md hover:bg-gray-200 cursor-pointer" phx-click="album-explorer:enter" phx-value-id={id}>
+                      <div class="flex justify-between items-center group px-2 py-1 rounded-md hover:bg-gray-200 cursor-pointer" phx-click="album-explorer:enter" phx-value-id={id}>
                         <div class="flex items-center ">
                           <Icon.folder width="20" height="20" class="mr-1" />
                           <%= name %>
                         </div>
-                        <Icon.right_chevron width="20" height="20" />
+                        <div class="flex items-center">
+                          <div class="ml-1 hidden group-hover:block group" phx-click="filter:edit-album-folder" phx-value-album_folder_id={id}>
+                            <Icon.gear width="22" height="22"/>
+                          </div>
+                          <Icon.right_chevron width="20" height="20" />
+                        </div>
                       </div>
                     <% {:leaf, %Albums.Album{id: id, name: name, hide_from_main_library: hide_from_main_library}} -> %>
                       <div class={Html.class("flex px-2 py-1 items-center justify-between group rounded-md cursor-pointer", {@selected_album_id == id, "bg-gray-300", "hover:bg-gray-200"})} phx-click="album-explorer:set-active" phx-value-id={id}>

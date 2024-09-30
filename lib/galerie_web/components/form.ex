@@ -6,6 +6,7 @@ defmodule GalerieWeb.Components.Form do
   attr(:multiple, :boolean, default: false)
   attr(:errors, :list, default: [])
   attr(:class, :string, default: "")
+  attr(:label_position, :atom, default: :above)
   slot(:inner_block, required: true)
   slot(:label, required: false)
 
@@ -15,12 +16,17 @@ defmodule GalerieWeb.Components.Form do
 
     ~H"""
     <div class={Html.class("group", [{Enum.any?(@errors), "has-errors"}, {@class != "", @class, "flex flex-col gap-y-1 mb-3"}])}>
-      <%= if @label do %>
+      <%= if Enum.any?(@label) and @label_position == :above do %>
         <label for={@name} class="text-sm pl-0.5 group-[.has-errors]:text-red-400">
           <%= render_slot(@label) %>
         </label>
       <% end %>
       <%= render_slot(@inner_block) %>
+      <%= if Enum.any?(@label) and @label_position == :below do %>
+        <label for={@name} class="text-sm pl-0.5 group-[.has-errors]:text-red-400">
+          <%= render_slot(@label) %>
+        </label>
+      <% end %>
       <.field_errors errors={@errors} />
     </div>
     """
@@ -38,7 +44,7 @@ defmodule GalerieWeb.Components.Form do
     assigns = assign(assigns, :name, name)
 
     ~H"""
-    <.element name={@field.name} errors={@field.errors} class={@element_class} multiple={@multiple}>
+    <.element name={@field.name} errors={@field.errors} class={@element_class} multiple={@multiple} label_position={:below}>
       <:label>
         <%= render_slot(@label) %>
         <input type="checkbox" id={@field.id} name={@name} value={@value} checked={@checked}/>
@@ -111,6 +117,28 @@ defmodule GalerieWeb.Components.Form do
         <%= render_slot(@label) %>
       </:label>
       <%= Phoenix.HTML.Form.text_input(@form, @name, @attributes) %>
+    </.element>
+    """
+  end
+
+  attr(:form, :any, default: nil)
+  attr(:class, :string, default: "")
+  attr(:element_class, :string, default: "flex flex-row")
+  attr(:name, :atom)
+  attr(:field, :any)
+  attr(:value, :any, required: true)
+  attr(:disabled, :boolean, default: false)
+  attr(:rest, :global)
+
+  slot(:label, required: false)
+
+  def radio_input(assigns) do
+    ~H"""
+    <.element name={@field.name} errors={@field.errors} class={@element_class} label_position={:below}>
+      <input type="radio" id={@field.id} name={@field.name} checked={@value == (@field.value || "")} value={@value} class={@class} disabled={@disabled} {@rest} />
+      <:label>
+        <%= render_slot(@label) %>
+      </:label>
     </.element>
     """
   end

@@ -1,4 +1,4 @@
-defmodule GalerieWeb.Components.Modals.CreateAlbum do
+defmodule GalerieWeb.Components.Modals.CreateAlbumFolder do
   use GalerieWeb, :live_component
 
   alias Galerie.Albums
@@ -36,23 +36,23 @@ defmodule GalerieWeb.Components.Modals.CreateAlbum do
   end
 
   defp assign_form(socket, params) do
-    assign_form(socket, Galerie.Albums.Album.changeset(params))
+    assign_form(socket, Galerie.Albums.AlbumFolder.changeset(params))
   end
 
-  def handle_event("change", %{"album" => album}, socket) do
-    socket = assign_form(socket, album)
+  def handle_event("change", %{"album_folder" => album_folder}, socket) do
+    socket = assign_form(socket, album_folder)
 
     {:noreply, socket}
   end
 
-  def handle_event("save", %{"album" => album}, socket) do
+  def handle_event("save", %{"album_folder" => album_folder}, socket) do
     socket =
-      case UseCase.execute(socket, Galerie.Albums.UseCase.CreateAlbum, album) do
+      case UseCase.execute(socket, Galerie.Albums.UseCase.CreateAlbumFolder, album_folder) do
         {:ok, _} ->
           send(self(), :close_modal)
           socket
 
-        {:error, :album, %Ecto.Changeset{} = changeset, _} ->
+        {:error, :album_folder, %Ecto.Changeset{} = changeset, _} ->
           assign_form(socket, changeset)
       end
 
@@ -65,18 +65,18 @@ defmodule GalerieWeb.Components.Modals.CreateAlbum do
       <.form for={@form} class="relative" phx-change="change" phx-submit="save" phx-target={@myself}>
         <Modal.modal>
           <:header>
-            <%= gettext("Create album") %>
+            <%= gettext("Create album folder") %>
           </:header>
           <:body>
             <Form.text_input field={@form[:name]}>
-              <:label><%= gettext("Album name") %></:label>
+              <:label><%= gettext("Folder name") %></:label>
             </Form.text_input>
             <div>
-              <Form.radio_input field={@form[:album_folder_id]} value="">
-                <:label><%= gettext("No folder") %></:label>
+              <Form.radio_input field={@form[:parent_folder_id]} value="">
+                <:label><%= gettext("Root Folder") %></:label>
               </Form.radio_input>
               <%= for {id, parts} <- @folders do %>
-                <Form.radio_input field={@form[:album_folder_id]} value={id}>
+                <Form.radio_input field={@form[:parent_folder_id]} value={id}>
                   <:label><%= Enum.join(parts, " / ") %></:label>
                 </Form.radio_input>
               <% end %>

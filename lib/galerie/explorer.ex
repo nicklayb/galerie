@@ -1,5 +1,5 @@
 defmodule Galerie.Explorer do
-  defstruct [:implementation, :parent, :items]
+  defstruct [:implementation, :parent, :items, path: []]
 
   alias Galerie.Explorer
 
@@ -19,16 +19,44 @@ defmodule Galerie.Explorer do
     %Explorer{implementation: implementation, items: items}
   end
 
-  def enter(%Explorer{} = explorer, identity, options \\ []) do
+  def reload(%Explorer{path: path} = explorer, options \\ []) do
+    explorer
+    |> root_explorer()
+    |> enter(Enum.reverse(path), options)
+  end
+
+  defp root_explorer(%Explorer{parent: nil} = explorer), do: explorer
+  defp root_explorer(%Explorer{parent: parent}), do: root_explorer(parent)
+
+  def enter(explorer, identity, options \\ [])
+
+  def enter(%Explorer{} = explorer, identities, options) when is_list(identities) do
+    Enum.reduce(identities, explorer, &enter(&2, &1, options))
+  end
+
+  def enter(%Explorer{path: path} = explorer, identity, options) do
     {children, updated_items} = update_child_by_identity(explorer, identity, options)
 
     explorer
     |> put_items(updated_items)
     |> new(children)
+    |> put_path(path, identity)
   end
 
-  def back(%Explorer{parent: parent}) do
-    parent
+  defp put_path(%Explorer{} = explorer, path, identity) do
+    %Explorer{explorer | path: [identity | path]}
+  end
+
+  defp pull_path(%Explorer{} = explorer, [_ | path]) do
+    %Explorer{explorer | path: path}
+  end
+
+  def back(%Explorer{parent: nil}) do
+    nil
+  end
+
+  def back(%Explorer{parent: parent, path: path}) do
+    pull_path(parent, path)
   end
 
   def find_by_identity(%Explorer{items: items} = explorer, identity) do
