@@ -14,6 +14,7 @@ defmodule Galerie.Albums.Album do
     field(:name, :string)
 
     field(:picture_count, :integer, virtual: true)
+    field(:folder_path, {:array, :string}, virtual: true)
 
     field(:hide_from_main_library, :boolean, default: false)
 
@@ -53,5 +54,9 @@ defmodule Galerie.Albums.Album do
     |> Ecto.Changeset.cast(params, @castable)
     |> Ecto.Changeset.validate_required(@required)
     |> Ecto.Changeset.unique_constraint(:name, name: :albums_user_id_name_index)
+  end
+
+  def folder_path_names(%Album{folder_path: folder_path}) do
+    Enum.map(folder_path, & &1.name)
   end
 end

@@ -8,7 +8,10 @@ defmodule GalerieWeb.Components.Form do
   attr(:class, :string, default: "")
   attr(:label_position, :atom, default: :above)
   slot(:inner_block, required: true)
-  slot(:label, required: false)
+
+  slot(:label, required: false) do
+    attr(:class, :string, required: false)
+  end
 
   def element(assigns) do
     name = multiple_name(assigns)
@@ -17,13 +20,13 @@ defmodule GalerieWeb.Components.Form do
     ~H"""
     <div class={Html.class("group", [{Enum.any?(@errors), "has-errors"}, {@class != "", @class, "flex flex-col gap-y-1 mb-3"}])}>
       <%= if Enum.any?(@label) and @label_position == :above do %>
-        <label for={@name} class="text-sm pl-0.5 group-[.has-errors]:text-red-400">
+        <label for={@name} class={Html.class("text-sm pl-0.5 group-[.has-errors]:text-red-400", slot_attr(@label, :class, ""))}>
           <%= render_slot(@label) %>
         </label>
       <% end %>
       <%= render_slot(@inner_block) %>
       <%= if Enum.any?(@label) and @label_position == :below do %>
-        <label for={@name} class="text-sm pl-0.5 group-[.has-errors]:text-red-400">
+        <label for={@name} class={Html.class("text-sm pl-0.5 group-[.has-errors]:text-red-400", slot_attr(@label, :class, ""))}>
           <%= render_slot(@label) %>
         </label>
       <% end %>
@@ -37,7 +40,10 @@ defmodule GalerieWeb.Components.Form do
   attr(:element_class, :string, default: "")
   attr(:multiple, :boolean, default: false)
   attr(:checked, :boolean, required: true)
-  slot(:label, required: false)
+
+  slot(:label, required: false) do
+    attr(:class, :string, required: false)
+  end
 
   def checkbox(assigns) do
     name = multiple_name(assigns)
@@ -45,10 +51,10 @@ defmodule GalerieWeb.Components.Form do
 
     ~H"""
     <.element name={@field.name} errors={@field.errors} class={@element_class} multiple={@multiple} label_position={:below}>
-      <:label>
+      <:label class={slot_attr(@label, :class, "")}>
         <%= render_slot(@label) %>
-        <input type="checkbox" id={@field.id} name={@name} value={@value} checked={@checked}/>
       </:label>
+      <input type="checkbox" id={@field.id} name={@name} value={@value} checked={@checked}/>
     </.element>
     """
   end
@@ -76,7 +82,9 @@ defmodule GalerieWeb.Components.Form do
   attr(:disabled, :boolean, default: false)
   attr(:rest, :global)
 
-  slot(:label, required: false)
+  slot(:label, required: false) do
+    attr(:class, :string, required: false)
+  end
 
   @class "block w-full bg-true-gray-100 rounded border-0 text-true-gray-900 ring-1 ring-inset ring-true-gray-500 placeholder:text-true-gray-400 focus:ring-2 focus:ring-inset focus:ring-pink-600 sm:text-sm sm:leading-6 group-[.has-errors]:ring-red-400 disabled:bg-true-gray-150 disabled:border-true-gray-300 text-true-gray-500"
   def text_input(%{field: _field} = assigns) do
@@ -84,7 +92,7 @@ defmodule GalerieWeb.Components.Form do
 
     ~H"""
     <.element name={@field.name} errors={@field.errors} class={@element_class}>
-      <:label>
+      <:label class={slot_attr(@label, :class, "")}>
         <%= render_slot(@label) %>
       </:label>
       <input type="text" id={@field.id} name={@field.name} value={@field.value} class={@class} disabled={@disabled} autocomplete={@autocomplete} onkeyup="event.preventDefault()" {@rest} />
@@ -113,7 +121,7 @@ defmodule GalerieWeb.Components.Form do
 
     ~H"""
     <.element name={@name} errors={@errors}>
-      <:label>
+      <:label class={slot_attr(@label, :class, "")}>
         <%= render_slot(@label) %>
       </:label>
       <%= Phoenix.HTML.Form.text_input(@form, @name, @attributes) %>
@@ -130,13 +138,15 @@ defmodule GalerieWeb.Components.Form do
   attr(:disabled, :boolean, default: false)
   attr(:rest, :global)
 
-  slot(:label, required: false)
+  slot(:label, required: false) do
+    attr(:class, :string, required: false)
+  end
 
   def radio_input(assigns) do
     ~H"""
     <.element name={@field.name} errors={@field.errors} class={@element_class} label_position={:below}>
       <input type="radio" id={@field.id} name={@field.name} checked={@value == (@field.value || "")} value={@value} class={@class} disabled={@disabled} {@rest} />
-      <:label>
+      <:label class={slot_attr(@label, :class, "")}>
         <%= render_slot(@label) %>
       </:label>
     </.element>
@@ -214,4 +224,7 @@ defmodule GalerieWeb.Components.Form do
 
   defp style_class(assigns, :style), do: Map.fetch!(@styles, Map.fetch!(assigns, :style))
   defp style_class(assigns, :size), do: Map.fetch!(@sizes, Map.fetch!(assigns, :size))
+
+  defp slot_attr([], _key, default), do: default
+  defp slot_attr([item | _], key, default), do: Map.get(item, key, default)
 end

@@ -1,6 +1,8 @@
 defmodule GalerieWeb.Components.Modals.EditPictures do
   use GalerieWeb, :live_component
 
+  alias Galerie.Albums
+  alias Galerie.Albums.Album
   alias Galerie.Form.Pictures.EditPicturesForm
 
   alias GalerieWeb.Components.Form
@@ -26,6 +28,7 @@ defmodule GalerieWeb.Components.Modals.EditPictures do
       socket
       |> assign(assigns)
       |> assign_selectable_list()
+      |> assign_albums()
 
     {:ok, socket}
   end
@@ -158,10 +161,13 @@ defmodule GalerieWeb.Components.Modals.EditPictures do
   defp add_to_album(assigns) do
     ~H"""
     <ul>
-      <%= for {_, album} <- @albums do %>
+      <%= for {_, album, path} <- @albums do %>
         <li class="border border-true-gray-300 border-b-0 py-1 pl-1 pr-2 last:border-b first:rounded-t-md last:rounded-b-md">
-          <Form.checkbox field={@form[:album_ids]} checked={album.id in @form[:album_ids].value} multiple={true} value={album.id} element_class="flex flex-row justify-between items-center">
-            <:label><%= album.name %></:label>
+          <Form.checkbox field={@form[:album_ids]} checked={album.id in @form[:album_ids].value} multiple={true} value={album.id} element_class="flex flex-row items-center">
+            <:label class="w-full flex justify-between">
+              <%= album.name %>
+              <div class="text-gray-500"><%= Enum.join(path, " / ") %></div>
+            </:label>
           </Form.checkbox>
         </li>
       <% end %>
@@ -205,6 +211,18 @@ defmodule GalerieWeb.Components.Modals.EditPictures do
       |> assign(:group_ids, group_ids)
       |> assign(:form, EditPicturesForm.new(%{group_ids: group_ids}))
     end)
+  end
+
+  defp assign_albums(socket) do
+    albums =
+      socket.assigns.current_user
+      |> Albums.get_user_albums()
+      |> Enum.map(fn %Album{id: id, folder_path: [_ | path]} = album ->
+        {id, album, Enum.map(path, & &1.name)}
+      end)
+      |> Enum.sort_by(fn {_, %Album{name: name}, _} -> name end)
+
+    assign(socket, :albums, albums)
   end
 
   defp block_label(:albums), do: gettext("Add to albums")

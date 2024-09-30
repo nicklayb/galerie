@@ -19,6 +19,33 @@ defmodule Galerie.Albums do
     |> Album.Query.with_picture_count()
     |> Ecto.Query.order_by([album: album], {:desc, album.updated_at})
     |> Repo.all()
+    |> Enum.map(&with_folder_path/1)
+  end
+
+  defp with_folder_path(%Album{} = album) do
+    folder_path = album_folder_path(album)
+    %Album{album | folder_path: folder_path}
+  end
+
+  def album_folder_path(%Album{album_folder_id: nil} = album), do: [album]
+  def album_folder_path(%AlbumFolder{parent_folder_id: nil} = album_folder), do: [album_folder]
+
+  def album_folder_path(%Album{} = album) do
+    parent_folder =
+      album
+      |> Ecto.assoc(:album_folder)
+      |> Repo.one()
+
+    [album | album_folder_path(parent_folder)]
+  end
+
+  def album_folder_path(%AlbumFolder{} = album_folder) do
+    parent_folder =
+      album_folder
+      |> Ecto.assoc(:parent_folder)
+      |> Repo.one()
+
+    [album_folder | album_folder_path(parent_folder)]
   end
 
   def attach_picture_groups_to_albums(album_ids, group_ids, options \\ []) do
