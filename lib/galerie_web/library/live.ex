@@ -38,7 +38,7 @@ defmodule GalerieWeb.Library.Live do
     folders: [],
     filters: [],
     selected_album: nil,
-    selected_album_id: nil
+    selected_album_id: nil,
     without_albums?: false
   }
 
