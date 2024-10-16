@@ -19,7 +19,6 @@ defmodule GalerieWeb.Library.Live do
   alias GalerieWeb.Components.Modal
   alias GalerieWeb.Components.Picture
   alias GalerieWeb.Components.Ui
-  alias GalerieWeb.Html
 
   alias Phoenix.LiveView.AsyncResult
 
@@ -40,6 +39,7 @@ defmodule GalerieWeb.Library.Live do
     filters: [],
     selected_album: nil,
     selected_album_id: nil
+    without_albums?: false
   }
 
   def mount(_params, _session, socket) do
@@ -168,7 +168,12 @@ defmodule GalerieWeb.Library.Live do
   end
 
   defp load_pictures(assigns) do
-    album_ids = List.wrap(assigns.selected_album_id)
+    album_ids =
+      if assigns.without_albums? do
+        :without_albums
+      else
+        List.wrap(assigns.selected_album_id)
+      end
 
     query_options = [
       {:album_ids, album_ids}

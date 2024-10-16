@@ -102,7 +102,7 @@
           <Icon.picture class="m-auto" width="15" height="15" />
         </Picture.selection_button>
       </Picture.selection_bar>
-      <Dropzone.render upload={@uploads.upload_pictures} class="overflow-y-hidden flex-1 h-full" id="libraryDropzone">
+      <Dropzone.render upload={@uploads.upload_pictures} current_user={@current_user} class="overflow-y-hidden flex-1 h-full" id="libraryDropzone">
         <div class="flex-1 h-full overflow-y-auto pr-2" id="library" phx-viewport-bottom={if @pictures.has_next_page and not @scroll_disabled, do: "scrolled-bottom"}>
           <%= case @pictures do %>
             <% %Page{results: pictures} -> %>

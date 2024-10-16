@@ -37,17 +37,20 @@ defmodule GalerieWeb.Router do
 
     live_session(:session,
       on_mount: [GalerieWeb.Hooks.Authenticated, GalerieWeb.Hooks.UrlUpdated],
-      layout: {GalerieWeb.Components.Layouts, :app},
       session: {GalerieWeb.Hooks.LiveSession, :session, []}
     ) do
       live("/", Library.Live)
+
+      scope("/settings", Settings) do
+        live("/access_links", AccessLinks.Index)
+        live("/users", Users.Index)
+      end
     end
   end
 
   scope("/", GalerieWeb) do
-    pipe_through([:browser])
+    pipe_through([:browser, :session_authenticated])
 
-    # TODO: This route should be secured through authentication
     get("/pictures/:id", Library.Controller, :get)
 
     get("/download", Library.Controller, :download)
