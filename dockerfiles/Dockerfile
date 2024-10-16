@@ -1,17 +1,17 @@
 # STEP 1 - Build release compiler container
-FROM elixir:1.16-alpine AS builder
+FROM elixir:1.16-slim AS builder
 
 ENV APP_NAME=galerie \
     APP_VERSION=0.1.0 \
     MIX_ENV=prod
 
 # Install build requirements
-RUN apk update && \
-    apk upgrade --no-cache && \
-    apk add --no-cache \
-            openssl-dev \
+RUN apt update && \
+    apt upgrade && \
+    apt install -y \
+            libssl-dev \
             make \
-            build-base \
+            build-essential \
             gcc \
             git \
             nodejs \
@@ -36,10 +36,10 @@ RUN mkdir -p /opt/build && \
     mix release && \
     cp -r _build/${MIX_ENV}/rel /opt/build
 
-FROM nboisvert/dcraw:latest as dcraw
+# FROM nboisvert/dcraw:latest as dcraw
 
 # STEP 2 - Build application container
-FROM alpine:3.20
+FROM ubuntu:24.10
 
 ARG APP_NAME
 ENV APP_NAME=${APP_NAME}
@@ -49,18 +49,18 @@ ENV ROOT_FOLDER=/opt
 WORKDIR ${ROOT_FOLDER}
 
 # Update kernel and install runtime dependencies
-RUN apk --no-cache update && \
-    apk --no-cache upgrade && \
-    apk --no-cache add bash openssl wget \
-            build-base \
+RUN apt update && \
+    apt upgrade && \
+    apt install -y bash openssl wget \
+            build-essential \
             gcc \
             imagemagick \
             exiftool \
-            jasper
+            dcraw
 
 # Copy the OTP binary from the build step
 COPY --from=builder /opt/build .
-COPY --from=dcraw /opt/dcraw/bin/dcraw/ /opt/bin/dcraw
+# COPY --from=dcraw /opt/dcraw/bin/dcraw/ /opt/bin/dcraw
 
 ENV PATH="/opt/bin/:${PATH}"
 
@@ -71,7 +71,7 @@ RUN chmod a+x /usr/local/bin/entrypoint.sh
 RUN mkdir ${ROOT_FOLDER}/logs
 
 # Create a non-root user
-RUN adduser -D galerie && \
+RUN useradd galerie && \
     chown -R galerie: ${ROOT_FOLDER}
 
 USER galerie
