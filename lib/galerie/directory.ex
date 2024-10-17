@@ -53,16 +53,18 @@ defmodule Galerie.Directory do
   end
 
   defp default(:thumbnail) do
-    Path.join(priv_dir(), "thumbnails")
+    Path.join(base_path(), "thumbnails")
   end
 
   defp default(:raw_converted) do
-    Path.join(priv_dir(), "raw_converted")
+    Path.join(base_path(), "raw_converted")
   end
 
   defp default(:upload) do
-    Path.join(priv_dir(), "uploads")
+    Path.join(base_path(), "uploads")
   end
+
+  defp base_path, do: Path.join(priv_dir(), "files")
 
   defp create_directory_if_missing(path) do
     path

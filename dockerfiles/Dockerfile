@@ -54,12 +54,11 @@ RUN apt update && \
     apt install -y bash openssl wget \
             build-essential \
             gcc \
-            imagemagick \
             exiftool \
             dcraw \
             inotify-tools \
-            oem-config \
-            jasper
+            libjpeg-dev \
+            libtiff-dev
 
 
 # Install ImageMagic 7
