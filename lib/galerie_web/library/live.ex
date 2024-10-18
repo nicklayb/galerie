@@ -193,7 +193,7 @@ defmodule GalerieWeb.Library.Live do
         socket,
         :modal,
         {GalerieWeb.Components.Modals.CreateAlbumFolder,
-         current_user: socket.assigns.current_user}
+         current_user: socket.assigns.current_user, current_folder_id: current_folder_id(socket)}
       )
 
     {:noreply, socket}
@@ -204,7 +204,8 @@ defmodule GalerieWeb.Library.Live do
       assign(
         socket,
         :modal,
-        {GalerieWeb.Components.Modals.CreateAlbum, current_user: socket.assigns.current_user}
+        {GalerieWeb.Components.Modals.CreateAlbum,
+         current_user: socket.assigns.current_user, current_folder_id: current_folder_id(socket)}
       )
 
     {:noreply, socket}
@@ -736,4 +737,16 @@ defmodule GalerieWeb.Library.Live do
   defp update_async_result(socket, key, function) do
     update(socket, key, &%AsyncResult{&1 | result: function.(&1.result)})
   end
+
+  defp current_folder_id(%{
+         assigns: %{
+           album_explorer: %AsyncResult{
+             result: %Galerie.Explorer{path: [current_folder_id | _]}
+           }
+         }
+       }) do
+    current_folder_id
+  end
+
+  defp current_folder_id(_), do: nil
 end

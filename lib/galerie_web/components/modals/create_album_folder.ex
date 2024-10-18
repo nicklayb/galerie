@@ -20,6 +20,7 @@ defmodule GalerieWeb.Components.Modals.CreateAlbumFolder do
       socket
       |> assign(assigns)
       |> assign_folders()
+      |> assign_form(%{parent_folder_id: Map.get(assigns, :current_folder_id)})
 
     {:ok, socket}
   end
