@@ -15,6 +15,7 @@ defmodule GalerieWeb.Library.Live do
   alias Galerie.Repo.Page
 
   alias GalerieWeb.Components.Dropzone
+  alias GalerieWeb.Components.FileExplorer
   alias GalerieWeb.Components.Icon
   alias GalerieWeb.Components.Modal
   alias GalerieWeb.Components.Picture
@@ -580,13 +581,14 @@ defmodule GalerieWeb.Library.Live do
   end
 
   @album_message ~w(album_created album_deleted album_updated)a
+  @album_folder_message ~w(album_folder_created album_folder_deleted album_folder_updated)a
   def handle_info(
         %Galerie.PubSub.Message{
           message: album_message
         },
         socket
       )
-      when album_message in @album_message do
+      when album_message in @album_message or album_message in @album_folder_message do
     socket = reload_explorer(socket)
 
     {:noreply, socket}
