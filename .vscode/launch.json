@@ -1,0 +1,17 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "type": "mix_task",
+        "name": "phoenix server",
+        "request": "launch",
+        "task": "phx.server",
+        "projectDir": "${workspaceRoot}",
+        "env": {
+          "ELS_ELIXIR_OPTS": "--name elixirls@localhost --cookie elixirls"
+        },
+        "exitAfterTaskReturns": false,
+        "debugAutoInterpretAllModules": false
+      }
+    ]
+  }

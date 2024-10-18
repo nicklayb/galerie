@@ -14,50 +14,49 @@
           </div>
         </div>
         <%= case @album_explorer do %>
-          <% %AsyncResult{result: %Galerie.Explorer{parent: parent, items: items}} -> %>
+          <% %AsyncResult{result: %Galerie.Explorer{} = explorer} -> %>
             <div>
-              <div class={Html.class("flex items-center px-2 py-1 rounded-md items-center", {is_nil(parent), "text-gray-400", "hover:bg-gray-200 cursor-pointer"})} phx-click={if not is_nil(parent), do: "album-explorer:back"}>
-                <Icon.left_chevron width="20" height="20" class="mr-1" /> <%= gettext("Back") %>
-              </div>
-              <Ui.list items={items}>
+              <FileExplorer.render explorer={explorer} on_back="album-explorer:back">
                 <:empty>
-                  <div class="text-gray-500 text-center py-1"><%= gettext("Folder empty") %></div>
+                  <Icon.left_chevron width="20" height="20" class="mr-1" /> <%= gettext("Back") %>
                 </:empty>
-                <:item :let={item}>
-                  <%= case item do %>
-                    <% {:branch, %Albums.AlbumFolder{id: id, name: name}} -> %>
-                      <div class="flex justify-between items-center group px-2 py-1 rounded-md hover:bg-gray-200 cursor-pointer" phx-click="album-explorer:enter" phx-value-id={id}>
-                        <div class="flex items-center ">
-                          <Icon.folder width="20" height="20" class="mr-1" />
-                          <%= name %>
-                        </div>
-                        <div class="flex items-center">
-                          <div class="ml-1 hidden group-hover:block group" phx-click="filter:edit-album-folder" phx-value-album_folder_id={id}>
-                            <Icon.gear width="22" height="22"/>
-                          </div>
-                          <Icon.right_chevron width="20" height="20" />
-                        </div>
+                <:branch :let={%Albums.AlbumFolder{id: id, name: name}}>
+                  <div class="flex justify-between items-center group px-2 py-1 rounded-md hover:bg-gray-200 cursor-pointer" phx-click="album-explorer:enter" phx-value-id={id}>
+                    <div class="flex items-center">
+                      <div class="pr-1 hidden group-hover:block group" phx-click="filter:edit-album-folder" phx-value-album_folder_id={id}>
+                        <Icon.gear width="20" height="20"/>
                       </div>
-                    <% {:leaf, %Albums.Album{id: id, name: name, hide_from_main_library: hide_from_main_library}} -> %>
-                      <div class={Html.class("flex px-2 py-1 items-center justify-between group rounded-md cursor-pointer", {@selected_album_id == id, "bg-gray-300", "hover:bg-gray-200"})} phx-click="album-explorer:set-active" phx-value-id={id}>
-                        <div class="flex itemx-center">
-                          <Icon.picture width="20" height="20" class="mr-1" />
-                          <%= name %>
-                        </div>
-                        <div class="flex items-center">
-                          <%= if hide_from_main_library do %>
-                            <div class="text-true-gray-400">
-                              <Icon.eye_disabled width="22" height="22" />
-                            </div>
-                          <% end %>
-                          <div class="ml-1 hidden group-hover:block group" phx-click="filter:edit-album" phx-value-album_id={id}>
-                            <Icon.gear width="22" height="22"/>
-                          </div>
-                        </div>
+                      <div class="pr-1 group-hover:hidden group" phx-click="filter:edit-album-folder" phx-value-album_folder_id={id}>
+                        <Icon.folder width="20" height="20" />
                       </div>
-                  <% end %>
-                </:item>
-              </Ui.list>
+                      <span class="truncate"><%= name %></span>
+                    </div>
+                    <div class="flex items-center">
+                      <Icon.right_chevron width="20" height="20" />
+                    </div>
+                  </div>
+                </:branch>
+                <:leaf :let={%Albums.Album{id: id, name: name, hide_from_main_library: hide_from_main_library}}>
+                  <div class={Html.class("flex px-2 py-1 items-center justify-between group rounded-md cursor-pointer", {@selected_album_id == id, "bg-gray-300", "hover:bg-gray-200"})} phx-click="album-explorer:set-active" phx-value-id={id}>
+                    <div class="flex itemx-center">
+                      <div class="pr-1 hidden group-hover:block group" phx-click="filter:edit-album" phx-value-album_id={id}>
+                        <Icon.gear width="20" height="20"/>
+                      </div>
+                      <div class="pr-1 group-hover:hidden group">
+                        <Icon.picture width="20" height="20" />
+                      </div>
+                      <%= name %>
+                    </div>
+                    <div class="flex items-center">
+                      <%= if hide_from_main_library do %>
+                        <div class="text-true-gray-400">
+                          <Icon.eye_disabled width="22" height="22" />
+                        </div>
+                      <% end %>
+                    </div>
+                  </div>
+                </:leaf>
+              </FileExplorer.render>
               <%= with %Album{id: id, name: name} <- @selected_album do %>
                 <div class="flex justify-between items-center px-3 py-1 mt-2 bg-pink-500 text-white rounded-full">
                   <div class="flex items-center">

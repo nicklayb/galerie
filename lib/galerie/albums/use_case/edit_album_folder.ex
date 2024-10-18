@@ -32,7 +32,7 @@ defmodule Galerie.Albums.UseCase.EditAlbumFolder do
   def after_run(%{album_folder: album_folder}, _options) do
     Galerie.PubSub.broadcast(
       {Galerie.Accounts.User, album_folder.user_id},
-      {:album_updated, album_folder}
+      {:album_folder_updated, album_folder}
     )
   end
 
