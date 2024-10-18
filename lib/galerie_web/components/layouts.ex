@@ -75,7 +75,7 @@ defmodule GalerieWeb.Components.Layouts do
     assigns = update(assigns, :class, fn class -> Html.class(@default_class, class) end)
 
     ~H"""
-    <Ui.link_local href={@path} class={Html.class(@class, {@active, "bg-pink-700 text-white", "text-true-gray-700 hover:bg-true-gray-200"})} data-active={if @active, do: "true", else: "false"}>
+    <Ui.link_local href={@path} class={Html.class(@class, {@active, "bg-pink-500 text-white", "text-true-gray-700 hover:bg-true-gray-200"})} data-active={if @active, do: "true", else: "false"}>
       <%= render_slot(@inner_block) %>
     </Ui.link_local>
     """
