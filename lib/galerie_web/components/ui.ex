@@ -113,4 +113,39 @@ defmodule GalerieWeb.Components.Ui do
     <% end %>
     """
   end
+
+  attr(:on_click, :string, required: true)
+  attr(:expanded, MapSet, required: true)
+  attr(:key, :string, required: true)
+
+  slot(:title, required: true) do
+    attr(:class, :string)
+  end
+
+  slot(:body, required: true)
+
+  def expandable(%{title: [title_assigns], key: key, expanded: expanded} = assigns) do
+    assigns =
+      assigns
+      |> assign(:expanded?, MapSet.member?(expanded, key))
+      |> assign(:title_class, Map.get(title_assigns, :class, ""))
+
+    ~H"""
+    <div class="">
+      <div class={Html.class("w-full cursor-pointer bg-gray-200 border-b border-b-gray-400 items-center flex flex-row py-1", @title_class)} phx-click={@on_click} phx-value-key={@key}>
+        <div class="flex">
+          <%= if @expanded? do %>
+            <Icon.down_chevron width="20" height="20"/>
+          <% else %>
+            <Icon.right_chevron width="20" height="20"/>
+          <% end %>
+        </div>
+        <%= render_slot(@title) %>
+      </div>
+      <%= if @expanded? do %>
+        <%= render_slot(@body) %>
+      <% end %>
+    </div>
+    """
+  end
 end

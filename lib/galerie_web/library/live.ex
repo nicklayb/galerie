@@ -40,7 +40,8 @@ defmodule GalerieWeb.Library.Live do
     filters: [],
     selected_album: nil,
     selected_album_id: nil,
-    without_albums?: false
+    without_albums?: false,
+    expanded_filters: MapSet.new(["albums"])
   }
 
   def mount(_params, _session, socket) do
@@ -187,6 +188,11 @@ defmodule GalerieWeb.Library.Live do
     |> Repo.Page.map_results(&SelectableList.new/1)
   end
 
+  def handle_event("filter-expand", %{"key" => key}, socket) do
+    socket = update(socket, :expanded_filters, &MapSet.Extra.toggle(&1, key))
+    {:noreply, socket}
+  end
+
   def handle_event("create-album-folder", _, socket) do
     socket =
       assign(
@@ -211,7 +217,7 @@ defmodule GalerieWeb.Library.Live do
     {:noreply, socket}
   end
 
-  def handle_event("album-explorer:enter", %{"id" => id}, socket) do
+  def handle_event("album-explorer:click", %{"type" => "branch", "id" => id}, socket) do
     socket =
       update_async_result(
         socket,
@@ -233,7 +239,7 @@ defmodule GalerieWeb.Library.Live do
     {:noreply, socket}
   end
 
-  def handle_event("album-explorer:set-active", %{"id" => id}, socket) do
+  def handle_event("album-explorer:click", %{"type" => "leaf", "id" => id}, socket) do
     {selected_album, selected_album_id} =
       if id == socket.assigns.selected_album_id do
         {nil, nil}
@@ -268,7 +274,11 @@ defmodule GalerieWeb.Library.Live do
     {:noreply, socket}
   end
 
-  def handle_event("filter:edit-album-folder", %{"album_folder_id" => album_folder_id}, socket) do
+  def handle_event(
+        "album-explorer:edit",
+        %{"type" => "branch", "id" => album_folder_id},
+        socket
+      ) do
     socket =
       assign(
         socket,
@@ -280,7 +290,7 @@ defmodule GalerieWeb.Library.Live do
     {:noreply, socket}
   end
 
-  def handle_event("filter:edit-album", %{"album_id" => album_id}, socket) do
+  def handle_event("album-explorer:edit", %{"type" => "leaf", "id" => album_id}, socket) do
     socket =
       assign(
         socket,

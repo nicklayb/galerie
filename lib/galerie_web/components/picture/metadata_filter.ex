@@ -1,4 +1,4 @@
-defmodule GalerieWeb.Components.Picture.Filter do
+defmodule GalerieWeb.Components.Picture.MetadataFilter do
   use GalerieWeb, :live_component
 
   alias GalerieWeb.Components.Multiselect
