@@ -26,6 +26,7 @@
               direnv
               inotify-tools
               unzip
+              gnumake
             ];
 
             shellHook = ''
