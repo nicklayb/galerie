@@ -1,4 +1,5 @@
 defmodule Galerie.Pictures do
+  alias Galerie.Pictures.PictureGroupsPerDate
   alias Galerie.Pictures.Picture
   alias Galerie.Pictures.PictureItem
   alias Galerie.Pictures.UseCase
@@ -162,5 +163,64 @@ defmodule Galerie.Pictures do
 
   def update_metadata_manually(group_id, params, options \\ []) do
     UseCase.UpdateMetadataManually.execute(%{group_id: group_id, params: params}, options)
+  end
+
+  def picture_groups_per_date(folder_id, date) do
+    PictureGroupsPerDate
+    |> Ecto.Query.where(
+      [picture_groups_per_date],
+      picture_groups_per_date.folder_id in ^List.wrap(folder_id)
+    )
+    |> then(fn query ->
+      if is_nil(date) do
+        query
+      else
+        Ecto.Query.where(
+          query,
+          [picture_groups_per_date],
+          picture_groups_per_date.date == ^date
+        )
+      end
+    end)
+    |> Repo.all()
+  end
+
+  def count_per_date(folder_id, date) do
+    Ecto.Query.from(group in Picture.Group, as: :group)
+    |> Ecto.Query.join(:inner, [group: group], main_picture in assoc(group, :main_picture),
+      as: :main_picture
+    )
+    |> Ecto.Query.join(
+      :inner,
+      [main_picture: main_picture],
+      metadata in assoc(main_picture, :metadata),
+      as: :metadata
+    )
+    |> Ecto.Query.where([group: group], group.folder_id in ^List.wrap(folder_id))
+    |> maybe_filter_by_date(date)
+    |> Ecto.Query.group_by([metadata: metadata], type(metadata.datetime_original, :date))
+    |> Ecto.Query.select(
+      [group: group, metadata: metadata],
+      {type(metadata.datetime_original, :date), count(group.id)}
+    )
+    |> Repo.all()
+    |> Enum.into(%{})
+    |> maybe_put_default(date)
+  end
+
+  defp maybe_put_default(map, nil), do: map
+
+  defp maybe_put_default(map, date) do
+    Map.put_new(map, date, 0)
+  end
+
+  defp maybe_filter_by_date(query, nil), do: query
+
+  defp maybe_filter_by_date(query, %Date{} = date) do
+    Ecto.Query.where(
+      query,
+      [metadata: metadata],
+      type(metadata.datetime_original, :date) == ^date
+    )
   end
 end

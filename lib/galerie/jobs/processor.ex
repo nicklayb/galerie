@@ -55,7 +55,7 @@ defmodule Galerie.Jobs.Processor do
 
   defp upsert_metadata(
          %Metadata{} = picture_metadata,
-         %Picture{id: picture_id} = picture,
+         %Picture{id: picture_id, folder_id: folder_id} = picture,
          exif_data
        ) do
     params = ExifToMetadata.parse(picture, exif_data)
@@ -63,6 +63,7 @@ defmodule Galerie.Jobs.Processor do
     picture_metadata
     |> Metadata.changeset(params)
     |> Repo.insert_or_update()
+    |> Result.tap(&enqueue_count_update(&1, folder_id))
     |> Result.log(
       &"[#{inspect(__MODULE__)}] [metadata] [#{&1.picture_id}] [processed]",
       &"[#{inspect(__MODULE__)}] [metadata] [#{picture_id}] [failed] #{inspect(&1)}"
@@ -81,6 +82,18 @@ defmodule Galerie.Jobs.Processor do
       &"[#{inspect(__MODULE__)}] [exif] [#{picture_id}] [failed] #{inspect(&1)}"
     )
   end
+
+  defp enqueue_count_update(
+         %Metadata{datetime_original: %NaiveDateTime{} = datetime_original},
+         folder_id
+       ) do
+    Galerie.Jobs.CountPictureGroupsPerDate.debounce(
+      folder_id,
+      NaiveDateTime.to_date(datetime_original)
+    )
+  end
+
+  defp enqueue_count_update(_, _), do: :noop
 
   defp extract_exif(%Picture{fullpath: fullpath, type: :jpeg}) do
     extract_exif(fullpath)

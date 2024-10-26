@@ -11,7 +11,8 @@ defmodule Galerie.Application do
         {Task.Supervisor, name: Galerie.MailerSupervisor},
         GalerieWeb.Telemetry,
         GalerieWeb.Endpoint,
-        Galerie.FileControl.Supervisor
+        Galerie.FileControl.Supervisor,
+        Galerie.TaskDebouncer
       ]
 
     Galerie.ObanRepo.Reporter.attach()

@@ -4,7 +4,7 @@ defmodule Galerie.Pictures.PictureGroupsPerDate do
   alias Galerie.Folders.Folder
   alias Galerie.Pictures.PictureGroupsPerDate
 
-  schema("picture_groupes_per_date") do
+  schema("picture_groups_per_date") do
     field(:date, :date)
     field(:count, :integer)
 

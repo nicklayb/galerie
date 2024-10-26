@@ -82,7 +82,8 @@ config :galerie, Oban,
     imports: Env.integer("GALERIE_QUEUE_IMPORTERS", 10),
     processors: Env.integer("GALERIE_QUEUE_PROCESSORS", 10),
     tiff_thumbnails: Env.integer("GALERIE_QUEUE_TIFF_THUMBNAILS", 3),
-    thumbnails: Env.integer("GALERIE_QUEUE_THUMBNAILS", 10)
+    thumbnails: Env.integer("GALERIE_QUEUE_THUMBNAILS", 10),
+    pictures_aggregation: Env.integer("GALERIE_PICTURE_AGGREGATION", 10)
   ]
 
 config :galerie, release_stage: release_stage
