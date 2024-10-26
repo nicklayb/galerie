@@ -1,4 +1,5 @@
 defmodule GalerieWeb.Library.Live do
+  alias GalerieWeb.Components.CalendarPicker
   use GalerieWeb, :live_view
 
   require Galerie.PubSub
@@ -50,6 +51,7 @@ defmodule GalerieWeb.Library.Live do
     socket =
       socket
       |> assign(@defaults)
+      |> assign(:calendar_state, CalendarPicker.new_state(Date.utc_today()))
       |> setup_upload()
       |> start_async(:load_folders, fn -> Folders.get_user_folders(current_user) end)
       |> start_async(:load_jobs, fn -> {true, Galerie.ObanRepo.pending_jobs()} end)
@@ -465,6 +467,12 @@ defmodule GalerieWeb.Library.Live do
   end
 
   def handle_event("validate_file", %{"_target" => _}, socket) do
+    {:noreply, socket}
+  end
+
+  def handle_event("calendar:" <> event, params, socket) do
+    socket = update(socket, :calendar_state, &CalendarPicker.handle_event(&1, event, params))
+
     {:noreply, socket}
   end
 

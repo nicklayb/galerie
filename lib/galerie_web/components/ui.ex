@@ -119,7 +119,7 @@ defmodule GalerieWeb.Components.Ui do
   attr(:key, :string, required: true)
 
   slot(:title, required: true) do
-    attr(:class, :string)
+    attr(:class, :any)
   end
 
   slot(:body, required: true)
