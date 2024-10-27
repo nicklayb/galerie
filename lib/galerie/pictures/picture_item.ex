@@ -52,6 +52,17 @@ defmodule Galerie.Pictures.PictureItem do
     Ecto.Query.where(query, [group], group.folder_id in ^folder_ids)
   end
 
+  def by_dates(query \\ from(), dates)
+  def by_dates(query, []), do: query
+
+  def by_dates(query, dates) do
+    Ecto.Query.where(
+      query,
+      [metadata: metadata],
+      type(metadata.datetime_original, :date) in ^dates
+    )
+  end
+
   def by_album_ids(query \\ from(), album_ids)
 
   def by_album_ids(query, []) do

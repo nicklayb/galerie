@@ -82,6 +82,9 @@ defmodule Galerie.Pictures do
       {:rating, ratings}, acc ->
         PictureItem.by_rating(acc, ratings)
 
+      {:dates, dates}, acc ->
+        PictureItem.by_dates(acc, dates)
+
       {metadata_filter, value}, acc when metadata_filter in @metadata_filter ->
         PictureItem.by_metadata(acc, metadata_filter, value)
 
@@ -95,7 +98,7 @@ defmodule Galerie.Pictures do
     Repo.fetch(Picture, picture_id)
   end
 
-  @spec get_picture(String.t()) :: Result.t(Picture.t(), :not_found)
+  @spec get_picture_by_path(String.t()) :: Result.t(Picture.t(), :not_found)
   def get_picture_by_path(path) do
     Repo.fetch_by(Picture, fullpath: path)
   end

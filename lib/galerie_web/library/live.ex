@@ -16,7 +16,6 @@ defmodule GalerieWeb.Library.Live do
   alias Galerie.Repo.Page
 
   alias GalerieWeb.Components.Dropzone
-  alias GalerieWeb.Components.FileExplorer
   alias GalerieWeb.Components.Icon
   alias GalerieWeb.Components.Modal
   alias GalerieWeb.Components.Picture
@@ -197,8 +196,11 @@ defmodule GalerieWeb.Library.Live do
         List.wrap(assigns.selected_album_id)
       end
 
+    dates = MapSet.to_list(assigns.calendar_state.highlighted_dates)
+
     query_options = [
-      {:album_ids, album_ids}
+      {:album_ids, album_ids},
+      {:dates, dates}
       | assigns.filters
     ]
 
@@ -488,7 +490,20 @@ defmodule GalerieWeb.Library.Live do
     {:noreply, socket}
   end
 
-  def handle_event("calendar:click", %{}, socket) do
+  def handle_event(
+        "calendar:click",
+        %{"ctrl_key" => ctrl_key, "date" => date},
+        socket
+      ) do
+    {:ok, date} = Ecto.Type.cast(:date, date)
+
+    socket =
+      update_calendar_highlighted_dates(
+        socket,
+        &CalendarPicker.toggle_date(&1, date, only?: not ctrl_key)
+      )
+
+    {:noreply, socket}
   end
 
   def handle_event("calendar:" <> event, params, socket) do
@@ -795,10 +810,16 @@ defmodule GalerieWeb.Library.Live do
   defp current_folder_id(_), do: nil
 
   defp update_heatmap(%{assigns: %{picture_count: picture_count}}, calendar_state) do
-    CalendarPicker.State.set_heatmap(calendar_state, picture_count)
+    CalendarPicker.put_heatmap(calendar_state, picture_count)
   end
 
   defp update_heatmap(_socket, calendar_state) do
     calendar_state
+  end
+
+  defp update_calendar_highlighted_dates(socket, function) do
+    socket
+    |> update(:calendar_state, function)
+    |> reload_pictures()
   end
 end

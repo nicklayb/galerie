@@ -1,5 +1,5 @@
 defmodule GalerieWeb.Components.CalendarPicker.State do
-  defstruct [:now, :date, :calendar, heatmap: %Galerie.Heatmap{}, highlighted_dates: []]
+  defstruct [:now, :date, :calendar, heatmap: %Galerie.Heatmap{}, highlighted_dates: MapSet.new()]
 
   alias Galerie.Heatmap
   alias GalerieWeb.Components.CalendarPicker.State
@@ -10,6 +10,22 @@ defmodule GalerieWeb.Components.CalendarPicker.State do
     %State{now: now}
     |> set_date(date)
     |> set_heatmap(Keyword.get(options, :heatmap, %Heatmap{}))
+  end
+
+  def toggle_only(%State{} = state, date) do
+    update_highlighted_dates(state, fn highlighted_dates ->
+      if MapSet.member?(highlighted_dates, date) do
+        MapSet.new()
+      else
+        MapSet.new([date])
+      end
+    end)
+  end
+
+  def toggle(%State{} = state, date) do
+    update_highlighted_dates(state, fn highlighted_dates ->
+      MapSet.Extra.toggle(highlighted_dates, date)
+    end)
   end
 
   def next_month(%State{date: date} = state) do
@@ -83,5 +99,9 @@ defmodule GalerieWeb.Components.CalendarPicker.State do
     start_of_month = %Date{date | day: 1}
     end_of_month = %Date{date | day: Date.days_in_month(date)}
     {start_of_month, end_of_month}
+  end
+
+  defp update_highlighted_dates(%State{highlighted_dates: highlighted_dates} = state, function) do
+    %State{state | highlighted_dates: function.(highlighted_dates)}
   end
 end

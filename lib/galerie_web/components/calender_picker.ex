@@ -18,6 +18,18 @@ defmodule GalerieWeb.Components.CalendarPicker do
     State.new(date, options)
   end
 
+  def put_heatmap(%State{} = state, %Galerie.Heatmap{} = heatmap) do
+    State.set_heatmap(state, heatmap)
+  end
+
+  def toggle_date(%State{} = state, date, options) do
+    if Keyword.fetch!(options, :only?) do
+      State.toggle_only(state, date)
+    else
+      State.toggle(state, date)
+    end
+  end
+
   def handle_event(%State{} = state, @back, _) do
     State.previous_month(state)
   end
@@ -75,8 +87,8 @@ defmodule GalerieWeb.Components.CalendarPicker do
       <%= for row <- @calendar.calendar do %>
         <div class="flex flex-row justify-between">
           <%= for %Date{day: day} = current_date <- row do %>
-            <div class={Html.class("relative flex-1 group text-center py-1 flex flex-col items-center", {not current_month?(@calendar.date, current_date), "text-gray-400"})}>
-              <div class="bg-gray-200 z-0 w-full h-full rounded-full absolute hidden group-hover:block"></div>
+            <div class={Html.class("relative flex-1 group text-center py-1 flex flex-col items-center", {not current_month?(@calendar.date, current_date), "text-gray-400"})} phx-click={@on_click} phx-value-date={current_date}>
+              <div class={Html.class("bg-gray-200 z-0 w-full h-full rounded-full absolute", {MapSet.member?(@calendar.highlighted_dates, current_date), "bg-pink-200 text-white", "hidden group-hover:block"})}></div>
               <span class={Html.class("z-5", {current_date == @calendar.now, "font-bold"})}><%= day %></span>
               <span class="h-1 z-1 bg-red-600 rounded-full" style={heatmap_style(Heatmap.get(@calendar.heatmap, current_date, 0))}></span>
             </div>
