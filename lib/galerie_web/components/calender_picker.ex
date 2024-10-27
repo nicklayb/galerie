@@ -87,8 +87,7 @@ defmodule GalerieWeb.Components.CalendarPicker do
       <%= for row <- @calendar.calendar do %>
         <div class="flex flex-row justify-between">
           <%= for %Date{day: day} = current_date <- row do %>
-            <div class={Html.class("relative flex-1 group text-center py-1 flex flex-col items-center", {not current_month?(@calendar.date, current_date), "text-gray-400"})} phx-click={@on_click} phx-value-date={current_date}>
-              <div class={Html.class("bg-gray-200 z-0 w-full h-full rounded-full absolute", {MapSet.member?(@calendar.highlighted_dates, current_date), "bg-pink-200 text-white", "hidden group-hover:block"})}></div>
+            <div class={Html.class("relative flex-1 group text-center py-1 flex flex-col items-center", [{not current_month?(@calendar.date, current_date), "text-gray-400"}, {MapSet.member?(@calendar.highlighted_dates, current_date), "bg-pink-200", "hover:bg-gray-200"}])} phx-click={@on_click} phx-value-date={current_date}>
               <span class={Html.class("z-5", {current_date == @calendar.now, "font-bold"})}><%= day %></span>
               <span class="h-1 z-1 bg-red-600 rounded-full" style={heatmap_style(Heatmap.get(@calendar.heatmap, current_date, 0))}></span>
             </div>
