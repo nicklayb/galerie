@@ -140,7 +140,9 @@ defmodule GalerieWeb.Library.Live do
     socket =
       socket
       |> assign(:picture_count, heatmap)
-      |> update(:calendar_state, &CalendarPicker.State.set_heatmap(&1, heatmap))
+      |> then(fn socket ->
+        update(socket, :calendar_state, &update_heatmap(socket, &1))
+      end)
 
     {:noreply, socket}
   end
@@ -487,7 +489,12 @@ defmodule GalerieWeb.Library.Live do
   end
 
   def handle_event("calendar:" <> event, params, socket) do
-    socket = update(socket, :calendar_state, &CalendarPicker.handle_event(&1, event, params))
+    socket =
+      update(socket, :calendar_state, fn calendar_state ->
+        calendar_state
+        |> CalendarPicker.handle_event(event, params)
+        |> then(&update_heatmap(socket, &1))
+      end)
 
     {:noreply, socket}
   end
@@ -783,4 +790,12 @@ defmodule GalerieWeb.Library.Live do
   end
 
   defp current_folder_id(_), do: nil
+
+  defp update_heatmap(%{assigns: %{picture_count: picture_count}}, calendar_state) do
+    CalendarPicker.State.set_heatmap(calendar_state, picture_count)
+  end
+
+  defp update_heatmap(_socket, calendar_state) do
+    calendar_state
+  end
 end
