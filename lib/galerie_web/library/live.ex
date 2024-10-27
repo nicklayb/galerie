@@ -488,6 +488,9 @@ defmodule GalerieWeb.Library.Live do
     {:noreply, socket}
   end
 
+  def handle_event("calendar:click", %{}, socket) do
+  end
+
   def handle_event("calendar:" <> event, params, socket) do
     socket =
       update(socket, :calendar_state, fn calendar_state ->
