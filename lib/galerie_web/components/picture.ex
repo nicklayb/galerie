@@ -90,7 +90,7 @@ defmodule GalerieWeb.Components.Picture do
     <div class={Html.class("relative transition cursor-pointer select-none group", {@checked, "scale-90"})} phx-click="picture-click" phx-value-picture_id={@picture.id} phx-value-index={@index}>
       <img class={Html.class("h-full max-h-72 w-full rounded-md shadow-md border-4 group object-cover", {@checked, "border-pink-500", "border-true-gray-300"})} src={~p(/pictures/#{@picture.id}?#{[type: "thumb"]})} />
 
-      <div class={Html.class("w-full h-full group-hover:bg-gray-500/40 transition p-4 absolute z-10 top-0", [{not @checked, "opacity-0 group-hover:opacity-100"}])}>
+      <div class={Html.class("w-full h-full group-hover:bg-gray-500/40 transition p-4 absolute z-1 top-0", [{not @checked, "opacity-0 group-hover:opacity-100"}])}>
         <Ui.select_marker checked={@checked}  on_select="select-picture" on_deselect="deselect-picture" phx-value-picture_id={@picture.id} phx-value-index={@index} />
       </div>
     </div>
