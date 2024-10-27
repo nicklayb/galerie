@@ -1,5 +1,5 @@
 # STEP 1 - Build release compiler container
-FROM elixir:1.16-slim AS builder
+FROM elixir:1.17-slim AS builder
 
 ENV APP_NAME=galerie \
     APP_VERSION=0.1.0 \
