@@ -1,7 +1,7 @@
 .PHONY: dev boot-db iex create-db docker-build docker-tag docker-push release-docker iex-server down clean deps setup
 
 DOCKER_REGISTRY=nboisvert
-DOCKER_TAG:=latest
+DOCKER_TAG=latest
 DOCKER_IMAGE=galerie:$(DOCKER_TAG)
 DOCKER_REMOTE_IMAGE=$(DOCKER_REGISTRY)/$(DOCKER_IMAGE)
 

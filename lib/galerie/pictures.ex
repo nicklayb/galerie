@@ -171,6 +171,11 @@ defmodule Galerie.Pictures do
       [picture_groups_per_date],
       picture_groups_per_date.folder_id in ^List.wrap(folder_id)
     )
+    |> Ecto.Query.group_by([picture_groups_per_date], picture_groups_per_date.date)
+    |> Ecto.Query.select(
+      [picture_groups_per_date],
+      {picture_groups_per_date.date, sum(picture_groups_per_date.count)}
+    )
     |> then(fn query ->
       if is_nil(date) do
         query

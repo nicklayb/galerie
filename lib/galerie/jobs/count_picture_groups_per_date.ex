@@ -65,7 +65,7 @@ defmodule Galerie.Jobs.CountPictureGroupsPerDate do
   def with_existing_records(records, date, folder_id) do
     folder_id
     |> Pictures.picture_groups_per_date(date)
-    |> Enum.reduce(records, fn %PictureGroupsPerDate{date: date}, acc ->
+    |> Enum.reduce(records, fn {date, _count}, acc ->
       Map.put_new(acc, date, 0)
     end)
   end
