@@ -120,11 +120,27 @@ defmodule GalerieWeb.Library.Live do
       socket
       |> assign(:folders, folders)
       |> then(fn socket ->
+        folder_ids = Enum.map(folders, & &1.id)
         assigns = socket.assigns
-        start_async(socket, :load_pictures, fn -> load_pictures(assigns) end)
+
+        socket
+        |> start_async(:load_pictures, fn -> load_pictures(assigns) end)
+        |> start_async(:load_picture_count, fn -> Pictures.count_per_date(folder_ids, nil) end)
       end)
 
     Enum.each(folders, &Galerie.PubSub.subscribe/1)
+
+    {:noreply, socket}
+  end
+
+  @heatmap_range 5
+  def handle_async(:load_picture_count, {:ok, counts}, socket) do
+    heatmap = Galerie.Heatmap.new(@heatmap_range, counts)
+
+    socket =
+      socket
+      |> assign(:picture_count, heatmap)
+      |> update(:calendar_state, &CalendarPicker.State.set_heatmap(&1, heatmap))
 
     {:noreply, socket}
   end

@@ -1,20 +1,16 @@
 defmodule GalerieWeb.Components.CalendarPicker.State do
-  defstruct [:now, :date, :calendar, :heat_map, :highlighted_dates]
+  defstruct [:now, :date, :calendar, heatmap: %Galerie.Heatmap{}, highlighted_dates: []]
 
+  alias Galerie.Heatmap
   alias GalerieWeb.Components.CalendarPicker.State
 
   def new(date, options \\ []) do
-    options
-    |> build()
-    |> set_date(date)
-  end
+    now = Keyword.get(options, :now, Date.utc_today())
 
-  defp build(options),
-    do: %State{
-      now: Keyword.get(options, :now, Date.utc_today()),
-      heat_map: Keyword.get(options, :heat_map, %{}),
-      highlighted_dates: Keyword.get(options, :highlighted_dates, [])
-    }
+    %State{now: now}
+    |> set_date(date)
+    |> set_heatmap(Keyword.get(options, :heatmap, %Heatmap{}))
+  end
 
   def next_month(%State{date: date} = state) do
     set_date(state, Date.shift(date, month: 1))
@@ -30,6 +26,18 @@ defmodule GalerieWeb.Components.CalendarPicker.State do
 
   def set_month(%State{date: %Date{} = date} = state, month) do
     set_date(state, %Date{date | month: month})
+  end
+
+  def set_heatmap(%State{date: %Date{} = date} = state, %Heatmap{} = heatmap) do
+    {start_of_month, end_of_month} = month_range(date)
+    month_range = Date.range(start_of_month, end_of_month)
+
+    heatmap =
+      Heatmap.filter(heatmap, fn key, _ ->
+        Enum.member?(month_range, key)
+      end)
+
+    %State{state | heatmap: heatmap}
   end
 
   defp set_date(%State{} = state, date) do
@@ -59,8 +67,7 @@ defmodule GalerieWeb.Components.CalendarPicker.State do
   end
 
   defp calendar_range(date) do
-    start_of_month = %Date{date | day: 1}
-    end_of_month = %Date{date | day: Date.days_in_month(date)}
+    {start_of_month, end_of_month} = month_range(date)
 
     diff_with_first_sunday = -Date.day_of_week(start_of_month, :sunday) + 1
 
@@ -70,5 +77,11 @@ defmodule GalerieWeb.Components.CalendarPicker.State do
     end_of_calendar = Date.add(end_of_month, diff_with_last_saturday)
 
     {start_of_calendar, end_of_calendar}
+  end
+
+  defp month_range(%Date{} = date) do
+    start_of_month = %Date{date | day: 1}
+    end_of_month = %Date{date | day: Date.days_in_month(date)}
+    {start_of_month, end_of_month}
   end
 end

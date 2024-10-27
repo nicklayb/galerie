@@ -21,9 +21,6 @@ defmodule GalerieWeb.Components.Modals.CreateAlbum do
       |> assign(assigns)
       |> assign_folders()
       |> assign_form(%{album_folder_id: Map.get(assigns, :current_folder_id)})
-      |> tap(fn k ->
-        IO.inspect(k.assigns)
-      end)
 
     {:ok, socket}
   end

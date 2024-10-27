@@ -1,4 +1,5 @@
 defmodule Galerie.Jobs.CountPictureGroupsPerDate do
+  alias Galerie.Folders.Folder
   alias Galerie.Pictures.PictureGroupsPerDate
   use Oban.Worker, queue: :pictures_aggregation
 
@@ -6,6 +7,7 @@ defmodule Galerie.Jobs.CountPictureGroupsPerDate do
   require Logger
 
   alias Galerie.Pictures
+  alias Galerie.Repo
 
   @debounce_key Galerie.Jobs.CountPictureGroupsPerDate
   @debounce_delay :timer.seconds(3)
@@ -15,6 +17,13 @@ defmodule Galerie.Jobs.CountPictureGroupsPerDate do
       {Galerie.Jobs.CountPictureGroupsPerDate, :enqueue, [folder_id, date]},
       timeout: @debounce_delay
     )
+  end
+
+  def enqueue_all do
+    Folder
+    |> Ecto.Query.select([folder], folder.id)
+    |> Repo.all()
+    |> Enum.each(&enqueue/1)
   end
 
   def enqueue(folder_id, date \\ nil) do
