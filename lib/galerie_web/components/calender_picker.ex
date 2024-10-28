@@ -70,14 +70,14 @@ defmodule GalerieWeb.Components.CalendarPicker do
       |> assign(:on_year_change, "#{event_prefix}:#{@year_changed}")
 
     ~H"""
-    <div class="flex flex-col py-2">
-      <div class="flex flex-row items-center">
-        <div class="w-30" phx-click={@on_back}><Icon.left_chevron width="20" height="20" /></div>
+    <div class="flex flex-col pb-2">
+      <div class="flex flex-row items-center bg-gray-100 border-b border-gray-300">
+        <.arrow on_click={@on_back} icon={:left_chevron} />
         <div class="flex flex-row flex-1">
           <.select id={@id} name="month" selected_value={@calendar.date.month} options={@months} on_change={@on_month_change} class="w-8/12"/>
           <.select id={@id} name="year" selected_value={@calendar.date.year} options={@years} on_change={@on_year_change} class="w-4/12"/>
         </div>
-        <div class="w-30" phx-click={@on_next}><Icon.right_chevron width="20" height="20" /></div>
+        <.arrow on_click={@on_next} icon={:right_chevron} />
       </div>
       <div class="flex flex-row justify-between">
         <%= for day <- @weekdays do %>
@@ -86,11 +86,8 @@ defmodule GalerieWeb.Components.CalendarPicker do
       </div>
       <%= for row <- @calendar.calendar do %>
         <div class="flex flex-row justify-between">
-          <%= for %Date{day: day} = current_date <- row do %>
-            <div class={Html.class("relative flex-1 group text-center py-1 flex flex-col items-center", [{not current_month?(@calendar.date, current_date), "text-gray-400"}, {MapSet.member?(@calendar.highlighted_dates, current_date), "bg-pink-200", "hover:bg-gray-200"}])} phx-click={@on_click} phx-value-date={current_date}>
-              <span class={Html.class("z-5", {current_date == @calendar.now, "font-bold"})}><%= day %></span>
-              <span class="h-1 z-1 bg-red-600 rounded-full" style={heatmap_style(Heatmap.get(@calendar.heatmap, current_date, 0))}></span>
-            </div>
+          <%= for %Date{} = current_date <- row do %>
+            <.day calendar={@calendar} current_date={current_date} on_click={@on_click} />
           <% end %>
         </div>
       <% end %>
@@ -98,9 +95,44 @@ defmodule GalerieWeb.Components.CalendarPicker do
     """
   end
 
+  @class "relative flex-1 group text-center py-1 flex flex-col items-center rounded-sm border border-transparent"
+  defp day(%{calendar: calendar, current_date: current_date} = assigns) do
+    off_month? = not current_month?(calendar.date, current_date)
+    highlighted? = MapSet.member?(calendar.highlighted_dates, current_date)
+
+    heatmap_style =
+      calendar.heatmap
+      |> Heatmap.get(current_date, 0)
+      |> heatmap_style()
+
+    assigns =
+      assigns
+      |> assign(:current_date?, current_date == calendar.now)
+      |> assign(:heatmap_style, heatmap_style)
+      |> assign(:class, @class)
+      |> update(:class, &Html.class(&1, {off_month?, "text-gray-400"}))
+      |> update(
+        :class,
+        &Html.class(&1, {highlighted?, "border-pink-400", "hover:border-gray-200"})
+      )
+
+    ~H"""
+    <div class={@class} phx-click={@on_click} phx-value-date={@current_date}>
+      <span class={Html.class("z-5", {@current_date?, "font-bold"})}><%= @current_date.day %></span>
+      <span class="h-1 z-1 bg-red-600 rounded-full" style={@heatmap_style}></span>
+    </div>
+    """
+  end
+
+  defp arrow(assigns) do
+    ~H"""
+    <div class="w-7 h-7 flex items-center justify-center hover:bg-gray-200" phx-click={@on_click}><Icon.icon icon={@icon} width="16" height="16" /></div>
+    """
+  end
+
   defp select(assigns) do
     ~H"""
-    <select class={Html.class("p-0", @class)} data-event={@on_change} phx-hook="Formless" id={"#{@id}:#{@name}"} name={@name}>
+    <select class={Html.class("p-0 pl-1 text-sm border-0 py-1 bg-gray-100 hover:bg-gray-200", @class)} data-event={@on_change} phx-hook="Formless" id={"#{@id}:#{@name}"} name={@name}>
       <%= for {label, value} <- @options do %>
         <option value={value} selected={@selected_value == value}><%= label %></option>
       <% end %>

@@ -27,7 +27,7 @@
                   highlighted={[(with %Album{id: id} <- @selected_album, do: id)]}
                 />
                 <%= with %Album{id: id, name: name} <- @selected_album do %>
-                  <div class="flex justify-between items-center px-3 py-1 mt-2 bg-pink-500 text-white rounded-full">
+                  <div class="flex justify-between items-center px-3 py-1 m-1 bg-pink-500 text-white rounded-lg">
                     <div class="flex items-center">
                       <Icon.picture width="20" height="20" />
                       <%= name %>
@@ -83,7 +83,7 @@
         </Picture.selection_button>
       </Picture.selection_bar>
       <Dropzone.render upload={@uploads.upload_pictures} current_user={@current_user} class="overflow-y-hidden flex-1 h-full" id="libraryDropzone">
-        <div class="flex-1 h-full overflow-y-auto pr-2" id="library" phx-viewport-bottom={if @pictures.has_next_page and not @scroll_disabled, do: "scrolled-bottom"}>
+        <div class="flex-1 h-full overflow-y-auto px-2" id="library" phx-viewport-bottom={if @pictures.has_next_page and not @scroll_disabled, do: "scrolled-bottom"}>
           <%= case @pictures do %>
             <% %Page{results: pictures} -> %>
               <Picture.grid pictures={pictures} filter_selected={@filter_selected} />

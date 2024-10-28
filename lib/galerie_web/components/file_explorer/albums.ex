@@ -19,7 +19,7 @@ defmodule GalerieWeb.Components.FileExplorer.Albums do
           <Icon.left_chevron width="20" height="20" class="mr-1" /> <%= gettext("Back") %>
         </:empty>
         <:branch :let={%Albums.AlbumFolder{id: id, name: name}}>
-          <div class={Html.class("flex justify-between items-center group px-2 py-1 rounded-md cursor-pointer", {id in @highlighted, "bg-gray-300", "hover:bg-gray-200"})} phx-click={@on_click} phx-value-type="branch" phx-value-id={id}>
+          <div class={Html.class("flex justify-between items-center group px-2 py-1 cursor-pointer", {id in @highlighted, "bg-gray-300", "hover:bg-gray-200"})} phx-click={@on_click} phx-value-type="branch" phx-value-id={id}>
             <.label 
               on_edit={@on_edit}
               record_id={id}
@@ -33,7 +33,7 @@ defmodule GalerieWeb.Components.FileExplorer.Albums do
           </div>
         </:branch>
         <:leaf :let={%Albums.Album{id: id, name: name, hide_from_main_library: hide_from_main_library}}>
-          <div class={Html.class("flex px-2 py-1 items-center justify-between group rounded-md cursor-pointer", {id in @highlighted, "bg-gray-300", "hover:bg-gray-200"})} phx-click={@on_click} phx-value-type="leaf" phx-value-id={id}>
+          <div class={Html.class("flex px-2 py-1 items-center justify-between group cursor-pointer", {id in @highlighted, "bg-gray-300", "hover:bg-gray-200"})} phx-click={@on_click} phx-value-type="leaf" phx-value-id={id}>
             <.label 
               on_edit={@on_edit}
               record_id={id}

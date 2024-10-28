@@ -10,7 +10,7 @@ defmodule GalerieWeb.Authentication.Controller do
   alias Galerie.Accounts.User
   alias GalerieWeb.Authentication
 
-  action_fallback(Error.Controller)
+  action_fallback(GalerieWeb.Error.Controller)
 
   def login(conn, _params) do
     render(conn, "login.html", changeset: login_changeset())

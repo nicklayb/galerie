@@ -1,11 +1,10 @@
 defmodule Galerie.Jobs.CountPictureGroupsPerDate do
-  alias Galerie.Folders.Folder
-  alias Galerie.Pictures.PictureGroupsPerDate
   use Oban.Worker, queue: :pictures_aggregation
 
   require Ecto.Query
   require Logger
 
+  alias Galerie.Folders.Folder
   alias Galerie.Pictures
   alias Galerie.Repo
 

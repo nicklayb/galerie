@@ -37,7 +37,7 @@ defmodule GalerieWeb.Components.Form do
 
   attr(:field, :any, required: true)
   attr(:value, :any, required: true)
-  attr(:element_class, :string, default: "")
+  attr(:element_class, :string, default: "flex flex-row mb-3 items-center")
   attr(:multiple, :boolean, default: false)
   attr(:checked, :boolean, required: true)
 

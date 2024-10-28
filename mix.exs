@@ -41,7 +41,7 @@ defmodule Galerie.MixProject do
   defp deps do
     [
       {:argon2_elixir, "~> 4.0"},
-      {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
+      {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:ecto_sql, "~> 3.7"},
       {:esbuild, "~> 0.2", runtime: Mix.env() == :dev},
       {:file_system, "~> 0.0"},

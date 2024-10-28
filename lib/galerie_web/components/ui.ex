@@ -131,8 +131,8 @@ defmodule GalerieWeb.Components.Ui do
       |> assign(:title_class, Map.get(title_assigns, :class, ""))
 
     ~H"""
-    <div class="">
-      <div class={Html.class("w-full cursor-pointer bg-gray-200 border-b border-b-gray-400 items-center flex flex-row py-1", @title_class)} phx-click={@on_click} phx-value-key={@key}>
+    <div class="last:border-b last:border-b-gray-400 border-t border-t-gray-400">
+      <div class={Html.class("w-full cursor-pointer bg-gray-200 items-center flex flex-row py-1", @title_class)} phx-click={@on_click} phx-value-key={@key}>
         <div class="flex">
           <%= if @expanded? do %>
             <Icon.down_chevron width="20" height="20"/>

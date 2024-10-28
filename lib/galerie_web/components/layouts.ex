@@ -70,6 +70,10 @@ defmodule GalerieWeb.Components.Layouts do
   @default_class "p-3 rounded-lg font-bold mb-2"
   attr(:class, :string, default: "")
   attr(:active, :boolean, default: false)
+  attr(:title, :string, required: true)
+  attr(:path, :string, required: true)
+
+  slot(:inner_block, required: true)
 
   defp settings_nav_item(assigns) do
     assigns = update(assigns, :class, fn class -> Html.class(@default_class, class) end)
