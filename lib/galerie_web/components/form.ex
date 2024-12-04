@@ -37,7 +37,7 @@ defmodule GalerieWeb.Components.Form do
 
   attr(:field, :any, required: true)
   attr(:value, :any, required: true)
-  attr(:element_class, :string, default: "flex flex-row mb-3 items-center")
+  attr(:element_class, :string, default: "")
   attr(:multiple, :boolean, default: false)
   attr(:checked, :boolean, required: true)
 
@@ -45,9 +45,15 @@ defmodule GalerieWeb.Components.Form do
     attr(:class, :string, required: false)
   end
 
+  @classes "flex flex-row mb-3 items-center"
+
   def checkbox(assigns) do
     name = multiple_name(assigns)
-    assigns = assign(assigns, :name, name)
+
+    assigns =
+      assigns
+      |> assign(:name, name)
+      |> update(:element_class, &Html.class(@classes, &1))
 
     ~H"""
     <.element name={@field.name} errors={@field.errors} class={@element_class} multiple={@multiple} label_position={:below}>

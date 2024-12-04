@@ -56,7 +56,7 @@ defmodule GalerieWeb.Components.CalendarPicker do
       |> years()
       |> Enum.map(&{&1, &1})
 
-    months = Enum.with_index(months())
+    months = Enum.with_index(months(), 1)
 
     assigns =
       assigns
@@ -95,7 +95,7 @@ defmodule GalerieWeb.Components.CalendarPicker do
     """
   end
 
-  @class "relative flex-1 group text-center py-1 flex flex-col items-center rounded-sm border border-transparent"
+  @class "relative flex-1 group text-center py-1 flex flex-col items-center rounded-md border-2"
   defp day(%{calendar: calendar, current_date: current_date} = assigns) do
     off_month? = not current_month?(calendar.date, current_date)
     highlighted? = MapSet.member?(calendar.highlighted_dates, current_date)
@@ -110,10 +110,12 @@ defmodule GalerieWeb.Components.CalendarPicker do
       |> assign(:current_date?, current_date == calendar.now)
       |> assign(:heatmap_style, heatmap_style)
       |> assign(:class, @class)
-      |> update(:class, &Html.class(&1, {off_month?, "text-gray-400"}))
       |> update(
         :class,
-        &Html.class(&1, {highlighted?, "border-pink-400", "hover:border-gray-200"})
+        &Html.class(&1, [
+          {off_month?, "text-gray-400"},
+          {highlighted?, "border-pink-400", "border-transparent hover:border-gray-200"}
+        ])
       )
 
     ~H"""

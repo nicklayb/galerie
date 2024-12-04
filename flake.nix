@@ -9,7 +9,7 @@
         let
           pkgs = import nixpkgs {
             inherit system;
-            permittedInsecurePackages = [
+            config.permittedInsecurePackages = [
               "dcraw-9.28.0"
             ];
           };

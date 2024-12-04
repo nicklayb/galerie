@@ -132,7 +132,7 @@ defmodule GalerieWeb.Components.Picture.Viewer do
     <div class="z-50 fixed flex flex-row top-0 left-0 w-screen h-screen bg-gray-800/90 fade-in transition-all" data-on-window-keyup={@on_keyup} phx-hook="Keyup" id="viewerWrapper">
       <div class="flex-1 flex flex-row text-white text-lg">
         <.side_arrow disabled={not @has_previous} icon={:left_chevron} on_keyup={@on_keyup} key="ArrowLeft"/>
-        <div class="py-2"><img class="h-full m-auto" src={~p(/pictures/#{@picture.id})} /></div>
+        <div class="py-2 content-center"><img class="h-auto w-auto max-w-full max-h-full m-auto" src={~p(/pictures/#{@picture.id})} /></div>
         <.side_arrow disabled={not @has_next} icon={:right_chevron} on_keyup={@on_keyup} key="ArrowRight"/>
       </div>
       <.info_panel
