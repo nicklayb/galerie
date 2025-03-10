@@ -1,10 +1,9 @@
 defmodule GalerieWeb.Components.FileExplorer.Albums do
-  use Phoenix.Component
+  use GalerieWeb, :component
   alias Galerie.Albums
   alias GalerieWeb.Html
   alias GalerieWeb.Components.FileExplorer
   alias GalerieWeb.Components.Icon
-  import GalerieWeb.Gettext
 
   attr(:explorer, Galerie.Explorer, required: true)
   attr(:on_back, :string, required: true)

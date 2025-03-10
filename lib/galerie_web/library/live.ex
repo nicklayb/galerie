@@ -1,5 +1,4 @@
 defmodule GalerieWeb.Library.Live do
-  alias GalerieWeb.Components.CalendarPicker
   use GalerieWeb, :live_view
 
   require Galerie.PubSub
@@ -15,6 +14,7 @@ defmodule GalerieWeb.Library.Live do
   alias Galerie.Repo
   alias Galerie.Repo.Page
 
+  alias GalerieWeb.Components.CalendarPicker
   alias GalerieWeb.Components.Dropzone
   alias GalerieWeb.Components.Icon
   alias GalerieWeb.Components.Modal
@@ -22,8 +22,6 @@ defmodule GalerieWeb.Library.Live do
   alias GalerieWeb.Components.Ui
 
   alias Phoenix.LiveView.AsyncResult
-
-  import GalerieWeb.Gettext
 
   @picture_viewer_id "pictureViewer"
   @picture_filter_id "pictureFilter"

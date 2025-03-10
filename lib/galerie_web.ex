@@ -24,11 +24,28 @@ defmodule GalerieWeb do
     end
   end
 
+  def component do
+    quote do
+      use Phoenix.Component
+
+      unquote(view_helpers())
+    end
+  end
+
+  def controller do
+    quote do
+      use Phoenix.Controller,
+        namespace: GalerieWeb
+
+      unquote(view_helpers())
+    end
+  end
+
   defp view_helpers do
     quote do
       use GalerieWeb.Components.Routes
 
-      import GalerieWeb.Gettext
+      use GalerieWeb.Gettext
 
       require Galerie.PubSub
       require Logger

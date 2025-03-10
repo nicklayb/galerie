@@ -1,10 +1,8 @@
 defmodule GalerieWeb.Authentication.View do
-  use Phoenix.Component
-  use GalerieWeb.Components.Routes
-  import GalerieWeb.Gettext
+  use GalerieWeb, :component
+
   alias GalerieWeb.Components.Form
   alias GalerieWeb.Components.Layouts
-  alias Phoenix.HTML.Form, as: PhoenixForm
 
   embed_templates("templates/*")
 

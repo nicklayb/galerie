@@ -1,9 +1,5 @@
 defmodule GalerieWeb.Components.Picture do
-  use Phoenix.Component
-
-  use GalerieWeb.Components.Routes
-
-  import GalerieWeb.Gettext
+  use GalerieWeb, :component
 
   alias Galerie.Pictures.PictureItem
   alias GalerieWeb.Components.Form

@@ -1,5 +1,5 @@
 defmodule GalerieWeb.Components.Form do
-  use Phoenix.Component
+  use GalerieWeb, :component
   alias GalerieWeb.Html
 
   attr(:name, :atom, required: true)
@@ -87,6 +87,7 @@ defmodule GalerieWeb.Components.Form do
   attr(:autocomplete, :string, default: "")
   attr(:disabled, :boolean, default: false)
   attr(:rest, :global)
+  attr(:type, :string, default: "text")
 
   slot(:label, required: false) do
     attr(:class, :string, required: false)
@@ -101,36 +102,7 @@ defmodule GalerieWeb.Components.Form do
       <:label class={slot_attr(@label, :class, "")}>
         <%= render_slot(@label) %>
       </:label>
-      <input type="text" id={@field.id} name={@field.name} value={@field.value} class={@class} disabled={@disabled} autocomplete={@autocomplete} onkeyup="event.preventDefault()" {@rest} />
-    </.element>
-    """
-  end
-
-  def text_input(%{rest: rest, class: class, form: form, name: name} = assigns) do
-    classes = Html.class(@class, class)
-
-    errors =
-      form
-      |> Map.get(:errors, [])
-      |> Enum.filter(fn {key, _} -> key == name end)
-      |> Keyword.values()
-
-    assigns =
-      rest
-      |> Enum.into([])
-      |> Keyword.put(:class, classes)
-      |> then(&assign(assigns, :attributes, &1))
-      |> then(fn assigns ->
-        update(assigns, :attributes, &Keyword.put(&1, :autocomplete, assigns.autocomplete))
-      end)
-      |> assign(:errors, errors)
-
-    ~H"""
-    <.element name={@name} errors={@errors}>
-      <:label class={slot_attr(@label, :class, "")}>
-        <%= render_slot(@label) %>
-      </:label>
-      <%= Phoenix.HTML.Form.text_input(@form, @name, @attributes) %>
+      <input type={@type} id={@field.id} name={@field.name} value={@field.value} class={@class} disabled={@disabled} autocomplete={@autocomplete} onkeyup="event.preventDefault()" {@rest} />
     </.element>
     """
   end

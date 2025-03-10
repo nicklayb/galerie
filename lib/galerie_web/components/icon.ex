@@ -1,5 +1,5 @@
 defmodule GalerieWeb.Components.Icon do
-  use Phoenix.Component
+  use GalerieWeb, :component
   alias GalerieWeb.Html
 
   def icon(%{icon: icon} = assigns) do

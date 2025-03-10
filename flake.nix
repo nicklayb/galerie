@@ -27,6 +27,8 @@
               inotify-tools
               unzip
               gnumake
+              just
+              nodejs_22
             ];
 
             shellHook = ''

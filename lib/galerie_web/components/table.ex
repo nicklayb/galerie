@@ -1,10 +1,9 @@
 defmodule GalerieWeb.Components.Table do
-  use Phoenix.Component
+  use GalerieWeb, :component
 
   alias Galerie.Repo.Page
   alias GalerieWeb.Html
   alias Phoenix.LiveView.AsyncResult
-  import GalerieWeb.Gettext
 
   def render(assigns) do
     ~H"""

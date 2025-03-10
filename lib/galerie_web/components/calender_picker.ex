@@ -1,7 +1,5 @@
 defmodule GalerieWeb.Components.CalendarPicker do
-  use Phoenix.Component
-
-  import GalerieWeb.Gettext
+  use GalerieWeb, :component
 
   alias Galerie.Heatmap
   alias GalerieWeb.Components.CalendarPicker.State

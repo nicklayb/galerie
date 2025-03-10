@@ -1,16 +1,13 @@
-.PHONY: dev boot-db iex create-db docker-build docker-tag docker-push release-docker iex-server down clean deps setup
+docker_registry := "nboisvert"
+docker_tag := "latest"
+docker_image := "galerie" + ":" + docker_tag
+docker_remote_image := docker_registry / docker_image
 
-DOCKER_REGISTRY=nboisvert
-DOCKER_TAG=latest
-DOCKER_IMAGE=galerie:$(DOCKER_TAG)
-DOCKER_REMOTE_IMAGE=$(DOCKER_REGISTRY)/$(DOCKER_IMAGE)
+default: dev
 
-setup: asdf-install boot-docker deps setup-assets create-db reset-db
+setup: boot-docker deps setup-assets create-db reset-db
 
 dev: boot-docker create-db iex-server
-
-asdf-install:
-	asdf install
 
 setup-assets:
 	npm install --prefix assets

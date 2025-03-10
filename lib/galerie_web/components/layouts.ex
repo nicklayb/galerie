@@ -1,11 +1,8 @@
 defmodule GalerieWeb.Components.Layouts do
-  use Phoenix.Component
-  use GalerieWeb.Components.Routes
+  use GalerieWeb, :component
   alias GalerieWeb.Components.Icon
   alias GalerieWeb.Components.Ui
   alias GalerieWeb.Html
-
-  import GalerieWeb.Gettext
 
   embed_templates("layouts/*")
 

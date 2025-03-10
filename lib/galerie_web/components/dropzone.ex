@@ -1,5 +1,5 @@
 defmodule GalerieWeb.Components.Dropzone do
-  use Phoenix.Component
+  use GalerieWeb, :component
 
   attr(:id, :any, required: true)
   attr(:upload, :any, required: true)

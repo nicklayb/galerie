@@ -1,5 +1,5 @@
 defmodule GalerieWeb.Components.Multiselect.Options do
-  import GalerieWeb.Gettext
+  use GalerieWeb.Gettext
 
   alias Galerie.Pictures
   alias Galerie.Pictures.Picture.Group

@@ -1,5 +1,5 @@
 defmodule GalerieWeb.Gettext.Picture do
-  import GalerieWeb.Gettext
+  use GalerieWeb.Gettext
 
   def translate_filter(:ratings), do: gettext("Ratings")
   def translate_filter(:lens_models), do: gettext("Lens models")

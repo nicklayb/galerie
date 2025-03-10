@@ -1,5 +1,5 @@
 defmodule GalerieWeb.Components.Ui do
-  use Phoenix.Component
+  use GalerieWeb, :component
 
   alias GalerieWeb.Components.Icon
   alias GalerieWeb.Html

@@ -1,5 +1,5 @@
 defmodule GalerieWeb.Gettext.Jobs do
-  import GalerieWeb.Gettext
+  use GalerieWeb.Gettext
   @domain "jobs"
 
   def translate_job_state(:retryable), do: dgettext(@domain, "Retryable")

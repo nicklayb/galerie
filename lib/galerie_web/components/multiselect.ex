@@ -1,6 +1,5 @@
 defmodule GalerieWeb.Components.Multiselect do
-  use Phoenix.Component
-  import GalerieWeb.Gettext
+  use GalerieWeb, :component
 
   alias GalerieWeb.Components.Multiselect.State, as: MultiselectState
 

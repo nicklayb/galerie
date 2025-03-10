@@ -1,10 +1,5 @@
 defmodule GalerieWeb.Authentication.Controller do
-  use Phoenix.Controller,
-    namespace: GalerieWeb
-
-  use GalerieWeb.Components.Routes
-
-  import GalerieWeb.Gettext
+  use GalerieWeb, :controller
 
   alias Galerie.Accounts
   alias Galerie.Accounts.User

@@ -1,9 +1,9 @@
 defmodule Galerie.Mailer do
   use Swoosh.Mailer, otp_app: :galerie
   use GalerieWeb.Components.Routes
+  use GalerieWeb.Gettext
   import Swoosh.Email
 
-  import GalerieWeb.Gettext
   alias Galerie.Accounts.User
 
   @task_supervisor_name Galerie.MailerSupervisor

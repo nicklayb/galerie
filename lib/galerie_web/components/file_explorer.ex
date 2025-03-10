@@ -1,7 +1,5 @@
 defmodule GalerieWeb.Components.FileExplorer do
-  use Phoenix.Component
-
-  import GalerieWeb.Gettext
+  use GalerieWeb, :component
 
   alias GalerieWeb.Components.Icon
   alias GalerieWeb.Components.Ui
