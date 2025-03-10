@@ -41,7 +41,7 @@ defmodule Galerie.MixProject do
   defp deps do
     [
       {:argon2_elixir, "~> 4.0"},
-      {:box, git: "https://github.com/nicklayb/box_ex.git", tag: "0.13.1"},
+      {:box, git: "https://github.com/nicklayb/box_ex.git", tag: "0.13.3"},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:ecto_sql, "~> 3.10"},
       {:esbuild, "~> 0.2", runtime: Mix.env() == :dev},

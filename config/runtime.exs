@@ -1,99 +1,24 @@
 import Config
 
-defmodule Env do
-  def get(key, default \\ nil), do: System.get_env(key, default)
-
-  def get!(key) do
-    case System.get_env(key) do
-      nil -> raise "Expected #{key} to be defined, got `#{nil}`"
-      value -> value
-    end
-  end
-
-  def uri(key, default \\ "") do
-    key
-    |> get(default)
-    |> URI.parse()
-  end
-
-  def integer(key, default \\ nil) do
-    key
-    |> get("")
-    |> Integer.parse()
-    |> then(fn
-      {integer, _} -> integer
-      _ -> default
-    end)
-  end
-
-  def boolean(key, default) do
-    key
-    |> get(default)
-    |> then(&(&1 == "true"))
-  end
-
-  def atom(key, default) do
-    key
-    |> get(default)
-    |> String.to_existing_atom()
-  end
-
-  def list!(key, splitter \\ "|") do
-    key
-    |> get!()
-    |> String.split(splitter)
-  end
-
-  def list(key, default, splitter \\ "|") do
-    key
-    |> get(default)
-    |> String.split(splitter)
-    |> then(fn
-      [] -> []
-      [""] -> []
-      other -> other
-    end)
-  end
-
-  def atom(key, valid_atoms, default) do
-    env_value = get(key, default)
-
-    value =
-      Enum.reduce_while(valid_atoms, nil, fn atom, _ ->
-        if env_value == to_string(atom) do
-          {:halt, atom}
-        else
-          {:cont, nil}
-        end
-      end)
-
-    if is_nil(value) do
-      raise "Expected #{key} to be a value in #{inspect(valid_atoms)}, got: #{env_value}"
-    else
-      value
-    end
-  end
-end
-
-release_stage = Env.get("RELEASE_STAGE", to_string(config_env()))
+release_stage = Box.Config.get("RELEASE_STAGE", default: to_string(config_env()))
 
 config :galerie, Oban,
   queues: [
-    imports: Env.integer("GALERIE_QUEUE_IMPORTERS", 10),
-    processors: Env.integer("GALERIE_QUEUE_PROCESSORS", 10),
-    tiff_thumbnails: Env.integer("GALERIE_QUEUE_TIFF_THUMBNAILS", 3),
-    thumbnails: Env.integer("GALERIE_QUEUE_THUMBNAILS", 10),
-    pictures_aggregation: Env.integer("GALERIE_PICTURE_AGGREGATION", 10)
+    imports: Box.Config.int("GALERIE_QUEUE_IMPORTERS", default: "10"),
+    processors: Box.Config.int("GALERIE_QUEUE_PROCESSORS", default: "10"),
+    tiff_thumbnails: Box.Config.int("GALERIE_QUEUE_TIFF_THUMBNAILS", default: "3"),
+    thumbnails: Box.Config.int("GALERIE_QUEUE_THUMBNAILS", default: "10"),
+    pictures_aggregation: Box.Config.int("GALERIE_PICTURE_AGGREGATION", default: "10")
   ]
 
 config :galerie, release_stage: release_stage
 
-config :logger, level: Env.atom("LOGGER_LEVEL", "info")
+config :logger, level: Box.Config.atom("LOGGER_LEVEL", default: "info")
 
-db_hostname = Env.get("DB_HOST", "localhost")
-db_name = Env.get("DB_NAME", "galerie")
-db_user = Env.get("DB_USER", "postgres")
-db_pass = Env.get("DB_PASS", "postgres")
+db_hostname = Box.Config.get("DB_HOST", default: "localhost")
+db_name = Box.Config.get("DB_NAME", default: "galerie", test: "galerie_test")
+db_user = Box.Config.get("DB_USER", default: "postgres")
+db_pass = Box.Config.get("DB_PASS", default: "postgres")
 
 config :galerie, Galerie.Repo,
   hostname: db_hostname,
@@ -102,30 +27,25 @@ config :galerie, Galerie.Repo,
   password: db_pass
 
 config :galerie, Galerie.ObanRepo,
-  hostname: Env.get("OBAN_DB_HOST", db_hostname),
-  database: Env.get("OBAN_DB_NAME", "#{db_name}_oban"),
-  username: Env.get("OBAN_DB_USER", db_user),
-  password: Env.get("OBAN_DB_PASS", db_pass)
-
-if config_env() == :test do
-  config :galerie, Galerie.Repo, database: "galerie_test"
-  config :galerie, Galerie.ObanRepo, database: "galerie_oban_test"
-end
+  hostname: Box.Config.get("OBAN_DB_HOST", default: db_hostname),
+  database: Box.Config.get("OBAN_DB_NAME", default: "#{db_name}_oban", test: "galerie_oban_test"),
+  username: Box.Config.get("OBAN_DB_USER", default: db_user),
+  password: Box.Config.get("OBAN_DB_PASS", default: db_pass)
 
 config :galerie, Galerie.Accounts.User.Password,
-  enforce_rules: Env.boolean("ENFORCE_PASSWORD_RULES", "true")
+  enforce_rules: Box.Config.bool("ENFORCE_PASSWORD_RULES", default: "true")
 
-app_host = Env.uri("APP_HOST", "http://localhost:4000")
-port = Env.integer("PORT", 4000)
+app_host = Box.Config.uri("APP_HOST", default: "http://localhost:4000")
+port = Box.Config.int("PORT", default: "4000")
 
 config :galerie, GalerieWeb.Endpoint,
   http: [port: port],
   url: [host: app_host.host, scheme: app_host.scheme, port: app_host.port],
-  secret_key_base: Env.get!("SECRET_KEY_BASE"),
-  live_view: [signing_salt: Env.get!("LIVE_VIEW_SALT")]
+  secret_key_base: Box.Config.get!("SECRET_KEY_BASE"),
+  live_view: [signing_salt: Box.Config.get!("LIVE_VIEW_SALT")]
 
 mailer_from =
-  case String.split(Env.get!("MAILER_FROM"), "|", parts: 2) do
+  case String.split(Box.Config.get!("MAILER_FROM"), "|", parts: 2) do
     [email_address] -> email_address
     [email_address, name] -> {email_address, name}
   end
@@ -133,15 +53,15 @@ mailer_from =
 config :galerie, Galerie.Mailer, mailer_from: mailer_from
 
 config :galerie, Galerie.FileControl.Supervisor,
-  enabled: Env.boolean("GALERIE_FILE_CONTROL", "false"),
-  folders: Env.list("GALERIE_FOLDERS", "")
+  enabled: Box.Config.bool("GALERIE_FILE_CONTROL", default: "false"),
+  folders: Box.Config.list("GALERIE_FOLDERS", default: "")
 
 config :galerie, Galerie.Directory,
-  thumbnail: Env.get("GALERIE_THUMBNAILS"),
-  raw_converted: Env.get("GALERIE_RAW_CONVERTED"),
-  upload: Env.get("GALERIE_UPLOADS")
+  thumbnail: Box.Config.get("GALERIE_THUMBNAILS", default: ""),
+  raw_converted: Box.Config.get("GALERIE_RAW_CONVERTED", default: ""),
+  upload: Box.Config.get("GALERIE_UPLOADS", default: "")
 
-case {config_env(), Env.get("MAILER_ADAPTER", "local")} do
+case {config_env(), Box.Config.get("MAILER_ADAPTER", default: "local")} do
   {:test, _} ->
     config :galerie, Galerie.Mailer, adapter: Swoosh.Adapters.Test
 
@@ -151,19 +71,27 @@ case {config_env(), Env.get("MAILER_ADAPTER", "local")} do
   {_, "smtp"} ->
     config :galerie, Galerie.Mailer,
       adapter: Swoosh.Adapters.SMTP,
-      relay: Env.get!("MAILER_SMTP_RELAY"),
-      username: Env.get!("MAILER_SMTP_USERNAME"),
-      password: Env.get!("MAILER_SMTP_PASSWORD"),
-      ssl: Env.boolean("MAILER_SMTP_SSL", true),
-      tls: Env.atom("MAILER_SMTP_TLS", ~w(always never if_available)a, "always"),
-      auth: Env.atom("MAILER_SMTP_AUTH", ~w(always never if_available)a, "always")
+      relay: Box.Config.get!("MAILER_SMTP_RELAY"),
+      username: Box.Config.get!("MAILER_SMTP_USERNAME"),
+      password: Box.Config.get!("MAILER_SMTP_PASSWORD"),
+      ssl: Box.Config.bool("MAILER_SMTP_SSL", default: "true"),
+      tls:
+        Box.Config.atom("MAILER_SMTP_TLS",
+          values: ~w(always never if_available)a,
+          default: "always"
+        ),
+      auth:
+        Box.Config.atom("MAILER_SMTP_AUTH",
+          values: ~w(always never if_available)a,
+          default: "always"
+        )
 end
 
 config :sentry,
-  dsn: Env.get("SENTRY_DSN"),
+  dsn: Box.Config.get("SENTRY_DSN", default: ""),
   environment_name: release_stage
 
-if Env.boolean("ENABLE_SENTRY", "true") do
+if Box.Config.bool("ENABLE_SENTRY", default: "true") do
   config :sentry, included_environments: [release_stage]
 else
   config :sentry, included_environments: []
