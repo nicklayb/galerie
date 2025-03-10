@@ -32,7 +32,7 @@ defmodule Galerie.Accounts.User do
     field(:password_confirmation, :string, virtual: true)
     field(:reset_password_token, :string)
 
-    field(:permissions, Galerie.Ecto.Types.BinaryFlags, flags: @permissions, default: [])
+    field(:permissions, Box.BinaryFlags.EctoType, flags: @permissions, default: [])
 
     field(:is_admin, :boolean)
 

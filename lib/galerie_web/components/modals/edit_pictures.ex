@@ -35,7 +35,7 @@ defmodule GalerieWeb.Components.Modals.EditPictures do
 
   def handle_event("edit_pictures:expand", %{"key" => key}, socket)
       when key in @expandable_block_strings do
-    socket = update(socket, :expanded, &MapSet.Extra.toggle(&1, String.to_existing_atom(key)))
+    socket = update(socket, :expanded, &Box.MapSet.toggle(&1, String.to_existing_atom(key)))
 
     {:noreply, socket}
   end

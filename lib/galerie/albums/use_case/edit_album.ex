@@ -8,7 +8,7 @@ defmodule Galerie.Albums.UseCase.EditAlbum do
 
   @impl Galerie.UseCase
   def validate(params, options) do
-    album_id = Map.Extra.get(params, :album_id)
+    album_id = Box.Map.get(params, :album_id)
 
     with {:ok, %Album{} = album} <-
            Galerie.Albums.get_album_belonging_to_user(album_id, Keyword.get(options, :user)) do

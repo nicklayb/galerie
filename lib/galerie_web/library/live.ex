@@ -203,13 +203,13 @@ defmodule GalerieWeb.Library.Live do
     ]
 
     assigns.folders
-    |> Enum.Extra.field(:id)
+    |> Box.Enum.field(:id)
     |> Pictures.list_pictures(query_options)
     |> Repo.Page.map_results(&SelectableList.new/1)
   end
 
   def handle_event("filter-expand", %{"key" => key}, socket) do
-    socket = update(socket, :expanded_filters, &MapSet.Extra.toggle(&1, key))
+    socket = update(socket, :expanded_filters, &Box.MapSet.toggle(&1, key))
     {:noreply, socket}
   end
 

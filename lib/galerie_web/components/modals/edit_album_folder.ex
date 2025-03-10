@@ -55,7 +55,7 @@ defmodule GalerieWeb.Components.Modals.EditAlbumFolder do
       case UseCase.execute(
              socket,
              Galerie.Albums.UseCase.EditAlbumFolder,
-             Map.Extra.put(params, :album_folder_id, socket.assigns.album_folder.id)
+             Box.Map.put(params, :album_folder_id, socket.assigns.album_folder.id)
            ) do
         {:ok, _result} ->
           send(self(), :close_modal)

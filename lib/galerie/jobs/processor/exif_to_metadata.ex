@@ -4,7 +4,7 @@ defmodule Galerie.Jobs.Processor.ExifToMetadata do
   @spec parse(Picture.t(), map()) :: map()
   def parse(%Picture{id: picture_id} = picture, picture_data) do
     exif = Map.get(picture_data, :exif, %{})
-    gps = Map.Extra.get_with_default(picture_data, :gps, %{})
+    gps = Box.Map.get_with_default(picture_data, :gps, %{})
 
     {orientation, height, width} = get_orientation(picture, picture_data)
 

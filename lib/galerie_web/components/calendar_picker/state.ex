@@ -24,7 +24,7 @@ defmodule GalerieWeb.Components.CalendarPicker.State do
 
   def toggle(%State{} = state, date) do
     update_highlighted_dates(state, fn highlighted_dates ->
-      MapSet.Extra.toggle(highlighted_dates, date)
+      Box.MapSet.toggle(highlighted_dates, date)
     end)
   end
 

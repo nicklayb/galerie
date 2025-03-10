@@ -14,13 +14,13 @@ defmodule Galerie.Albums.UseCase.AddToAlbum do
 
   @impl Galerie.UseCase
   def validate({%Album{} = album, [%Group{} | _] = groups}, _options) do
-    group_ids = Enum.Extra.field(groups, :id)
+    group_ids = Box.Enum.field(groups, :id)
 
     {:ok, {album, group_ids}}
   end
 
   def validate({%Album{} = album, [%Picture{} | _] = pictures}, _options) do
-    group_ids = Enum.Extra.field(pictures, :group_id)
+    group_ids = Box.Enum.field(pictures, :group_id)
     {:ok, {album, group_ids}}
   end
 

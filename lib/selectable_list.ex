@@ -162,7 +162,7 @@ defmodule SelectableList do
       when is_map_key(items, index) do
     %SelectableList{
       selectable_list
-      | selected_indexes: MapSet.Extra.toggle(selected_indexes, index),
+      | selected_indexes: Box.MapSet.toggle(selected_indexes, index),
         last_touched_index: index
     }
   end
@@ -170,7 +170,7 @@ defmodule SelectableList do
   def multiple_selected?(%SelectableList{selected_indexes: selected_indexes}) do
     selected_indexes
     |> MapSet.to_list()
-    |> List.Extra.at_least?(2)
+    |> Box.List.at_least?(2)
   end
 
   @type function_or_item :: (any() -> boolean()) | (any(), index() -> boolean()) | any()
