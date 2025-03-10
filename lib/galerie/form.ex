@@ -32,7 +32,7 @@ defmodule Galerie.Form do
       def submit(%Ecto.Changeset{} = changeset) do
         changeset
         |> Ecto.Changeset.apply_action(:insert)
-        |> Result.map(&post_submit/1)
+        |> Box.Result.map(&post_submit/1)
       end
 
       def submit(%{} = params) do

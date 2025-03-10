@@ -71,7 +71,7 @@ defmodule Galerie.Repo do
     %Page{page | results: function.(results)}
   end
 
-  defp to_result(record_or_nil), do: Result.from_nil(record_or_nil, :not_found)
+  defp to_result(record_or_nil), do: Box.Result.from_nil(record_or_nil, :not_found)
 
   def unwrap_transaction({:ok, result}, key), do: {:ok, Map.get(result, key)}
 

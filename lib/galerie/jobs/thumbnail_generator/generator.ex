@@ -13,9 +13,9 @@ defmodule Galerie.Jobs.ThumbnailGenerator.Generator do
     result =
       picture_id
       |> Pictures.get_picture()
-      |> Result.and_then(&convert_raw/1)
-      |> Result.and_then(&generate_thumbnail/1)
-      |> Result.tap(fn picture ->
+      |> Box.Result.and_then(&convert_raw/1)
+      |> Box.Result.and_then(&generate_thumbnail/1)
+      |> Box.Result.tap(fn picture ->
         Galerie.Jobs.Processor.enqueue(picture)
       end)
 
@@ -37,16 +37,18 @@ defmodule Galerie.Jobs.ThumbnailGenerator.Generator do
 
     picture
     |> Picture.path(:jpeg)
-    |> Result.succeed()
-    |> Result.and_then(&Image.open/1)
-    |> Result.and_then(&Image.thumbnail(&1, @thumbnail_size))
-    |> Result.and_then(&Image.write(&1, thumbnail_path))
-    |> Result.and_then(fn _ ->
+    |> Box.Result.succeed()
+    |> Box.Result.and_then(&Image.open/1)
+    |> Box.Result.and_then(&Image.thumbnail(&1, @thumbnail_size))
+    |> Box.Result.and_then(&Image.write(&1, thumbnail_path))
+    |> Box.Result.and_then(fn _ ->
       picture
       |> Picture.changeset(%{thumbnail: thumbnail_path})
       |> Repo.update()
-      |> Result.tap(&Galerie.PubSub.broadcast({Folder, &1.folder_id}, {:thumbnail_generated, &1}))
-      |> Result.log(
+      |> Box.Result.tap(
+        &Galerie.PubSub.broadcast({Folder, &1.folder_id}, {:thumbnail_generated, &1})
+      )
+      |> Box.Result.log(
         fn _ -> "[#{inspect(__MODULE__)}] [thumbnail] [#{picture.id}] [created]" end,
         &"[#{inspect(__MODULE__)}] [thumbnail] [#{picture.id}] [failed] #{inspect(&1)}"
       )

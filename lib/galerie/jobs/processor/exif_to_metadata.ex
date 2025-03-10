@@ -79,7 +79,7 @@ defmodule Galerie.Jobs.Processor.ExifToMetadata do
         [year, month, day, hour, minute, second]
         |> Enum.map(&String.to_integer/1)
         |> then(&apply(NaiveDateTime, :new, &1))
-        |> Result.with_default(nil)
+        |> Box.Result.with_default(nil)
         |> format_date_time(timezone)
 
       _ ->

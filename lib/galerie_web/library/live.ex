@@ -98,7 +98,7 @@ defmodule GalerieWeb.Library.Live do
 
       path
       |> copy_file(destination)
-      |> Result.tap(fn destination ->
+      |> Box.Result.tap(fn destination ->
         Importer.enqueue(destination, socket.assigns.current_user.folder)
       end)
     else

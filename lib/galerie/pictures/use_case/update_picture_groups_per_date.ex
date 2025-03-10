@@ -15,7 +15,7 @@ defmodule Galerie.Pictures.UseCase.UpdatePictureGroupsPerDate do
         picture_groups_per_date.date == ^date and picture_groups_per_date.folder_id == ^folder_id
       )
       |> repo.one()
-      |> Result.succeed()
+      |> Box.Result.succeed()
     end)
     |> Ecto.Multi.put(:count, count)
     |> Ecto.Multi.run(:updated_picture_groups_per_date, fn

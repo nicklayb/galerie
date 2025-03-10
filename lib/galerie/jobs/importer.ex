@@ -37,12 +37,12 @@ defmodule Galerie.Jobs.Importer do
           folder_id: folder_id
         }
         |> Pictures.insert_picture()
-        |> Result.tap(&Galerie.PubSub.broadcast(Picture, {:imported, &1}))
-        |> Result.log(
+        |> Box.Result.tap(&Galerie.PubSub.broadcast(Picture, {:imported, &1}))
+        |> Box.Result.log(
           &"[#{inspect(__MODULE__)}] [imported] [#{&1.id}] [#{&1.type}] #{path}",
           &"[#{inspect(__MODULE__)}] [not imported] #{inspect(&1)}"
         )
-        |> Result.tap(fn %Picture{} = picture ->
+        |> Box.Result.tap(fn %Picture{} = picture ->
           enqueue_post_steps(picture)
         end)
 

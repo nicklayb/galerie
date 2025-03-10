@@ -10,7 +10,7 @@ defmodule Galerie.Downloader do
   to make the zip file's path more simpler. The zip is generated in memory then
   the temporary are deleted.
   """
-  @spec download([Picture.t()], Picture.path_type()) :: Result.t(binary(), any())
+  @spec download([Picture.t()], Picture.path_type()) :: Box.Result.t(binary(), any())
   def download(pictures, type) do
     unique_id = Ecto.UUID.generate()
     temporary_folder = create_temporary_folder(unique_id)
@@ -19,7 +19,7 @@ defmodule Galerie.Downloader do
 
     zip_name
     |> :zip.create(moved_files, [:memory])
-    |> Result.map(fn
+    |> Box.Result.map(fn
       {_, binary} -> binary
     end)
     |> tap(fn _ -> File.rm_rf!(temporary_folder) end)

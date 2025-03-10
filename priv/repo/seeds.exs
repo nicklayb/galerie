@@ -15,13 +15,13 @@ defmodule Seed do
 
     Accounts.UseCase.CreateUser
     |> execute(params)
-    |> Result.unwrap!()
+    |> Box.Result.unwrap!()
   end
 
   def create_album_folder(user, name, parent_folder_id \\ nil) do
     Albums.UseCase.CreateAlbumFolder
     |> execute(%{name: name, parent_folder_id: parent_folder_id}, user)
-    |> Result.unwrap!()
+    |> Box.Result.unwrap!()
   end
 
   def create_album(user, albums, attributes \\ %{})
@@ -33,7 +33,7 @@ defmodule Seed do
   def create_album(user, album_name, attributes) do
     Albums.UseCase.CreateAlbum
     |> execute(Map.merge(attributes, %{name: album_name}), user)
-    |> Result.unwrap!()
+    |> Box.Result.unwrap!()
   end
 
   defp execute(use_case, params, user \\ :system) do

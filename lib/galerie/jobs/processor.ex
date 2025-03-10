@@ -41,8 +41,8 @@ defmodule Galerie.Jobs.Processor do
     exif =
       picture
       |> extract_exif()
-      |> Result.map(&normalize/1)
-      |> Result.with_default(%{})
+      |> Box.Result.map(&normalize/1)
+      |> Box.Result.with_default(%{})
 
     upsert_exif(picture_exif, picture, exif)
     upsert_metadata(picture_metadata, picture, exif)
@@ -63,8 +63,8 @@ defmodule Galerie.Jobs.Processor do
     picture_metadata
     |> Metadata.changeset(params)
     |> Repo.insert_or_update()
-    |> Result.tap(&enqueue_count_update(&1, folder_id))
-    |> Result.log(
+    |> Box.Result.tap(&enqueue_count_update(&1, folder_id))
+    |> Box.Result.log(
       &"[#{inspect(__MODULE__)}] [metadata] [#{&1.picture_id}] [processed]",
       &"[#{inspect(__MODULE__)}] [metadata] [#{picture_id}] [failed] #{inspect(&1)}"
     )
@@ -76,8 +76,8 @@ defmodule Galerie.Jobs.Processor do
     picture_exif
     |> Exif.changeset(%{picture_id: picture_id, exif: exif})
     |> Repo.insert_or_update()
-    |> Result.tap(&Galerie.PubSub.broadcast({Folder, folder_id}, {:processed, &1}))
-    |> Result.log(
+    |> Box.Result.tap(&Galerie.PubSub.broadcast({Folder, folder_id}, {:processed, &1}))
+    |> Box.Result.log(
       &"[#{inspect(__MODULE__)}] [exif] [#{&1.picture_id}] [processed]",
       &"[#{inspect(__MODULE__)}] [exif] [#{picture_id}] [failed] #{inspect(&1)}"
     )

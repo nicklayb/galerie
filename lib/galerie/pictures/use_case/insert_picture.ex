@@ -39,14 +39,14 @@ defmodule Galerie.Pictures.UseCase.InsertPicture do
        ) do
     Group
     |> repo.get_by(group_name: group_name)
-    |> Result.from_nil()
-    |> Result.with_default(fn ->
-        %{group_name: group_name, name: name, folder_id: folder_id}
-        |> Group.changeset()
-        |> repo.insert!()
+    |> Box.Result.from_nil()
+    |> Box.Result.with_default(fn ->
+      %{group_name: group_name, name: name, folder_id: folder_id}
+      |> Group.changeset()
+      |> repo.insert!()
     end)
     |> repo.preload([:main_picture])
-    |> Result.succeed()
+    |> Box.Result.succeed()
   end
 
   defp put_main_picture_id(repo, %{
@@ -54,9 +54,9 @@ defmodule Galerie.Pictures.UseCase.InsertPicture do
          picture: %Picture{id: picture_id} = picture
        }) do
     if is_nil(main_picture_id) or prioritized?(picture, picture_group.main_picture) do
-    picture_group
-    |> Group.main_picture_changeset(%{main_picture_id: picture_id})
-    |> repo.update()
+      picture_group
+      |> Group.main_picture_changeset(%{main_picture_id: picture_id})
+      |> repo.update()
     else
       {:ok, picture_group}
     end

@@ -15,13 +15,13 @@ defmodule Galerie.Ports.Autoraw do
   @type option :: {:quality, non_neg_integer()}
 
   # TODO: Figure a way to ensure the Autoraw scripts are killed with the Elixir app.
-  @spec execute(String.t(), String.t(), [option()]) :: Result.t(String.t(), any())
+  @spec execute(String.t(), String.t(), [option()]) :: Box.Result.t(String.t(), any())
   def execute(input, output, options \\ []) do
     quality = Keyword.fetch!(options, :quality)
 
     __MODULE__
     |> GenServer.start_link(input: input, output: output, quality: quality)
-    |> Result.and_then(fn pid ->
+    |> Box.Result.and_then(fn pid ->
       :started = GenServer.call(pid, :execute)
 
       await_completion(pid, output)

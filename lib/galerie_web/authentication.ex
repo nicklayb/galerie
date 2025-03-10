@@ -25,7 +25,7 @@ defmodule GalerieWeb.Authentication do
   def get_session(%Plug.Conn{} = plug) do
     plug
     |> Plug.Conn.get_session(@session_key)
-    |> Result.from_nil()
+    |> Box.Result.from_nil()
   end
 
   def get_session(session), do: Map.fetch(session, @session_key)

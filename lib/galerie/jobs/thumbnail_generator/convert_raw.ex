@@ -11,12 +11,12 @@ defmodule Galerie.Jobs.ThumbnailGenerator.ConvertRaw do
 
     fullpath
     |> autoraw(output_path, quality)
-    |> Result.log(
+    |> Box.Result.log(
       fn _ -> "[#{inspect(__MODULE__)}] [autoraw] [#{picture.id}] [created]" end,
       &"[#{inspect(__MODULE__)}] [autoraw] [#{picture.id}] [failed] #{inspect(&1)}"
     )
-    |> Result.and_then(&update_picture(&1, picture))
-    |> Result.log(
+    |> Box.Result.and_then(&update_picture(&1, picture))
+    |> Box.Result.log(
       fn _ -> "[#{inspect(__MODULE__)}] [converted_jpeg] [#{picture.id}] [updated]" end,
       &"[#{inspect(__MODULE__)}] [converted_jpeg] [#{picture.id}] [failed] #{inspect(&1)}"
     )
@@ -26,7 +26,7 @@ defmodule Galerie.Jobs.ThumbnailGenerator.ConvertRaw do
     picture
     |> Picture.changeset(%{converted_jpeg: converted_jpeg})
     |> Repo.update()
-    |> Result.tap(&Galerie.PubSub.broadcast(Picture, {:raw_converted, &1}))
+    |> Box.Result.tap(&Galerie.PubSub.broadcast(Picture, {:raw_converted, &1}))
   end
 
   defp autoraw(input, output, quality) do

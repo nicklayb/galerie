@@ -127,7 +127,7 @@ defmodule Galerie.UseCase do
       {%User{} = user, _} ->
         user
         |> User.can?(permission)
-        |> Result.from_boolean(user, :unauthorized)
+        |> Box.Result.from_boolean(user, :unauthorized)
     end
   end
 end

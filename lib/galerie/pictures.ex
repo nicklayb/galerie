@@ -93,12 +93,12 @@ defmodule Galerie.Pictures do
     end)
   end
 
-  @spec get_picture(String.t()) :: Result.t(Picture.t(), :not_found)
+  @spec get_picture(String.t()) :: Box.Result.t(Picture.t(), :not_found)
   def get_picture(picture_id) do
     Repo.fetch(Picture, picture_id)
   end
 
-  @spec get_picture_by_path(String.t()) :: Result.t(Picture.t(), :not_found)
+  @spec get_picture_by_path(String.t()) :: Box.Result.t(Picture.t(), :not_found)
   def get_picture_by_path(path) do
     Repo.fetch_by(Picture, fullpath: path)
   end
@@ -136,7 +136,7 @@ defmodule Galerie.Pictures do
     |> Picture.Query.by_ids()
     |> Ecto.Query.select([picture], {picture.type, picture.fullpath, picture.converted_jpeg})
     |> Repo.fetch_one()
-    |> Result.map(fn
+    |> Box.Result.map(fn
       {:tiff, _, converted_jpeg} -> converted_jpeg
       {:jpeg, fullpath, _} -> fullpath
     end)

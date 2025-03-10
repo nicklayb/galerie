@@ -55,7 +55,7 @@ defmodule Galerie.Albums.UseCase.RemoveFromAlbum do
     params
     |> relation_query()
     |> Repo.exists?()
-    |> Result.from_boolean(:found, :not_found)
+    |> Box.Result.from_boolean(:found, :not_found)
   end
 
   @types %{group_id: :binary_id, album_id: :binary_id}
