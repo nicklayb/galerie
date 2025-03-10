@@ -6,8 +6,8 @@ ENV APP_NAME=galerie \
     MIX_ENV=prod
 
 # Install build requirements
-RUN apt update && \
-    apt upgrade && \
+RUN apt update -y && \
+    apt upgrade -y && \
     apt install -y \
             libssl-dev \
             make \
@@ -49,8 +49,8 @@ ENV ROOT_FOLDER=/opt
 WORKDIR ${ROOT_FOLDER}
 
 # Update kernel and install runtime dependencies
-RUN apt update && \
-    apt upgrade && \
+RUN apt update -y && \
+    apt upgrade -y && \
     apt install -y bash openssl wget \
             build-essential \
             gcc \

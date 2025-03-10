@@ -46,7 +46,7 @@ defmodule Galerie.FileControl.Watcher do
       ) do
     Logger.debug("[#{inspect(__MODULE__)}] [#{inspect(events)}] #{path}")
 
-    if new_file_event?(events) do
+    if new_file_event?(events) and not invisible_file?(path) do
       enqueue_importer(path, folder)
     end
 
@@ -81,6 +81,13 @@ defmodule Galerie.FileControl.Watcher do
   def terminate(reason, %{folder: %Folder{path: path}}) do
     Logger.info("[#{inspect(__MODULE__)}] [#{path}] [stopped] #{reason}")
     :ok
+  end
+
+  defp invisible_file?(path) do
+    case Path.basename(path) do
+      "." <> _ -> true
+      _ -> false
+    end
   end
 
   defp new_file_event?(events) do

@@ -1,5 +1,5 @@
 docker_registry := "nboisvert"
-docker_tag := "latest"
+docker_tag := "box"
 docker_image := "galerie" + ":" + docker_tag
 docker_remote_image := docker_registry / docker_image
 
@@ -46,13 +46,13 @@ iex-server:
 	iex -S mix phx.server
 
 docker-build:
-	docker build -f ./dockerfiles/Dockerfile -t $(DOCKER_IMAGE) .
+	docker build -f ./dockerfiles/Dockerfile -t {{docker_image}} .
 
 docker-tag:
-	docker tag $(DOCKER_IMAGE) $(DOCKER_REMOTE_IMAGE)
+	docker tag {{docker_image}} {{docker_remote_image}}
 
 docker-push:
-	docker push $(DOCKER_REMOTE_IMAGE)
+	docker push {{docker_remote_image}}
 
 release-docker: docker-build docker-tag docker-push
 
