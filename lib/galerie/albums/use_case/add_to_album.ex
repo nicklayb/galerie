@@ -12,7 +12,7 @@ defmodule Galerie.Albums.UseCase.AddToAlbum do
   alias Galerie.Pictures.Picture.Group
   alias Galerie.Repo
 
-  @impl Galerie.UseCase
+  @impl Box.UseCase
   def validate({%Album{} = album, [%Group{} | _] = groups}, _options) do
     group_ids = Box.Enum.field(groups, :id)
 
@@ -28,7 +28,7 @@ defmodule Galerie.Albums.UseCase.AddToAlbum do
     {:ok, {album, List.wrap(group_ids)}}
   end
 
-  @impl Galerie.UseCase
+  @impl Box.UseCase
   def run(multi, {%Album{id: album_id} = album, group_ids}, _options) do
     %Album{groups: groups} = Repo.preload(album, :groups)
 
@@ -47,7 +47,7 @@ defmodule Galerie.Albums.UseCase.AddToAlbum do
     end)
   end
 
-  @impl Galerie.UseCase
+  @impl Box.UseCase
   def return(_, options) do
     {%Album{id: album_id}, _} = Keyword.fetch!(options, :params)
 

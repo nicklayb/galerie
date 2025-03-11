@@ -4,7 +4,7 @@ defmodule Galerie.Pictures.UseCase.UpdateRating do
   alias Galerie.Folders.Folder
   alias Galerie.Pictures.Picture.Group
 
-  @impl Galerie.UseCase
+  @impl Box.UseCase
   def run(multi, %{group_id: group_id, rating: rating}, _options) do
     multi
     |> Ecto.Multi.run(:group, fn repo, _ ->
@@ -16,12 +16,12 @@ defmodule Galerie.Pictures.UseCase.UpdateRating do
     end)
   end
 
-  @impl Galerie.UseCase
+  @impl Box.UseCase
   def after_run(%{updated_group: %Group{folder_id: folder_id} = group}, _) do
     Galerie.PubSub.broadcast({Folder, folder_id}, {:rating_updated, group})
   end
 
-  @impl Galerie.UseCase
+  @impl Box.UseCase
   def return(%{updated_group: group}, _) do
     group
   end

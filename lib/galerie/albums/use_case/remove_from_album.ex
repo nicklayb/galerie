@@ -10,7 +10,7 @@ defmodule Galerie.Albums.UseCase.RemoveFromAlbum do
   alias Galerie.Pictures.Picture.Group
   alias Galerie.Repo
 
-  @impl Galerie.UseCase
+  @impl Box.UseCase
   def validate(params, _options) do
     with {:ok, casted_params} <- validate_params(params),
          {:ok, :found} <- validate_existence(casted_params) do
@@ -18,7 +18,7 @@ defmodule Galerie.Albums.UseCase.RemoveFromAlbum do
     end
   end
 
-  @impl Galerie.UseCase
+  @impl Box.UseCase
   def run(multi, %{album_id: album_id, group_id: group_id} = params, _options) do
     multi
     |> Ecto.Multi.delete_all(:album_picture_group, relation_query(params))
@@ -26,7 +26,7 @@ defmodule Galerie.Albums.UseCase.RemoveFromAlbum do
     |> Ecto.Multi.put(:album_id, album_id)
   end
 
-  @impl Galerie.UseCase
+  @impl Box.UseCase
   def after_run(%{album_id: album_id, group_id: group_id}, _options) do
     Galerie.PubSub.broadcast({Album, album_id}, fn ->
       {:removed_from_album, %{album: load_album(album_id), group: Repo.get(Group, group_id)}}

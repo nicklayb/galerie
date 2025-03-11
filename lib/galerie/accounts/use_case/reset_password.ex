@@ -8,18 +8,18 @@ defmodule Galerie.Accounts.UseCase.ResetPassword do
 
   alias Galerie.Accounts.User
 
-  @impl Galerie.UseCase
+  @impl Box.UseCase
   def run(multi, %User{} = user, _options) do
     Ecto.Multi.update(multi, :user, User.reset_password_changeset(user))
   end
 
-  @impl Galerie.UseCase
+  @impl Box.UseCase
   def after_run(%{user: user}, _options) do
     Galerie.Mailer.deliver_async(fn ->
       Galerie.Mailer.reset_password(user)
     end)
   end
 
-  @impl Galerie.UseCase
+  @impl Box.UseCase
   def return(%{user: user}, _options), do: user
 end

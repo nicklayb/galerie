@@ -17,7 +17,7 @@ defmodule Galerie.Folders do
         folder
 
       _ ->
-        UseCase.CreateFolder.execute!(folder_path, options)
+        Galerie.UseCase.execute!(UseCase.CreateFolder, folder_path, options)
     end
   end
 end

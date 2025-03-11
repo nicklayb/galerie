@@ -5,7 +5,7 @@ defmodule Galerie.Pictures.UseCase.UpdatePictureGroupsPerDate do
 
   alias Galerie.Pictures.PictureGroupsPerDate
 
-  @impl Galerie.UseCase
+  @impl Box.UseCase
   def run(multi, %{folder_id: folder_id, date: date, count: count}, _options) do
     multi
     |> Ecto.Multi.run(:picture_groups_per_date, fn repo, _ ->
@@ -49,7 +49,7 @@ defmodule Galerie.Pictures.UseCase.UpdatePictureGroupsPerDate do
     end)
   end
 
-  @impl Galerie.UseCase
+  @impl Box.UseCase
   def return(%{updated_picture_groups_per_date: picture_groups_per_date}, _) do
     picture_groups_per_date
   end

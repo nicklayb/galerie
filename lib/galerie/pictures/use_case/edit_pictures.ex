@@ -8,12 +8,12 @@ defmodule Galerie.Pictures.UseCase.EditPictures do
   alias Galerie.Form.Pictures.EditPicturesForm
   alias Galerie.Pictures.Picture
 
-  @impl Galerie.UseCase
+  @impl Box.UseCase
   def validate(%EditPicturesForm{} = form, _) do
     {:ok, form}
   end
 
-  @impl Galerie.UseCase
+  @impl Box.UseCase
   def run(
         multi,
         %EditPicturesForm{} = form,
@@ -91,7 +91,7 @@ defmodule Galerie.Pictures.UseCase.EditPictures do
     end)
   end
 
-  @impl Galerie.UseCase
+  @impl Box.UseCase
   def after_run(%{updated_metadata: updated_metadata} = multi_output, options) do
     with [_ | _] <- updated_metadata do
       broadcast_metadata(multi_output, options)
@@ -115,7 +115,7 @@ defmodule Galerie.Pictures.UseCase.EditPictures do
     end)
   end
 
-  @impl Galerie.UseCase
+  @impl Box.UseCase
   def return(multi_output, _) do
     Enum.reduce(multi_output, [], fn
       {:updated_group, group}, acc ->

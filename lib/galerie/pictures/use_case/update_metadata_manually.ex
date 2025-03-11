@@ -6,7 +6,7 @@ defmodule Galerie.Pictures.UseCase.UpdateMetadataManually do
   alias Galerie.Pictures.Picture
   alias Galerie.Repo
 
-  @impl Galerie.UseCase
+  @impl Box.UseCase
   def validate(%{group_id: group_id, params: params}, _) do
     picture_metadatas =
       Picture.Metadata
@@ -17,7 +17,7 @@ defmodule Galerie.Pictures.UseCase.UpdateMetadataManually do
     {:ok, %{group_id: group_id, picture_metadatas: picture_metadatas, params: params}}
   end
 
-  @impl Galerie.UseCase
+  @impl Box.UseCase
   def run(
         multi,
         %{group_id: group_id, picture_metadatas: picture_metadatas, params: params},
@@ -45,7 +45,7 @@ defmodule Galerie.Pictures.UseCase.UpdateMetadataManually do
     end
   end
 
-  @impl Galerie.UseCase
+  @impl Box.UseCase
   def after_run(%{group: group, updated_metadata: updated_metadata}, _) do
     Galerie.PubSub.broadcast(
       {Picture.Group, group.id},
@@ -53,7 +53,7 @@ defmodule Galerie.Pictures.UseCase.UpdateMetadataManually do
     )
   end
 
-  @impl Galerie.UseCase
+  @impl Box.UseCase
   def return(%{group: group}, _) do
     group
   end

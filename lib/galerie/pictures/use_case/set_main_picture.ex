@@ -7,7 +7,7 @@ defmodule Galerie.Pictures.UseCase.SetMainPicture do
   alias Galerie.Pictures.Picture.Group
   alias Galerie.Repo
 
-  @impl Galerie.UseCase
+  @impl Box.UseCase
   def validate(picture_id, _options) do
     case get_group(picture_id) do
       {_group_id, ^picture_id} ->
@@ -29,7 +29,7 @@ defmodule Galerie.Pictures.UseCase.SetMainPicture do
     |> Repo.one()
   end
 
-  @impl Galerie.UseCase
+  @impl Box.UseCase
   def run(multi, {group_id, picture_id}, _options) do
     multi
     |> Ecto.Multi.one(:group, Ecto.Query.where(Group, [group], group.id == ^group_id))
@@ -38,12 +38,12 @@ defmodule Galerie.Pictures.UseCase.SetMainPicture do
     end)
   end
 
-  @impl Galerie.UseCase
+  @impl Box.UseCase
   def after_run(%{updated_group: %Group{folder_id: folder_id} = group}, _) do
     Galerie.PubSub.broadcast({Folder, folder_id}, {:main_picture_updated, group})
   end
 
-  @impl Galerie.UseCase
+  @impl Box.UseCase
   def return(%{updated_group: group}, _) do
     group
   end

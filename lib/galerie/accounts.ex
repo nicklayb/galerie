@@ -34,7 +34,7 @@ defmodule Galerie.Accounts do
   @doc "Creates a user"
   @spec create_user(map(), Keyword.t()) :: Box.Result.t(User.t(), any())
   def create_user(params, options \\ []) do
-    UseCase.CreateUser.execute(params, options)
+    Galerie.UseCase.execute(UseCase.CreateUser, params, options)
   end
 
   @doc "Resets a user password"
@@ -43,7 +43,7 @@ defmodule Galerie.Accounts do
   def reset_password(email, options \\ [])
 
   def reset_password(%User{} = user, options) do
-    UseCase.ResetPassword.execute(user, options)
+    Galerie.UseCase.execute(UseCase.ResetPassword, user, options)
   end
 
   def reset_password(email, options) do
@@ -55,7 +55,7 @@ defmodule Galerie.Accounts do
   def update_password(user, params, options \\ [])
 
   def update_password(%User{} = user, params, options) do
-    UseCase.UpdatePassword.execute({user, params}, options)
+    Galerie.UseCase.execute(UseCase.UpdatePassword, {user, params}, options)
   end
 
   def update_password(reset_password_token, params, options) do

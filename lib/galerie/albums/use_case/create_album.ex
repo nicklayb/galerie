@@ -7,23 +7,23 @@ defmodule Galerie.Albums.UseCase.CreateAlbum do
   alias Galerie.Accounts.User
   alias Galerie.Albums.Album
 
-  @impl Galerie.UseCase
+  @impl Box.UseCase
   def validate(params, options) do
     with {:ok, %User{id: user_id}} <- Galerie.UseCase.can?(options, :create_album) do
       {:ok, Box.Map.put(params, :user_id, user_id)}
     end
   end
 
-  @impl Galerie.UseCase
+  @impl Box.UseCase
   def run(multi, params, _options) do
     Ecto.Multi.insert(multi, :album, Album.changeset(params))
   end
 
-  @impl Galerie.UseCase
+  @impl Box.UseCase
   def after_run(%{album: album}, _options) do
     Galerie.PubSub.broadcast({Galerie.Accounts.User, album.user_id}, {:album_created, album})
   end
 
-  @impl Galerie.UseCase
+  @impl Box.UseCase
   def return(%{album: album}, _options), do: album
 end

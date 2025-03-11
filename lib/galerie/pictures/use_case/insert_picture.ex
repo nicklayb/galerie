@@ -13,7 +13,7 @@ defmodule Galerie.Pictures.UseCase.InsertPicture do
   alias Galerie.Pictures.Picture
   alias Galerie.Pictures.Picture.Group
 
-  @impl Galerie.UseCase
+  @impl Box.UseCase
   def run(multi, params, _options) do
     multi
     |> Ecto.Multi.insert(:picture, Picture.create_changeset(params))
@@ -62,12 +62,12 @@ defmodule Galerie.Pictures.UseCase.InsertPicture do
     end
   end
 
-  @impl Galerie.UseCase
+  @impl Box.UseCase
   def after_run(%{picture_with_group: %Picture{folder_id: folder_id} = picture}, _options) do
     Galerie.PubSub.broadcast({Folder, folder_id}, {:picture_imported, picture})
   end
 
-  @impl Galerie.UseCase
+  @impl Box.UseCase
   def return(%{picture_with_group: picture}, _options) do
     picture
   end

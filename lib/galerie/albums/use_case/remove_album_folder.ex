@@ -6,17 +6,17 @@ defmodule Galerie.Albums.UseCase.RemoveAlbumFolder do
   use Galerie.UseCase
   alias Galerie.Albums.AlbumFolder
 
-  @impl Galerie.UseCase
+  @impl Box.UseCase
   def validate(album_id, options) do
     Galerie.Albums.get_album_folder_belonging_to_user(album_id, Keyword.get(options, :user))
   end
 
-  @impl Galerie.UseCase
+  @impl Box.UseCase
   def run(multi, %AlbumFolder{} = album_folder, _options) do
     Ecto.Multi.delete(multi, :album_folder, album_folder)
   end
 
-  @impl Galerie.UseCase
+  @impl Box.UseCase
   def after_run(%{album_folder: album_folder}, _options) do
     Galerie.PubSub.broadcast(
       {Galerie.Accounts.User, album_folder.user_id},
@@ -24,6 +24,6 @@ defmodule Galerie.Albums.UseCase.RemoveAlbumFolder do
     )
   end
 
-  @impl Galerie.UseCase
+  @impl Box.UseCase
   def return(%{album_folder: album_folder}, _options), do: album_folder
 end

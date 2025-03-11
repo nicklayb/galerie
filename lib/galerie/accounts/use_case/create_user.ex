@@ -8,7 +8,7 @@ defmodule Galerie.Accounts.UseCase.CreateUser do
   alias Galerie.Accounts.User
   alias Galerie.Folders.Folder
 
-  @impl Galerie.UseCase
+  @impl Box.UseCase
   def run(multi, params, _options) do
     multi
     |> Ecto.Multi.insert(:user, User.changeset(%User{}, params))
@@ -22,13 +22,13 @@ defmodule Galerie.Accounts.UseCase.CreateUser do
     end)
   end
 
-  @impl Galerie.UseCase
+  @impl Box.UseCase
   def after_run(%{user: user}, _options) do
     Galerie.Mailer.deliver_async(fn ->
       Galerie.Mailer.welcome(user)
     end)
   end
 
-  @impl Galerie.UseCase
+  @impl Box.UseCase
   def return(%{user: user}, _options), do: user
 end

@@ -6,11 +6,11 @@ defmodule Galerie.Accounts.UseCase.UpdatePassword do
 
   alias Galerie.Accounts.User
 
-  @impl Galerie.UseCase
+  @impl Box.UseCase
   def run(multi, {%User{} = user, params}, _options) do
     Ecto.Multi.update(multi, :user, User.update_password_changeset(user, params))
   end
 
-  @impl Galerie.UseCase
+  @impl Box.UseCase
   def return(%{user: user}, _options), do: user
 end

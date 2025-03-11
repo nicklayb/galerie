@@ -143,11 +143,11 @@ defmodule Galerie.Pictures do
   end
 
   def insert_picture(params, options \\ []) do
-    UseCase.InsertPicture.execute(params, options)
+    Galerie.UseCase.execute(UseCase.InsertPicture, params, options)
   end
 
   def update_rating(group_id, rating, options \\ []) do
-    UseCase.UpdateRating.execute(%{group_id: group_id, rating: rating}, options)
+    Galerie.UseCase.execute(UseCase.UpdateRating, %{group_id: group_id, rating: rating}, options)
   end
 
   def reload_picture_item(%PictureItem{group_id: group_id}) do
@@ -165,7 +165,11 @@ defmodule Galerie.Pictures do
   end
 
   def update_metadata_manually(group_id, params, options \\ []) do
-    UseCase.UpdateMetadataManually.execute(%{group_id: group_id, params: params}, options)
+    Galerie.UseCase.execute(
+      UseCase.UpdateMetadataManually,
+      %{group_id: group_id, params: params},
+      options
+    )
   end
 
   def picture_groups_per_date(folder_id, date) do

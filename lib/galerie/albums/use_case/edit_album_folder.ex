@@ -6,7 +6,7 @@ defmodule Galerie.Albums.UseCase.EditAlbumFolder do
   use Galerie.UseCase
   alias Galerie.Albums.AlbumFolder
 
-  @impl Galerie.UseCase
+  @impl Box.UseCase
   def validate(params, options) do
     album_folder_id = Box.Map.get(params, :album_folder_id)
 
@@ -19,7 +19,7 @@ defmodule Galerie.Albums.UseCase.EditAlbumFolder do
     end
   end
 
-  @impl Galerie.UseCase
+  @impl Box.UseCase
   def run(multi, {params, %AlbumFolder{} = album_folder}, _options) do
     Ecto.Multi.update(
       multi,
@@ -28,7 +28,7 @@ defmodule Galerie.Albums.UseCase.EditAlbumFolder do
     )
   end
 
-  @impl Galerie.UseCase
+  @impl Box.UseCase
   def after_run(%{album_folder: album_folder}, _options) do
     Galerie.PubSub.broadcast(
       {Galerie.Accounts.User, album_folder.user_id},
@@ -36,6 +36,6 @@ defmodule Galerie.Albums.UseCase.EditAlbumFolder do
     )
   end
 
-  @impl Galerie.UseCase
+  @impl Box.UseCase
   def return(%{album_folder: album_folder}, _options), do: album_folder
 end

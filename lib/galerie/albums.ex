@@ -53,12 +53,12 @@ defmodule Galerie.Albums do
     |> Album.Query.by_ids()
     |> Repo.all()
     |> Enum.map(fn %Album{} = album ->
-      UseCase.AddToAlbum.execute({album, group_ids}, options)
+      Galerie.UseCase.execute(UseCase.AddToAlbum, {album, group_ids}, options)
     end)
   end
 
   def remove_from_album(params, options \\ []) do
-    UseCase.RemoveFromAlbum.execute(params, options)
+    Galerie.UseCase.execute(UseCase.RemoveFromAlbum, params, options)
   end
 
   def get_album_folder_belonging_to_user(album_folder_id, %User{id: user_id}) do
