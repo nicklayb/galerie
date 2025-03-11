@@ -51,22 +51,22 @@ defmodule Galerie.Jobs.Processor.ExifToMetadata do
 
   defp parse_exposure_time(nil), do: nil
 
-  defp parse_exposure_time(number) when is_integer(number), do: Fraction.new(number)
+  defp parse_exposure_time(number) when is_integer(number), do: Box.Fraction.new(number)
 
   defp parse_exposure_time(float) when is_float(float) do
-    Fraction.new(float)
+    Box.Fraction.new(float)
   end
 
   @fraction_regex ~r/([0-9]+)\/([0-9]+)/
   defp parse_exposure_time(string) when is_binary(string) do
     case Regex.scan(@fraction_regex, string) do
       [[_, numerator, demonimator]] ->
-        Fraction.new(String.to_integer(numerator), String.to_integer(demonimator))
+        Box.Fraction.new(String.to_integer(numerator), String.to_integer(demonimator))
 
       _ ->
         string
         |> String.to_integer()
-        |> Fraction.new()
+        |> Box.Fraction.new()
     end
   end
 

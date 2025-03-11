@@ -125,7 +125,7 @@ defmodule Galerie.Pictures.PictureItem do
 
   defp filter_by_metadata(dynamic_query, :exposure_time, values) do
     Enum.reduce(values, dynamic_query, fn
-      %Fraction{
+      %Box.Fraction{
         numerator: numerator,
         denominator: denominator
       },

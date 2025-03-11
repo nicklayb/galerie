@@ -6,7 +6,7 @@ defmodule Galerie.Pictures.Picture.Metadata do
   @editable_metadata ~w(exposure_time f_number focal_length lens_model camera_make camera_model)a
   @orientations ~w(landscape portrait square)a
   schema("picture_metadata") do
-    field(:exposure_time, Galerie.Ecto.Types.Fraction)
+    field(:exposure_time, Box.Fraction.EctoType)
     field(:f_number, :float)
     field(:lens_model, :string)
     field(:camera_make, :string)
@@ -19,7 +19,7 @@ defmodule Galerie.Pictures.Picture.Metadata do
     field(:height, :integer)
     field(:rotation, :integer)
     field(:orientation, Ecto.Enum, values: @orientations)
-    field(:manually_updated_fields, Galerie.Ecto.Types.MapSet, type: :atom, default: MapSet.new())
+    field(:manually_updated_fields, Box.MapSet.EctoType, type: :atom, default: MapSet.new())
 
     belongs_to(:picture, Picture)
 

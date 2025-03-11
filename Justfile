@@ -1,5 +1,5 @@
 docker_registry := "nboisvert"
-docker_tag := "box"
+docker_tag := "latest"
 docker_image := "galerie" + ":" + docker_tag
 docker_remote_image := docker_registry / docker_image
 

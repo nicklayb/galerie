@@ -3,7 +3,7 @@ defmodule Galerie.Form.Pictures.EditPicturesForm do
 
   defform(Metadatas) do
     @fields_with_types [
-      exposure_time: Galerie.Ecto.Types.Fraction,
+      exposure_time: Box.Fraction.EctoType,
       f_number: :float,
       lens_model: :string,
       camera_make: :string,

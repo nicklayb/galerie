@@ -200,9 +200,9 @@ defmodule GalerieWeb.Components.Picture.Viewer do
               <%= metadata.height %>
             </:info_item>
             <:info_item title={gettext("Exposure")} editable_name={:exposure_time}>
-              <%= with %Fraction{} = fraction <- metadata.exposure_time do %>
+              <%= with %Box.Fraction{} = fraction <- metadata.exposure_time do %>
                 <Icon.aperture width="18" height="18" class="mr-1" />
-                <%= Fraction.to_string(fraction) %>
+                <%= Box.Fraction.to_string(fraction) %>
               <% end %>
             </:info_item>
             <:info_item title={gettext("GPS")} visible={not is_nil(metadata.longitude)}>

@@ -22,9 +22,9 @@ defmodule GalerieWeb.Components.Multiselect.Options do
       |> Enum.split_with(&is_nil/1)
 
     items
-    |> Enum.sort({:desc, Fraction})
+    |> Enum.sort({:desc, Box.Fraction})
     |> Enum.map(fn fraction ->
-      {fraction, Fraction.to_string(fraction), Fraction.to_string(fraction)}
+      {fraction, Box.Fraction.to_string(fraction), Box.Fraction.to_string(fraction)}
     end)
     |> with_empty(maybe_empty)
   end
