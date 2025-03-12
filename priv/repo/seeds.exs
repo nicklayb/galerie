@@ -37,7 +37,7 @@ defmodule Seed do
   end
 
   defp execute(use_case, params, user \\ :system) do
-    use_case.execute(params, user: user, after_run?: false)
+    Galerie.UseCase.execute(use_case, params, user: user, after_run?: false)
   end
 end
 

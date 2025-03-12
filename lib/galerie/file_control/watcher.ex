@@ -33,11 +33,12 @@ defmodule Galerie.FileControl.Watcher do
 
   def init(args) do
     folder_path = Keyword.fetch!(args, :folder)
+    hidden_files = Keyword.get(args, :hidden_files, false)
     folder = Galerie.Folders.get_or_create_folder!(folder_path)
 
     send(self(), :initial_synchronize)
 
-    {:ok, %{folder_path: folder_path, folder: folder}}
+    {:ok, %{folder_path: folder_path, folder: folder, hidden_files: hidden_files}}
   end
 
   def handle_info(
@@ -46,7 +47,7 @@ defmodule Galerie.FileControl.Watcher do
       ) do
     Logger.debug("[#{inspect(__MODULE__)}] [#{inspect(events)}] #{path}")
 
-    if new_file_event?(events) and not invisible_file?(path) do
+    if new_file_event?(events) and valid_file?(path, state) do
       enqueue_importer(path, folder)
     end
 
@@ -81,6 +82,14 @@ defmodule Galerie.FileControl.Watcher do
   def terminate(reason, %{folder: %Folder{path: path}}) do
     Logger.info("[#{inspect(__MODULE__)}] [#{path}] [stopped] #{reason}")
     :ok
+  end
+
+  defp valid_file?(path, %{hidden_files: hidden_files}) do
+    cond do
+      not invisible_file?(path) -> true
+      invisible_file?(path) and hidden_files -> true
+      true -> false
+    end
   end
 
   defp invisible_file?(path) do

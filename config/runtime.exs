@@ -54,7 +54,8 @@ config :galerie, Galerie.Mailer, mailer_from: mailer_from
 
 config :galerie, Galerie.FileControl.Supervisor,
   enabled: Box.Config.bool("GALERIE_FILE_CONTROL", default: "false"),
-  folders: Box.Config.list("GALERIE_FOLDERS", default: "")
+  folders: Box.Config.list("GALERIE_FOLDERS", default: ""),
+  hidden_files: Box.Config.bool("GALERIE_HIDDEN_FILES", default: "false")
 
 config :galerie, Galerie.Directory,
   thumbnail: Box.Config.get("GALERIE_THUMBNAILS", default: ""),

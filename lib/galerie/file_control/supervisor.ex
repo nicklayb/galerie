@@ -13,7 +13,8 @@ defmodule Galerie.FileControl.Supervisor do
         folders: [
             "folder1",
             "folder2"
-          ]
+          ],
+        hidden_files: false # Controls if hidden files should be processed.
   """
   use Supervisor, restart: :transient
 
@@ -41,7 +42,8 @@ defmodule Galerie.FileControl.Supervisor do
 
   defp watchers(folders) do
     Enum.map(folders, fn folder ->
-      {Galerie.FileControl.Watcher, folder: folder, name: {:via, Registry, {@registry, folder}}}
+      {Galerie.FileControl.Watcher,
+       folder: folder, name: {:via, Registry, {@registry, folder}}, hidden_files: hidden_files?()}
     end)
   end
 
@@ -51,5 +53,9 @@ defmodule Galerie.FileControl.Supervisor do
 
   defp enabled? do
     not Galerie.Env.test?() and Galerie.Env.config(@supervisor, :enabled)
+  end
+
+  defp hidden_files? do
+    Galerie.Env.config(@supervisor, :hidden_files)
   end
 end

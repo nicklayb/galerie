@@ -771,7 +771,7 @@ defmodule GalerieWeb.Library.Live do
   end
 
   defp send_to_filter(assigns) do
-    send_update(self(), Picture.Filter, [{:id, @picture_filter_id} | assigns])
+    send_update(self(), Picture.MetadataFilter, [{:id, @picture_filter_id} | assigns])
   end
 
   defp send_to_viewer(assigns) do
