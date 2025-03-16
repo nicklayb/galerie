@@ -6,8 +6,6 @@ defmodule Galerie.UseCase do
   defmacro __using__(_) do
     quote do
       use Box.UseCase
-
-      require Galerie.PubSub
     end
   end
 

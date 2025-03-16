@@ -1,6 +1,4 @@
 defmodule Galerie.ObanRepo.Reporter do
-  require Galerie.PubSub
-
   def attach do
     :telemetry.attach_many(
       "oban-logger",

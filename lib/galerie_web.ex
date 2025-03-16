@@ -47,7 +47,6 @@ defmodule GalerieWeb do
 
       use GalerieWeb.Gettext
 
-      require Galerie.PubSub
       require Logger
 
       alias GalerieWeb.Html

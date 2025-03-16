@@ -1,7 +1,6 @@
 defmodule GalerieWeb.Library.Live do
   use GalerieWeb, :live_view
 
-  require Galerie.PubSub
   require Logger
 
   alias Galerie.Albums
@@ -530,7 +529,7 @@ defmodule GalerieWeb.Library.Live do
   end
 
   def handle_info(
-        %Galerie.PubSub.Message{
+        %Box.PubSub.Message{
           message: :removed_from_album,
           params: %{group: group}
         } = message,
@@ -544,7 +543,7 @@ defmodule GalerieWeb.Library.Live do
   end
 
   def handle_info(
-        %Galerie.PubSub.Message{
+        %Box.PubSub.Message{
           message: :metadata_updated,
           params: {updated_metadata, picture}
         } = message,
@@ -560,7 +559,7 @@ defmodule GalerieWeb.Library.Live do
   end
 
   def handle_info(
-        %Galerie.PubSub.Message{
+        %Box.PubSub.Message{
           message: :metadata_updated,
           params: [_ | _] = updated_metadata
         },
@@ -573,7 +572,7 @@ defmodule GalerieWeb.Library.Live do
 
   @interesting_messages Picture.Viewer.interesting_messages()
   def handle_info(
-        %Galerie.PubSub.Message{
+        %Box.PubSub.Message{
           message: inner_message,
           params: picture
         } = message,
@@ -588,7 +587,7 @@ defmodule GalerieWeb.Library.Live do
   end
 
   def handle_info(
-        %Galerie.PubSub.Message{
+        %Box.PubSub.Message{
           message: :thumbnail_generated,
           params: %Galerie.Pictures.Picture{}
         },
@@ -618,22 +617,22 @@ defmodule GalerieWeb.Library.Live do
     {:noreply, socket}
   end
 
-  def handle_info(%Galerie.PubSub.Message{message: :job_stop}, socket) do
+  def handle_info(%Box.PubSub.Message{message: :job_stop}, socket) do
     socket = update_jobs(socket, %{executing: -1})
     {:noreply, socket}
   end
 
-  def handle_info(%Galerie.PubSub.Message{message: :job_insert}, socket) do
+  def handle_info(%Box.PubSub.Message{message: :job_insert}, socket) do
     socket = update_jobs(socket, %{available: 1})
     {:noreply, socket}
   end
 
-  def handle_info(%Galerie.PubSub.Message{message: :job_exception}, socket) do
+  def handle_info(%Box.PubSub.Message{message: :job_exception}, socket) do
     socket = update_jobs(socket, %{retryable: 1, executing: -1})
     {:noreply, socket}
   end
 
-  def handle_info(%Galerie.PubSub.Message{message: :job_start}, socket) do
+  def handle_info(%Box.PubSub.Message{message: :job_start}, socket) do
     socket = update_jobs(socket, %{executing: 1, available: -1})
     {:noreply, socket}
   end
@@ -641,7 +640,7 @@ defmodule GalerieWeb.Library.Live do
   @album_message ~w(album_created album_deleted album_updated)a
   @album_folder_message ~w(album_folder_created album_folder_deleted album_folder_updated)a
   def handle_info(
-        %Galerie.PubSub.Message{
+        %Box.PubSub.Message{
           message: album_message
         },
         socket
@@ -652,7 +651,7 @@ defmodule GalerieWeb.Library.Live do
     {:noreply, socket}
   end
 
-  def handle_info(%Galerie.PubSub.Message{message: message}, socket) do
+  def handle_info(%Box.PubSub.Message{message: message}, socket) do
     Logger.warning("[#{inspect(__MODULE__)}] [handle_info] [unhandled_pub_sub] #{message}")
     {:noreply, socket}
   end

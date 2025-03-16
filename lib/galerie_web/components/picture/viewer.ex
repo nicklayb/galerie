@@ -43,7 +43,7 @@ defmodule GalerieWeb.Components.Picture.Viewer do
     metadata_updated
     main_picture_updated
   )a
-  def update(%{message: %Galerie.PubSub.Message{message: message}}, socket)
+  def update(%{message: %Box.PubSub.Message{message: message}}, socket)
       when message in @updatable_messages do
     socket = assign_pictures(socket)
     {:ok, socket}

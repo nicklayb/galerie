@@ -1,7 +1,6 @@
 defmodule GalerieWeb.Core.Notifications do
   use Phoenix.LiveView
 
-  require Galerie.PubSub
   alias GalerieWeb.Components.Icon
   alias GalerieWeb.Core.Notifications.Message
 
@@ -29,7 +28,7 @@ defmodule GalerieWeb.Core.Notifications do
   end
 
   def handle_info(
-        %Galerie.PubSub.Message{message: :notify, params: {type, message, options}},
+        %Box.PubSub.Message{message: :notify, params: {type, message, options}},
         socket
       ) do
     socket = update(socket, :messages, &add_message(&1, Message.new(type, message, options)))
@@ -38,7 +37,7 @@ defmodule GalerieWeb.Core.Notifications do
   end
 
   def handle_info(
-        %Galerie.PubSub.Message{message: :update_notification, params: {key, function}},
+        %Box.PubSub.Message{message: :update_notification, params: {key, function}},
         socket
       ) do
     socket = update(socket, :messages, &update_message(&1, key, function))
@@ -46,7 +45,7 @@ defmodule GalerieWeb.Core.Notifications do
     {:noreply, socket}
   end
 
-  def handle_info(%Galerie.PubSub.Message{}, socket) do
+  def handle_info(%Box.PubSub.Message{}, socket) do
     {:noreply, socket}
   end
 

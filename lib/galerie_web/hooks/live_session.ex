@@ -1,6 +1,5 @@
 defmodule GalerieWeb.Hooks.LiveSession do
   use GalerieWeb.Components.Routes
-  require Galerie.PubSub
 
   def on_mount(:default, _params, _, socket) do
     socket =
@@ -12,7 +11,7 @@ defmodule GalerieWeb.Hooks.LiveSession do
           :session_redirect,
           :handle_info,
           fn
-            %Galerie.PubSub.Message{message: :redirect, params: path}, socket ->
+            %Box.PubSub.Message{message: :redirect, params: path}, socket ->
               {:halt, Phoenix.LiveView.push_navigate(socket, to: path)}
 
             _, socket ->
