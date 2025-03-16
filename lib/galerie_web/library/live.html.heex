@@ -1,5 +1,6 @@
 <div class="flex flex-row overflow-y-hidden w-full">
-  <div class="flex-initial w-72 flex flex-col justify-between">
+  <%= if @filters_visible do %>
+  <div class="flex-initial w-72 flex flex-col justify-between transition-all slide-right">
     <div class="flex-1 overflow-y-auto border-r border-r-gray-400">
       <Ui.expandable on_click="filter-expand" key="albums" expanded={@expanded_filters}>
         <:title class={Html.class("border-l-4", {not is_nil(@selected_album), "border-l-pink-500", "border-l-gray-300"})}>
@@ -66,9 +67,10 @@
       <% end %>
     </div>
   </div>
+  <% end %>
   <Ui.loading loading={@updating}>
     <div class="w-full flex flex-col">
-      <Picture.selection_bar selectable_list={@pictures.results}>
+      <Picture.selection_bar selectable_list={@pictures.results} on_hamburger_click="toggle-filters">
         <Picture.selection_button action="selection_bar:clear" class="rounded-full w-8">
           <Icon.cross class="m-auto" width="12" height="12" />
         </Picture.selection_button>

@@ -30,12 +30,16 @@ defmodule GalerieWeb.Components.Picture do
     """
   end
 
+  attr(:on_hamburger_click, :string, required: true)
   attr(:selectable_list, SelectableList, required: true)
   slot(:inner_block, required: true)
 
   def selection_bar(assigns) do
     ~H"""
     <div class="p-2 h-10 flex items-center justify-between">
+      <button phx-click={@on_hamburger_click}>
+        <Icon.hamburger width="20" height="20" />
+      </button>
       <div class="flex-1 flex">
         <%= if SelectableList.any_selected?(@selectable_list) do %>
           <%= render_slot(@inner_block) %>

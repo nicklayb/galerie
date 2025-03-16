@@ -33,8 +33,7 @@ config :galerie, GalerieWeb.Endpoint,
     patterns: [
       ~r"priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$",
       ~r"priv/gettext/.*(po)$",
-      ~r"lib/galerie_web/(live|views)/.*(ex)$",
-      ~r"lib/galerie_web/templates/.*(eex)$"
+      ~r"lib/galerie_web/.*"
     ]
   ]
 

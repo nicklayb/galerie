@@ -35,6 +35,7 @@ defmodule GalerieWeb.Library.Live do
     jobs: %{},
     folders: [],
     filters: [],
+    filters_visible: false,
     selected_album: nil,
     selected_album_id: nil,
     without_albums?: false,
@@ -209,6 +210,11 @@ defmodule GalerieWeb.Library.Live do
 
   def handle_event("filter-expand", %{"key" => key}, socket) do
     socket = update(socket, :expanded_filters, &Box.MapSet.toggle(&1, key))
+    {:noreply, socket}
+  end
+
+  def handle_event("toggle-filters", _, socket) do
+    socket = update(socket, :filters_visible, &(not &1))
     {:noreply, socket}
   end
 

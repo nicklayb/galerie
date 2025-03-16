@@ -18,6 +18,7 @@ defmodule GalerieWeb.Components.Picture.Viewer do
     on_close: "viewer:close",
     selected_pictures: [],
     editing_metadata: nil,
+    info_panel_open: false,
     rating_range: Group.rating_range()
   ]
 
@@ -127,10 +128,15 @@ defmodule GalerieWeb.Components.Picture.Viewer do
     {:noreply, socket}
   end
 
+  def handle_event("viewer:toggle-info-panel", _, socket) do
+    socket = update(socket, :info_panel_open, &(not &1))
+    {:noreply, socket}
+  end
+
   def render(assigns) do
     ~H"""
-    <div class="z-50 fixed flex flex-row top-0 left-0 w-screen h-screen bg-gray-800/90 fade-in transition-all" data-on-window-keyup={@on_keyup} phx-hook="Keyup" id="viewerWrapper">
-      <div class="flex-1 flex flex-row text-white text-lg">
+    <div class="z-50 fixed flex flex-col tablet:flex-row top-0 left-0 w-screen h-screen bg-gray-800/90 fade-in transition-all" data-on-window-keyup={@on_keyup} phx-hook="Keyup" id="viewerWrapper">
+      <div class={Html.class("flex-1 flex-row text-white text-lg", {@info_panel_open, "hidden tablet:flex", "flex"})}>
         <.side_arrow disabled={not @has_previous} icon={:left_chevron} on_keyup={@on_keyup} key="ArrowLeft"/>
         <div class="py-2 content-center"><img class="h-auto w-auto max-w-full max-h-full m-auto" src={~p(/pictures/#{@picture.id})} /></div>
         <.side_arrow disabled={not @has_next} icon={:right_chevron} on_keyup={@on_keyup} key="ArrowRight"/>
@@ -144,6 +150,7 @@ defmodule GalerieWeb.Components.Picture.Viewer do
         on_close={@on_close}
         pictures={@pictures}
         myself={@myself}
+        info_panel_open={@info_panel_open}
         editing_metadata={@editing_metadata}
         metadata_changeset={@metadata_changeset}
       />
@@ -166,8 +173,8 @@ defmodule GalerieWeb.Components.Picture.Viewer do
 
   defp info_panel(assigns) do
     ~H"""
-    <div class="flex flex-col flex-initial w-96 bg-white transition-all slide-left">
-      <div class="flex flex-row justify-between items-center px-2 py-2">
+    <div class={Html.class("flex flex-col flex-initial w-full tablet:w-96 bg-white transition-all slide-up tablet:slide-left", {@info_panel_open,"h-full", "tablet:fixed tablet:bottom-0 tablet:right-0"})}>
+      <div class="flex flex-row justify-between items-center px-2 py-2" phx-click="viewer:toggle-info-panel" phx-target={@myself}>
         <span class="text-md flex items-center">
           <Ui.select_marker checked={@checked} class="mr-2" on_select="select-picture" on_deselect="deselect-picture" phx-value-picture_id={@picture.id} phx-value-index={@index} />
           <%= @picture.name %>
@@ -176,59 +183,68 @@ defmodule GalerieWeb.Components.Picture.Viewer do
           <Icon.cross width="14" height="14" />
         </span>
       </div>
-      <div class="p-3">
-        <Stars.render value={@picture_item.rating} range={@rating_range} phx-click="viewer:rate" phx-target={@myself} />
-      </div>
       <div>
-        <%= with %Metadata{} = metadata <- @picture.metadata do %>
-          <.info_section title={gettext("Informations")} myself={@myself} editing_metadata={@editing_metadata} metadata_changeset={@metadata_changeset} manually_updated_fields={@picture.metadata.manually_updated_fields}>
-            <:info_item title={gettext("Taken on")}>
-              <%= metadata.datetime_original %>
-            </:info_item>
-            <:info_item title={gettext("Camera")} editable_name={:camera_model}>
-              <%= metadata.camera_make %> <%= metadata.camera_model %>
-            </:info_item>
-            <:info_item title={gettext("F stop")} visible={metadata.f_number > 0} editable_name={:f_number}>
-              <%= gettext("f/%{focal}", focal: metadata.f_number) %>
-            </:info_item>
-            <:info_item title={gettext("Focal length")} editable_name={:focal_length} visible={not is_nil(metadata.focal_length) and metadata.focal_length > 0.0}>
-              <%= metadata.focal_length %>
-            </:info_item>
-            <:info_item title={gettext("Dimensions")}>
-              <%= metadata.width %>
-              <span class="mx-0.5">x</span>
-              <%= metadata.height %>
-            </:info_item>
-            <:info_item title={gettext("Exposure")} editable_name={:exposure_time}>
-              <%= with %Box.Fraction{} = fraction <- metadata.exposure_time do %>
-                <Icon.aperture width="18" height="18" class="mr-1" />
-                <%= Box.Fraction.to_string(fraction) %>
-              <% end %>
-            </:info_item>
-            <:info_item title={gettext("GPS")} visible={not is_nil(metadata.longitude)}>
-              <.google_map_link longitude={metadata.longitude} latitude={metadata.latitude} />
-            </:info_item>
-            <:info_item title={gettext("Lens")} visible={metadata.lens_model} editable_name={:lens_model}>
-              <%= metadata.lens_model %>
-            </:info_item>
+        <div class="p-3 flex">
+          <div class="flex-1">
+            <Stars.render value={@picture_item.rating} range={@rating_range} phx-click="viewer:rate" phx-target={@myself} />
+          </div>
+          <div>
+            <Ui.link href={~p(/pictures/#{@picture.id}?#{[type: "original"]})} target="_blank">
+              <Icon.download height="20" width="20"/>
+            </Ui.link>
+          </div>
+        </div>
+        <div class={Html.class("transition-all", {@info_panel_open, "visible height-full overflow-y-auto", "hidden"})}>
+          <%= with %Metadata{} = metadata <- @picture.metadata do %>
+            <.info_section title={gettext("Informations")} myself={@myself} editing_metadata={@editing_metadata} metadata_changeset={@metadata_changeset} manually_updated_fields={@picture.metadata.manually_updated_fields}>
+              <:info_item title={gettext("Taken on")}>
+                <%= metadata.datetime_original %>
+              </:info_item>
+              <:info_item title={gettext("Camera")} editable_name={:camera_model}>
+                <%= metadata.camera_make %> <%= metadata.camera_model %>
+              </:info_item>
+              <:info_item title={gettext("F stop")} visible={metadata.f_number > 0} editable_name={:f_number}>
+                <%= gettext("f/%{focal}", focal: metadata.f_number) %>
+              </:info_item>
+              <:info_item title={gettext("Focal length")} editable_name={:focal_length} visible={not is_nil(metadata.focal_length) and metadata.focal_length > 0.0}>
+                <%= metadata.focal_length %>
+              </:info_item>
+              <:info_item title={gettext("Dimensions")}>
+                <%= metadata.width %>
+                <span class="mx-0.5">x</span>
+                <%= metadata.height %>
+              </:info_item>
+              <:info_item title={gettext("Exposure")} editable_name={:exposure_time}>
+                <%= with %Box.Fraction{} = fraction <- metadata.exposure_time do %>
+                  <Icon.aperture width="18" height="18" class="mr-1" />
+                  <%= Box.Fraction.to_string(fraction) %>
+                <% end %>
+              </:info_item>
+              <:info_item title={gettext("GPS")} visible={not is_nil(metadata.longitude)}>
+                <.google_map_link longitude={metadata.longitude} latitude={metadata.latitude} />
+              </:info_item>
+              <:info_item title={gettext("Lens")} visible={metadata.lens_model} editable_name={:lens_model}>
+                <%= metadata.lens_model %>
+              </:info_item>
+            </.info_section>
+          <% end %>
+          <.info_section title={gettext("Versions (%{count})", count: length(@pictures))}>
+            <%= for picture <- @pictures do %>
+              <.info_section_item title={picture.original_name}>
+                <.picture_row main_picture={@picture} picture={picture} myself={@myself} />
+              </.info_section_item>
+            <% end %>
           </.info_section>
-        <% end %>
-        <.info_section title={gettext("Versions (%{count})", count: length(@pictures))}>
-          <%= for picture <- @pictures do %>
-            <.info_section_item title={picture.original_name}>
-              <.picture_row main_picture={@picture} picture={picture} myself={@myself} />
-            </.info_section_item>
-          <% end %>
-        </.info_section>
-        <.info_section title={gettext("Albums (%{count})", count: length(@picture.albums))}>
-          <%= for album <- @picture.albums do %>
-            <.info_section_item title={album.name}>
-              <Ui.button phx-click="viewer:remove-from-album" phx-value-group_id={@picture.group_id} phx-value-album_id={album.id} phx-target={@myself}>
-                <Icon.cross height="14" width="14"/>
-              </Ui.button>
-            </.info_section_item>
-          <% end %>
-        </.info_section>
+          <.info_section title={gettext("Albums (%{count})", count: length(@picture.albums))}>
+            <%= for album <- @picture.albums do %>
+              <.info_section_item title={album.name}>
+                <Ui.button phx-click="viewer:remove-from-album" phx-value-group_id={@picture.group_id} phx-value-album_id={album.id} phx-target={@myself}>
+                  <Icon.cross height="14" width="14"/>
+                </Ui.button>
+              </.info_section_item>
+            <% end %>
+          </.info_section>
+        </div>
       </div>
     </div>
     """
