@@ -6,8 +6,6 @@ config :galerie,
 
 config :galerie, Galerie.ObanRepo, priv: "priv/oban"
 
-config :galerie, Galerie.Generator, default_max_tries: 3
-
 config :galerie, Galerie.Repo, migration_primary_key: [name: :id, type: :binary_id]
 
 config :galerie, Oban,

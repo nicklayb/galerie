@@ -48,7 +48,7 @@ defmodule Galerie.Pictures.Picture do
     picture
     |> Ecto.Changeset.cast(params, @castable)
     |> Ecto.Changeset.validate_required(@required_for_cast)
-    |> Galerie.Ecto.Changeset.update_valid(&cast_parts/1)
+    |> Box.Ecto.Changeset.update_valid(&cast_parts/1)
     |> Ecto.Changeset.validate_required(@required)
   end
 

@@ -26,7 +26,7 @@ defmodule Galerie.UseCase do
   end
 
   defp with_default_options(options) do
-    Keyword.put(options, :run, &Galerie.Repo.transaction/2)
+    Keyword.put(options, :run, &Repo.transaction/2)
   end
 
   def can?(use_case_options, permission, options \\ []) do

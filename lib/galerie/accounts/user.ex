@@ -8,12 +8,15 @@ defmodule Galerie.Accounts.User do
   manually uploaded pictures from the web UI.
   """
   use Galerie, :schema
+
   alias Galerie.Accounts.User
   alias Galerie.Accounts.User.Password
   alias Galerie.Albums.Album
   alias Galerie.Albums.AlbumFolder
   alias Galerie.Folders.Folder
+  alias Galerie.Repo
 
+  require Ecto.Query
   require Logger
 
   @permissions [
@@ -56,14 +59,14 @@ defmodule Galerie.Accounts.User do
   def changeset(%User{} = user \\ %User{}, params) do
     user
     |> Ecto.Changeset.cast(params, @castable)
-    |> Galerie.Ecto.Changeset.trim(@trimable)
+    |> Box.Ecto.Changeset.trim(@trimable)
     |> Ecto.Changeset.update_change(:email, &String.downcase/1)
     |> Ecto.Changeset.validate_format(:email, ~r/(.+)@(.+)\.(.+)/)
     |> Ecto.Changeset.validate_required(@required)
     |> Ecto.Changeset.unique_constraint(:email)
     |> Password.validate()
     |> Ecto.Changeset.validate_confirmation(:password)
-    |> Galerie.Ecto.Changeset.hash(:password)
+    |> Box.Ecto.Changeset.hash(:password)
   end
 
   @required ~w(password password_confirmation)a
@@ -78,7 +81,7 @@ defmodule Galerie.Accounts.User do
     |> Ecto.Changeset.validate_required(@required)
     |> Password.validate()
     |> Ecto.Changeset.validate_confirmation(:password)
-    |> Galerie.Ecto.Changeset.hash(:password)
+    |> Box.Ecto.Changeset.hash(:password)
     |> Ecto.Changeset.put_change(:reset_password_token, nil)
   end
 
@@ -89,11 +92,17 @@ defmodule Galerie.Accounts.User do
   """
   @spec reset_password_changeset(t()) :: Ecto.Changeset.t()
   def reset_password_changeset(%User{} = user) do
+    reset_password_token_exists? = fn token ->
+      User
+      |> Ecto.Query.where([user], user.reset_password_token == ^token)
+      |> Repo.exists?()
+    end
+
     user
     |> Ecto.Changeset.cast(%{}, [])
-    |> Galerie.Ecto.Changeset.generate_unique(:reset_password_token,
-      generator: {Galerie.Generator.Base64, length: @reset_password_token_length},
-      schema: {User, :reset_password_token}
+    |> Box.Ecto.Changeset.generate_unique(:reset_password_token,
+      generator: {Box.Generator.Base64, length: @reset_password_token_length},
+      exists?: reset_password_token_exists?
     )
   end
 

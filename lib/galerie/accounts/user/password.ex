@@ -7,7 +7,7 @@ defmodule Galerie.Accounts.User.Password do
   @doc "Validates that a given field matches password rules"
   @spec validate(Ecto.Changeset.t(), atom()) :: Ecto.Changeset.t()
   def validate(%Ecto.Changeset{} = changeset, field \\ :password) do
-    Galerie.Ecto.Changeset.update_valid(changeset, fn changeset ->
+    Box.Ecto.Changeset.update_valid(changeset, fn changeset ->
       case Ecto.Changeset.get_change(changeset, field) do
         nil -> changeset
         password -> validate_rules(changeset, password, field)

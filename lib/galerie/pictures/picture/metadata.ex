@@ -44,7 +44,7 @@ defmodule Galerie.Pictures.Picture.Metadata do
   def manual_edit_changeset(%Metadata{} = metadata \\ %Metadata{}, params) do
     metadata
     |> Ecto.Changeset.cast(params, @editable_metadata)
-    |> Galerie.Ecto.Changeset.update_valid(&update_manually_updated_fields/1)
+    |> Box.Ecto.Changeset.update_valid(&update_manually_updated_fields/1)
   end
 
   defp update_manually_updated_fields(%Ecto.Changeset{changes: changes} = changeset) do
