@@ -66,7 +66,7 @@ defmodule Galerie.Accounts.User do
     |> Ecto.Changeset.unique_constraint(:email)
     |> Password.validate()
     |> Ecto.Changeset.validate_confirmation(:password)
-    |> Box.Ecto.Changeset.hash(:password)
+    |> Box.Ecto.Changeset.hash(:password, hash_function: &Argon2.hash_pwd_salt/1)
   end
 
   @required ~w(password password_confirmation)a
@@ -81,7 +81,7 @@ defmodule Galerie.Accounts.User do
     |> Ecto.Changeset.validate_required(@required)
     |> Password.validate()
     |> Ecto.Changeset.validate_confirmation(:password)
-    |> Box.Ecto.Changeset.hash(:password)
+    |> Box.Ecto.Changeset.hash(:password, hash_function: &Argon2.hash_pwd_salt/1)
     |> Ecto.Changeset.put_change(:reset_password_token, nil)
   end
 
