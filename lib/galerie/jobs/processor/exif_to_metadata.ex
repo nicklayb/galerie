@@ -91,6 +91,8 @@ defmodule Galerie.Jobs.Processor.ExifToMetadata do
     shift_timezone(date_time, timezone)
   end
 
+  defp shift_timezone(%NaiveDateTime{} = naive_datetime, nil), do: naive_datetime
+
   @timezone_regex ~r/([-+])([0-9]{2}):?([0-9]{2})/
   defp shift_timezone(%NaiveDateTime{} = naive_datetime, timezone) do
     case Regex.scan(@timezone_regex, timezone) do
