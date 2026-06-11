@@ -9,3 +9,4 @@ apps/astral_web/assets/node_modules
 apps/astral_web/priv/static
 .git/
 samples/
+Justfile

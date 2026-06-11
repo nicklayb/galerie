@@ -39,7 +39,7 @@ RUN mkdir -p /opt/build && \
 # FROM nboisvert/dcraw:latest as dcraw
 
 # STEP 2 - Build application container
-FROM ubuntu:24.10
+FROM ubuntu:26.04
 
 ARG APP_NAME
 ENV APP_NAME=${APP_NAME}
