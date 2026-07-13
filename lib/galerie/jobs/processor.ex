@@ -1,6 +1,8 @@
 defmodule Galerie.Jobs.Processor do
   use Oban.Worker, queue: :processors
 
+  require Logger
+
   alias Galerie.Jobs.Processor.ExifToMetadata
   alias Galerie.Pictures
   alias Galerie.Pictures.Picture
@@ -28,7 +30,7 @@ defmodule Galerie.Jobs.Processor do
 
       error ->
         Logger.error("[#{inspect(__MODULE__)}] [picture_id: #{picture_id}] [failed] #{inspect(error)}")
-        :discard
+        {:discard, error}
     end
   end
 
