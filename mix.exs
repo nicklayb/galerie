@@ -48,9 +48,9 @@ defmodule Galerie.MixProject do
       {:file_system, "~> 0.0"},
       {:floki, ">= 0.36.0", only: :test},
       {:gettext, "~> 0.26.2"},
-      {:gen_smtp, "~> 1.0"},
+      {:gen_smtp, "~> 1.3"},
       {:hackney, "~> 1.18"},
-      {:image, "~> 0.37"},
+      {:image, "~> 0.71"},
       {:exif_parser, "~> 0.3"},
       {:jason, "~> 1.1"},
       {:oban, "~> 2.16"},
@@ -64,11 +64,12 @@ defmodule Galerie.MixProject do
       {:plug_cowboy, "~> 2.5"},
       {:postgrex, "~> 0.16"},
       {:sentry, "~> 8.0"},
-      {:swoosh, "~> 1.14.2"},
+      {:swoosh, "~> 1.26.3"},
       {:sweet_xml, "~> 0.6"},
       {:tailwind, "~> 0.2", runtime: Mix.env() == :dev},
       {:telemetry_metrics, "~> 0.4"},
-      {:telemetry_poller, "~> 0.4"}
+      {:telemetry_poller, "~> 0.4"},
+      {:oban_web, "~> 2.11"}
     ]
   end
 

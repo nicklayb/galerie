@@ -16,7 +16,7 @@ defmodule GalerieWeb.Components.Stars do
     ~H"""
     <div class={Html.class("flex flex-row justify-evenly", @star_class)}>
       <%= for rating <- @range do %>
-        <div class={Html.class("cursor-pointer", @star_class)} phx-value-rating={rating} {@rest}>
+        <div class={Html.class("cursor-pointer py-3", @star_class)} phx-value-rating={rating} {@rest}>
           <Icon.star width={@icon_size} height={@icon_size} class={Html.class([{not is_nil(@value) and @value >= rating, @highlight_color, "text-gray-300"}])}/>
         </div>
       <% end %>

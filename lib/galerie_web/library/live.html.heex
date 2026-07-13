@@ -7,10 +7,10 @@
           <div class="flex flex-row justify-between items-center w-full">
             <span><%= gettext("Albums") %></span>
             <div class="flex justify-end">
-              <span class="mr-2 hover:text-pink-600 cursor-pointer" phx-click="create-album-folder">
+              <span class="mr-2 hover:text-pink-600 cursor-pointer py-2" phx-click="create-album-folder">
                 <Icon.folder_plus width="14" height="14" />
               </span>
-              <span class="mr-2 hover:text-pink-600 cursor-pointer" phx-click="create-album">
+              <span class="mr-2 hover:text-pink-600 cursor-pointer py-2" phx-click="create-album">
                 <Icon.picture_plus width="15" height="15" />
               </span>
             </div>
@@ -46,13 +46,13 @@
         </:body>
       </Ui.expandable>
       <Ui.expandable key="date" on_click="filter-expand" expanded={@expanded_filters}>
-        <:title class={Html.class("border-l-4", {Enum.any?(@calendar_state.highlighted_dates), "border-l-pink-500", "border-l-gray-300"})}><%= gettext("Dates") %></:title>
+        <:title class={Html.class("border-l-4 py-1", {Enum.any?(@calendar_state.highlighted_dates), "border-l-pink-500", "border-l-gray-300"})}><%= gettext("Dates") %></:title>
         <:body>
           <CalendarPicker.render id="dateFilter" calendar={@calendar_state} />
         </:body>
       </Ui.expandable>
       <Ui.expandable key="metadata" on_click="filter-expand" expanded={@expanded_filters}>
-        <:title class={Html.class("border-l-4", {Enum.any?(@filters, fn {_, value} -> Enum.any?(value) end), "border-l-pink-500", "border-l-gray-300"})}><%= gettext("Metadatas") %></:title>
+        <:title class={Html.class("border-l-4 py-1", {Enum.any?(@filters, fn {_, value} -> Enum.any?(value) end), "border-l-pink-500", "border-l-gray-300"})}><%= gettext("Metadatas") %></:title>
         <:body>
           <.live_component module={Picture.MetadataFilter} id={@picture_filter_id} current_user={@current_user} />
         </:body>

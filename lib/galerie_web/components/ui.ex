@@ -132,7 +132,7 @@ defmodule GalerieWeb.Components.Ui do
 
     ~H"""
     <div class="last:border-b last:border-b-gray-400 border-t border-t-gray-400">
-      <div class={Html.class("w-full cursor-pointer bg-gray-200 items-center flex flex-row py-1", @title_class)} phx-click={@on_click} phx-value-key={@key}>
+      <div class={Html.class("w-full cursor-pointer bg-gray-200 items-center flex flex-row", @title_class)} phx-click={@on_click} phx-value-key={@key}>
         <div class="flex">
           <%= if @expanded? do %>
             <Icon.down_chevron width="20" height="20"/>

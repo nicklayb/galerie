@@ -174,21 +174,21 @@ defmodule GalerieWeb.Components.Picture.Viewer do
   defp info_panel(assigns) do
     ~H"""
     <div class={Html.class("flex flex-col flex-initial w-full tablet:w-96 bg-white transition-all slide-up tablet:slide-left", {@info_panel_open,"h-full", "tablet:fixed tablet:bottom-0 tablet:right-0"})}>
-      <div class="flex flex-row justify-between items-center px-2 py-2" phx-click="viewer:toggle-info-panel" phx-target={@myself}>
-        <span class="text-md flex items-center">
+      <div class="flex flex-row justify-between" phx-click="viewer:toggle-info-panel" phx-target={@myself}>
+        <span class="text-md flex items-center px-2 py-2">
           <Ui.select_marker checked={@checked} class="mr-2" on_select="select-picture" on_deselect="deselect-picture" phx-value-picture_id={@picture.id} phx-value-index={@index} />
           <%= @picture.name %>
         </span>
-        <span class="top-0 right-0 cursor-pointer pr-1" phx-click={@on_close}>
+        <span class="top-0 right-0 cursor-pointer flex items-center pl-2 pr-3 py-2" phx-click={@on_close}>
           <Icon.cross width="14" height="14" />
         </span>
       </div>
       <div>
-        <div class="p-3 flex">
+        <div class="flex">
           <div class="flex-1">
             <Stars.render value={@picture_item.rating} range={@rating_range} phx-click="viewer:rate" phx-target={@myself} />
           </div>
-          <div>
+          <div class="py-3 pr-3">
             <Ui.link href={~p(/pictures/#{@picture.id}?#{[type: "original"]})} target="_blank">
               <Icon.download height="20" width="20"/>
             </Ui.link>

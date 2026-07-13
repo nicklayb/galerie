@@ -31,3 +31,5 @@ erl_crash.dump
 !/samples/DSC01569.JPG
 !/samples/DSC00461.jpg
 /priv/files
+.nix-hex
+.nix-mix

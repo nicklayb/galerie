@@ -1,6 +1,7 @@
 defmodule GalerieWeb.Router do
   use Phoenix.Router
 
+  import Oban.Web.Router
   import Plug.Conn
   import Phoenix.Controller
   import Phoenix.LiveView.Router
@@ -52,8 +53,9 @@ defmodule GalerieWeb.Router do
     pipe_through([:browser, :session_authenticated])
 
     get("/pictures/:id", Library.Controller, :get)
-
     get("/download", Library.Controller, :download)
+
+    oban_dashboard("/oban")
   end
 
   scope("/", GalerieWeb) do
