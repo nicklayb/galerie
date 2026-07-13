@@ -1,6 +1,6 @@
 docker_registry := "nboisvert"
-docker_tag := "latest"
-docker_image := "galerie" + ":" + docker_tag
+current_version := `cat VERSION`
+docker_image := "galerie" + ":" + current_version
 docker_remote_image := docker_registry / docker_image
 
 default: dev
