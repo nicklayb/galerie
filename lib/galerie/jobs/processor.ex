@@ -26,7 +26,8 @@ defmodule Galerie.Jobs.Processor do
         |> Repo.preload([:exif, :metadata])
         |> process()
 
-      _ ->
+      error ->
+        Logger.error("[#{inspect(__MODULE__)}] [picture_id: #{picture_id}] [failed] #{inspect(error)}")
         :discard
     end
   end
