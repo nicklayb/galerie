@@ -3,7 +3,8 @@ FROM elixir:1.20-slim AS builder
 
 ENV APP_NAME=galerie \
     APP_VERSION=0.1.0 \
-    MIX_ENV=prod
+    MIX_ENV=prod \
+    LANG=C.UTF-8
 
 # Install build requirements
 RUN apt update -y && \
@@ -58,11 +59,13 @@ RUN apt update -y && \
             dcraw \
             inotify-tools \
             libjpeg-dev \
-            libtiff-dev
+            libtiff-dev \
+            libsctp1
 
 
 # Install ImageMagic 7
 ENV IMAGEMAGICK_VERSION=7.1.0-31
+ENV LANG=C.UTF-8
 
 RUN apt-get update && apt-get install -y wget && \
     apt-get install -y autoconf pkg-config
