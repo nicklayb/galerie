@@ -185,18 +185,31 @@ defmodule GalerieWeb.Logger.Index do
           <% end %>
         <% end %>
         <form class="flex-1 text-slate-900 ml-2" phx-change="search">
-          <input type="text" class="block w-full bg-true-gray-100 rounded border-0 py-1.5 pr-20 text-true-gray-900 ring-1 ring-inset ring-true-gray-500 placeholder:text-true-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-400 sm:text-sm sm:leading-6 group-[.has-errors]:ring-red-400 max-w-80" value={@active_messages.search} name="search" />
+          <input
+            type="text"
+            class="block w-full bg-true-gray-100 rounded border-0 py-1.5 pr-20 text-true-gray-900 ring-1 ring-inset ring-true-gray-500 placeholder:text-true-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-400 sm:text-sm sm:leading-6 group-[.has-errors]:ring-red-400 max-w-80"
+            value={@active_messages.search}
+            name="search"
+          />
         </form>
       </div>
       <div class="flex-1 p-4 max-h-full h-full overflow-y-auto">
         <%= if Messages.has_messages?(@active_messages) do %>
           <div class="text-right">
-            <span class="text-indigo-500 cursor-pointer mr-2" phx-click="collapse-all">Collapse all</span>
+            <span class="text-indigo-500 cursor-pointer mr-2" phx-click="collapse-all">
+              Collapse all
+            </span>
             <span class="text-indigo-500 cursor-pointer mr-2" phx-click="expand-all">Expand all</span>
             <span class="text-indigo-500 cursor-pointer" phx-click="clear">Clear</span>
           </div>
           <%= for %{id: id, timestamp: timestamp, message: message, metadata: metadata} <- @active_messages.messages do %>
-            <.message uuid={id} timestamp={timestamp} message={message} metadata={metadata} expanded={@active_messages.expanded} />
+            <.message
+              uuid={id}
+              timestamp={timestamp}
+              message={message}
+              metadata={metadata}
+              expanded={@active_messages.expanded}
+            />
           <% end %>
         <% else %>
           <div class="w-full text-center text-lg text-true-gray-700 py-4">
@@ -221,9 +234,9 @@ defmodule GalerieWeb.Logger.Index do
 
     ~H"""
     <.link class={@class} patch={~p(/logger?#{[tab: @level]})}>
-      <%= @level %>
+      {@level}
       <%= if @unread > 0 do %>
-        <span class="px-2 py-1 bg-blue-600 text-white text-xs rounded-lg"><%= @unread %></span>
+        <span class="px-2 py-1 bg-blue-600 text-white text-xs rounded-lg">{@unread}</span>
       <% end %>
     </.link>
     """
@@ -237,10 +250,12 @@ defmodule GalerieWeb.Logger.Index do
 
     ~H"""
     <div class="p-1 px-2 mb-2 bg-true-gray-200">
-      <div class="text-xs py-2 font-mono text-true-gray-900"><%= @message %></div>
+      <div class="text-xs py-2 font-mono text-true-gray-900">{@message}</div>
       <div class="flex flex-row">
-        <div class="flex-1 text-indigo-500 cursor-pointer" phx-click="expand" phx-value-uuid={@uuid}><%= if @expanded?, do: "Collapse", else: "Expand" %></div>
-        <div class="flex-1 text-right text-xs text-slate-600"><%= @date %></div>
+        <div class="flex-1 text-indigo-500 cursor-pointer" phx-click="expand" phx-value-uuid={@uuid}>
+          {if @expanded?, do: "Collapse", else: "Expand"}
+        </div>
+        <div class="flex-1 text-right text-xs text-slate-600">{@date}</div>
       </div>
       <%= if @expanded? do %>
         <ul class="mt-2">
@@ -258,7 +273,7 @@ defmodule GalerieWeb.Logger.Index do
 
     ~H"""
     <li class="mb-1 border-2 border-slate-800 rounded-sm">
-      <div class="text-xs px-2 py-1 bg-slate-800 text-true-gray-100 font-mono"><%= @key %></div>
+      <div class="text-xs px-2 py-1 bg-slate-800 text-true-gray-100 font-mono">{@key}</div>
       <pre class="text-sm p-2 overflow-x-auto bg-true-gray-100"><%= Phoenix.HTML.raw(@pretty_value) %></pre>
     </li>
     """

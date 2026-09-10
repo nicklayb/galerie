@@ -18,16 +18,37 @@ defmodule GalerieWeb.Components.Form do
     assigns = assign(assigns, :name, name)
 
     ~H"""
-    <div class={Html.class("group", [{Enum.any?(@errors), "has-errors"}, {@class != "", @class, "flex flex-col gap-y-1 mb-3"}])}>
+    <div class={
+      Html.class("group", [
+        {Enum.any?(@errors), "has-errors"},
+        {@class != "", @class, "flex flex-col gap-y-1 mb-3"}
+      ])
+    }>
       <%= if Enum.any?(@label) and @label_position == :above do %>
-        <label for={@name} class={Html.class("text-sm pl-0.5 group-[.has-errors]:text-red-400", slot_attr(@label, :class, ""))}>
-          <%= render_slot(@label) %>
+        <label
+          for={@name}
+          class={
+            Html.class(
+              "text-sm pl-0.5 group-[.has-errors]:text-red-400",
+              slot_attr(@label, :class, "")
+            )
+          }
+        >
+          {render_slot(@label)}
         </label>
       <% end %>
-      <%= render_slot(@inner_block) %>
+      {render_slot(@inner_block)}
       <%= if Enum.any?(@label) and @label_position == :below do %>
-        <label for={@name} class={Html.class("text-sm pl-0.5 group-[.has-errors]:text-red-400", slot_attr(@label, :class, ""))}>
-          <%= render_slot(@label) %>
+        <label
+          for={@name}
+          class={
+            Html.class(
+              "text-sm pl-0.5 group-[.has-errors]:text-red-400",
+              slot_attr(@label, :class, "")
+            )
+          }
+        >
+          {render_slot(@label)}
         </label>
       <% end %>
       <.field_errors errors={@errors} />
@@ -56,11 +77,17 @@ defmodule GalerieWeb.Components.Form do
       |> update(:element_class, &Html.class(@classes, &1))
 
     ~H"""
-    <.element name={@field.name} errors={@field.errors} class={@element_class} multiple={@multiple} label_position={:below}>
+    <.element
+      name={@field.name}
+      errors={@field.errors}
+      class={@element_class}
+      multiple={@multiple}
+      label_position={:below}
+    >
       <:label class={slot_attr(@label, :class, "")}>
-        <%= render_slot(@label) %>
+        {render_slot(@label)}
       </:label>
-      <input type="checkbox" id={@field.id} name={@name} value={@value} checked={@checked}/>
+      <input type="checkbox" id={@field.id} name={@name} value={@value} checked={@checked} />
     </.element>
     """
   end
@@ -100,9 +127,19 @@ defmodule GalerieWeb.Components.Form do
     ~H"""
     <.element name={@field.name} errors={@field.errors} class={@element_class}>
       <:label class={slot_attr(@label, :class, "")}>
-        <%= render_slot(@label) %>
+        {render_slot(@label)}
       </:label>
-      <input type={@type} id={@field.id} name={@field.name} value={@field.value} class={@class} disabled={@disabled} autocomplete={@autocomplete} onkeyup="event.preventDefault()" {@rest} />
+      <input
+        type={@type}
+        id={@field.id}
+        name={@field.name}
+        value={@field.value}
+        class={@class}
+        disabled={@disabled}
+        autocomplete={@autocomplete}
+        onkeyup="event.preventDefault()"
+        {@rest}
+      />
     </.element>
     """
   end
@@ -123,9 +160,18 @@ defmodule GalerieWeb.Components.Form do
   def radio_input(assigns) do
     ~H"""
     <.element name={@field.name} errors={@field.errors} class={@element_class} label_position={:below}>
-      <input type="radio" id={@field.id} name={@field.name} checked={@value == (@field.value || "")} value={@value} class={@class} disabled={@disabled} {@rest} />
+      <input
+        type="radio"
+        id={@field.id}
+        name={@field.name}
+        checked={@value == (@field.value || "")}
+        value={@value}
+        class={@class}
+        disabled={@disabled}
+        {@rest}
+      />
       <:label class={slot_attr(@label, :class, "")}>
-        <%= render_slot(@label) %>
+        {render_slot(@label)}
       </:label>
     </.element>
     """
@@ -158,7 +204,7 @@ defmodule GalerieWeb.Components.Form do
 
     ~H"""
     <.link patch={@href} class={@class} {@rest}>
-      <%= render_slot(@inner_block) %>
+      {render_slot(@inner_block)}
     </.link>
     """
   end
@@ -168,7 +214,7 @@ defmodule GalerieWeb.Components.Form do
 
     ~H"""
     <button type={@type} class={@class} {@rest}>
-      <%= render_slot(@inner_block) %>
+      {render_slot(@inner_block)}
     </button>
     """
   end
@@ -179,9 +225,9 @@ defmodule GalerieWeb.Components.Form do
     ~H"""
     <%= if is_list(@errors) and Enum.any?(@errors) do %>
       <div class="flex flex-col text-sm text-right text-red-400">
-      <%= for error <- @errors do %>
-        <span><%= Box.Ecto.Changeset.format_error(error, gettext: GalerieWeb.Gettext) %></span>
-      <% end %>
+        <%= for error <- @errors do %>
+          <span>{Box.Ecto.Changeset.format_error(error, gettext: GalerieWeb.Gettext)}</span>
+        <% end %>
       </div>
     <% end %>
     """

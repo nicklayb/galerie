@@ -1,5 +1,4 @@
 defmodule Galerie.Folders do
-  require Ecto.Query
   alias Galerie.Accounts.User
   alias Galerie.Folders.Folder
   alias Galerie.Folders.UseCase

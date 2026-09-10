@@ -18,9 +18,7 @@ defmodule Galerie.Form do
       end
 
       def new(%Ecto.Changeset{} = changeset) do
-        changeset
-        |> then(&%Ecto.Changeset{&1 | action: :validate})
-        |> Phoenix.Component.to_form(as: @form_name)
+        Phoenix.Component.to_form(%Ecto.Changeset{changeset | action: :validate}, as: @form_name)
       end
 
       def new(params) do

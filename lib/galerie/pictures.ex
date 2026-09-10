@@ -1,6 +1,6 @@
 defmodule Galerie.Pictures do
-  alias Galerie.Pictures.PictureGroupsPerDate
   alias Galerie.Pictures.Picture
+  alias Galerie.Pictures.PictureGroupsPerDate
   alias Galerie.Pictures.PictureItem
   alias Galerie.Pictures.UseCase
   alias Galerie.Repo
@@ -198,7 +198,9 @@ defmodule Galerie.Pictures do
   end
 
   def count_per_date(folder_id, date) do
-    Ecto.Query.from(group in Picture.Group, as: :group)
+    base_query = Ecto.Query.from(group in Picture.Group, as: :group)
+
+    base_query
     |> Ecto.Query.join(:inner, [group: group], main_picture in assoc(group, :main_picture),
       as: :main_picture
     )

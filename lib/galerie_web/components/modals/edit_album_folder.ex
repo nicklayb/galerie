@@ -102,33 +102,44 @@ defmodule GalerieWeb.Components.Modals.EditAlbumFolder do
   def render(assigns) do
     ~H"""
     <div>
-      <.form for={@form} class="relative" phx-change="edit_album_folder:change" phx-submit="edit_album_folder:save" phx-target={@myself}>
+      <.form
+        for={@form}
+        class="relative"
+        phx-change="edit_album_folder:change"
+        phx-submit="edit_album_folder:save"
+        phx-target={@myself}
+      >
         <Modal.modal>
           <:header>
-            <%= gettext("Edit album folder") %>
+            {gettext("Edit album folder")}
           </:header>
           <:body>
             <Form.text_input field={@form[:name]}>
-              <:label><%= gettext("Folder name") %></:label>
+              <:label>{gettext("Folder name")}</:label>
             </Form.text_input>
             <div>
               <Form.radio_input field={@form[:parent_folder_id]} value="">
-                <:label><%= gettext("Root folder") %></:label>
+                <:label>{gettext("Root folder")}</:label>
               </Form.radio_input>
               <%= for {id, parts} <- @folders do %>
                 <Form.radio_input field={@form[:parent_folder_id]} value={id}>
-                  <:label><%= Enum.join(parts, " / ") %></:label>
+                  <:label>{Enum.join(parts, " / ")}</:label>
                 </Form.radio_input>
               <% end %>
             </div>
           </:body>
           <:footer class="text-right">
-            <Form.hidden field={@form[:id]} value={@form[:id].value}/>
-            <Form.button type={:button} style={:danger} phx-target={@myself} phx-click="edit_album_folder:delete">
-              <%= gettext("Delete") %>
+            <Form.hidden field={@form[:id]} value={@form[:id].value} />
+            <Form.button
+              type={:button}
+              style={:danger}
+              phx-target={@myself}
+              phx-click="edit_album_folder:delete"
+            >
+              {gettext("Delete")}
             </Form.button>
             <Form.button type={:submit} phx-target={@myself}>
-              <%= gettext("Update") %>
+              {gettext("Update")}
             </Form.button>
           </:footer>
         </Modal.modal>

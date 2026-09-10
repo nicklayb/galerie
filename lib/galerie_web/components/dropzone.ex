@@ -11,12 +11,12 @@ defmodule GalerieWeb.Components.Dropzone do
     <%= if Galerie.Accounts.User.can?(@current_user, :upload_pictures) do %>
       <div phx-drop-target={@upload.ref} class={@class} phx-hook="Dropzone" id={@id}>
         <form id="test" phx-change="validate_file">
-        <.live_file_input upload={@upload} class="hidden" />
+          <.live_file_input upload={@upload} class="hidden" />
         </form>
-        <%= render_slot(@inner_block) %>
+        {render_slot(@inner_block)}
       </div>
     <% else %>
-      <%= render_slot(@inner_block) %>
+      {render_slot(@inner_block)}
     <% end %>
     """
   end

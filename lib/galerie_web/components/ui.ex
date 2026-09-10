@@ -14,7 +14,7 @@ defmodule GalerieWeb.Components.Ui do
 
     ~H"""
     <button type="button" class={@class} {@rest}>
-      <%= render_slot(@inner_block) %>
+      {render_slot(@inner_block)}
     </button>
     """
   end
@@ -30,7 +30,7 @@ defmodule GalerieWeb.Components.Ui do
 
     ~H"""
     <a href={@href} class={@class} {@rest}>
-      <%= render_slot(@inner_block) %>
+      {render_slot(@inner_block)}
     </a>
     """
   end
@@ -45,7 +45,7 @@ defmodule GalerieWeb.Components.Ui do
 
     ~H"""
     <Phoenix.Component.link navigate={@href} class={@class} {@rest}>
-      <%= render_slot(@inner_block) %>
+      {render_slot(@inner_block)}
     </Phoenix.Component.link>
     """
   end
@@ -66,7 +66,7 @@ defmodule GalerieWeb.Components.Ui do
         <Icon.loading />
       </div>
     <% else %>
-      <%= if assigns[:inner_block], do: render_slot(@inner_block) %>
+      {if assigns[:inner_block], do: render_slot(@inner_block)}
     <% end %>
     """
   end
@@ -87,11 +87,25 @@ defmodule GalerieWeb.Components.Ui do
   def select_marker(assigns) do
     ~H"""
     <%= if @checked do %>
-      <div class={Html.class(@check_class, ["border-pink-600 hover:border-pink-600 bg-pink-600", @size, @class])} phx-click={@on_deselect} {@rest}>
+      <div
+        class={
+          Html.class(@check_class, [
+            "border-pink-600 hover:border-pink-600 bg-pink-600",
+            @size,
+            @class
+          ])
+        }
+        phx-click={@on_deselect}
+        {@rest}
+      >
         <Icon.check width="15" height="15" />
       </div>
     <% else %>
-      <div class={Html.class(@check_class, ["border-gray-200 hover:border-pink-600", @size, @class])} phx-click={@on_select} {@rest} />
+      <div
+        class={Html.class(@check_class, ["border-gray-200 hover:border-pink-600", @size, @class])}
+        phx-click={@on_select}
+        {@rest}
+      />
     <% end %>
     """
   end
@@ -105,11 +119,11 @@ defmodule GalerieWeb.Components.Ui do
     ~H"""
     <%= if Enum.any?(@items) do %>
       <%= for item <- @items do %>
-        <%= render_slot(@item, item) %>
+        {render_slot(@item, item)}
       <% end %>
-      <%= render_slot(@bottom) %>
+      {render_slot(@bottom)}
     <% else %>
-      <%= render_slot(@empty) %>
+      {render_slot(@empty)}
     <% end %>
     """
   end
@@ -132,18 +146,24 @@ defmodule GalerieWeb.Components.Ui do
 
     ~H"""
     <div class="last:border-b last:border-b-gray-400 border-t border-t-gray-400">
-      <div class={Html.class("w-full cursor-pointer bg-gray-200 items-center flex flex-row", @title_class)} phx-click={@on_click} phx-value-key={@key}>
+      <div
+        class={
+          Html.class("w-full cursor-pointer bg-gray-200 items-center flex flex-row", @title_class)
+        }
+        phx-click={@on_click}
+        phx-value-key={@key}
+      >
         <div class="flex">
           <%= if @expanded? do %>
-            <Icon.down_chevron width="20" height="20"/>
+            <Icon.down_chevron width="20" height="20" />
           <% else %>
-            <Icon.right_chevron width="20" height="20"/>
+            <Icon.right_chevron width="20" height="20" />
           <% end %>
         </div>
-        <%= render_slot(@title) %>
+        {render_slot(@title)}
       </div>
       <%= if @expanded? do %>
-        <%= render_slot(@body) %>
+        {render_slot(@body)}
       <% end %>
     </div>
     """

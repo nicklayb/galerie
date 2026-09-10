@@ -33,19 +33,23 @@ defmodule GalerieWeb.Components.Multiselect do
     <form phx-change={"#{@prefix}:change"} class="w-full" phx-target={@target}>
       <div class="flex justify-between text-true-gray-700">
         <div class="flex items-center">
-          <%= @label %>
+          {@label}
           <%= if @state.count > 0 do %>
-            <span class="ml-1 flex justify-center items-center w-4 h-4 text-sm bg-pink-400 text-white rounded-full"><%= @state.count %></span>
+            <span class="ml-1 flex justify-center items-center w-4 h-4 text-sm bg-pink-400 text-white rounded-full">
+              {@state.count}
+            </span>
           <% end %>
         </div>
         <div class="text-sm flex items-end">
-          <a class="mr-2" href="#" phx-click={"#{@prefix}:all"} phx-target={@target}><%= gettext("All") %></a>
-          <a href="#" phx-click={"#{@prefix}:none"} phx-target={@target}><%= gettext("None") %></a>
+          <a class="mr-2" href="#" phx-click={"#{@prefix}:all"} phx-target={@target}>
+            {gettext("All")}
+          </a>
+          <a href="#" phx-click={"#{@prefix}:none"} phx-target={@target}>{gettext("None")}</a>
         </div>
       </div>
       <select multiple name="select[]" class="w-full p-0 rounded-md" id={@refresh_id}>
         <%= for {_, key, name} <- @state.options do %>
-          <option value={key} selected={MultiselectState.selected?(@state, key)}><%= name %></option>
+          <option value={key} selected={MultiselectState.selected?(@state, key)}>{name}</option>
         <% end %>
       </select>
     </form>

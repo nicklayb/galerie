@@ -797,7 +797,9 @@ defmodule GalerieWeb.Library.Live do
   end
 
   defp update_async_result(socket, key, function) do
-    update(socket, key, &%AsyncResult{&1 | result: function.(&1.result)})
+    update(socket, key, fn %AsyncResult{result: result} = async_result ->
+      %AsyncResult{async_result | result: function.(result)}
+    end)
   end
 
   defp current_folder_id(%{

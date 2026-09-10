@@ -72,14 +72,28 @@ defmodule GalerieWeb.Components.CalendarPicker do
       <div class="flex flex-row items-center bg-gray-100 border-b border-gray-300">
         <.arrow on_click={@on_back} icon={:left_chevron} />
         <div class="flex flex-row flex-1">
-          <.select id={@id} name="month" selected_value={@calendar.date.month} options={@months} on_change={@on_month_change} class="w-8/12"/>
-          <.select id={@id} name="year" selected_value={@calendar.date.year} options={@years} on_change={@on_year_change} class="w-4/12"/>
+          <.select
+            id={@id}
+            name="month"
+            selected_value={@calendar.date.month}
+            options={@months}
+            on_change={@on_month_change}
+            class="w-8/12"
+          />
+          <.select
+            id={@id}
+            name="year"
+            selected_value={@calendar.date.year}
+            options={@years}
+            on_change={@on_year_change}
+            class="w-4/12"
+          />
         </div>
         <.arrow on_click={@on_next} icon={:right_chevron} />
       </div>
       <div class="flex flex-row justify-between">
         <%= for day <- @weekdays do %>
-          <div class="flex-1 text-center py-2"><%= String.at(day, 0) %></div>
+          <div class="flex-1 text-center py-2">{String.at(day, 0)}</div>
         <% end %>
       </div>
       <%= for row <- @calendar.calendar do %>
@@ -118,7 +132,7 @@ defmodule GalerieWeb.Components.CalendarPicker do
 
     ~H"""
     <div class={@class} phx-click={@on_click} phx-value-date={@current_date}>
-      <span class={Html.class("z-5", {@current_date?, "font-bold"})}><%= @current_date.day %></span>
+      <span class={Html.class("z-5", {@current_date?, "font-bold"})}>{@current_date.day}</span>
       <span class="h-1 z-1 bg-red-600 rounded-full" style={@heatmap_style}></span>
     </div>
     """
@@ -126,15 +140,23 @@ defmodule GalerieWeb.Components.CalendarPicker do
 
   defp arrow(assigns) do
     ~H"""
-    <div class="w-7 h-7 flex items-center justify-center hover:bg-gray-200" phx-click={@on_click}><Icon.icon icon={@icon} width="16" height="16" /></div>
+    <div class="w-7 h-7 flex items-center justify-center hover:bg-gray-200" phx-click={@on_click}>
+      <Icon.icon icon={@icon} width="16" height="16" />
+    </div>
     """
   end
 
   defp select(assigns) do
     ~H"""
-    <select class={Html.class("p-0 pl-1 text-sm border-0 py-1 bg-gray-100 hover:bg-gray-200", @class)} data-event={@on_change} phx-hook="Formless" id={"#{@id}:#{@name}"} name={@name}>
+    <select
+      class={Html.class("p-0 pl-1 text-sm border-0 py-1 bg-gray-100 hover:bg-gray-200", @class)}
+      data-event={@on_change}
+      phx-hook="Formless"
+      id={"#{@id}:#{@name}"}
+      name={@name}
+    >
       <%= for {label, value} <- @options do %>
-        <option value={value} selected={@selected_value == value}><%= label %></option>
+        <option value={value} selected={@selected_value == value}>{label}</option>
       <% end %>
     </select>
     """

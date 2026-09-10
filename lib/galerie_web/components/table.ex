@@ -11,7 +11,7 @@ defmodule GalerieWeb.Components.Table do
       <thead>
         <tr>
           <%= for cell <- @cell do %>
-            <th class="text-left"><%= cell.header %></th>
+            <th class="text-left">{cell.header}</th>
           <% end %>
         </tr>
       </thead>
@@ -21,7 +21,7 @@ defmodule GalerieWeb.Components.Table do
             <%= for row <- rows do %>
               <tr class="border-b">
                 <%= for cell <- @cell do %>
-                  <td><%= render_slot(cell, row) %></td>
+                  <td>{render_slot(cell, row)}</td>
                 <% end %>
               </tr>
             <% end %>
@@ -29,7 +29,7 @@ defmodule GalerieWeb.Components.Table do
         <% %AsyncResult{result: _, loading: loading} -> %>
           <tbody class={Html.class({loading, "opacity-60"})}>
             <tr>
-              <td colspan={length(@cell)}><%= gettext("No record") %></td>
+              <td colspan={length(@cell)}>{gettext("No record")}</td>
             </tr>
           </tbody>
       <% end %>

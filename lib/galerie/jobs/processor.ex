@@ -29,7 +29,10 @@ defmodule Galerie.Jobs.Processor do
         |> process()
 
       error ->
-        Logger.error("[#{inspect(__MODULE__)}] [picture_id: #{picture_id}] [failed] #{inspect(error)}")
+        Logger.error(
+          "[#{inspect(__MODULE__)}] [picture_id: #{picture_id}] [failed] #{inspect(error)}"
+        )
+
         {:discard, error}
     end
   end

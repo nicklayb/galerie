@@ -37,26 +37,35 @@ defmodule GalerieWeb.Components.Modals.Download do
     <div class="relative">
       <Modal.modal>
         <:header>
-          <%= gettext("Download %{count} files", count: @count) %>
+          {gettext("Download %{count} files", count: @count)}
         </:header>
         <:body>
           <div class="mb-2">
             <div class="mb-2">
-              <div class="text-sm pl-1"><%= gettext("Files") %></div>
+              <div class="text-sm pl-1">{gettext("Files")}</div>
               <ul class="overflow-y-auto max-h-60 shadow-inner">
                 <%= for item <- @selectable_list do %>
-                  <li class="px-2 py-1 first:rounded-t-md last:rounded-b-md border-b-0 last:border-b border border-true-gray-300"><%= item.name %></li>
+                  <li class="px-2 py-1 first:rounded-t-md last:rounded-b-md border-b-0 last:border-b border border-true-gray-300">
+                    {item.name}
+                  </li>
                 <% end %>
               </ul>
             </div>
             <div class="mb-2">
-              <div class="text-sm pl-1"><%= gettext("Format") %></div>
+              <div class="text-sm pl-1">{gettext("Format")}</div>
               <ul class="text-right">
                 <%= for {type, label} <- @types do %>
                   <li>
                     <label>
-                      <%= label %>
-                      <input type="radio" name="type" value={type} phx-click="change-type" phx-target={@myself} checked={type == @type}>
+                      {label}
+                      <input
+                        type="radio"
+                        name="type"
+                        value={type}
+                        phx-click="change-type"
+                        phx-target={@myself}
+                        checked={type == @type}
+                      />
                     </label>
                   </li>
                 <% end %>
@@ -66,7 +75,7 @@ defmodule GalerieWeb.Components.Modals.Download do
         </:body>
         <:footer class="text-right">
           <Form.button href={@download_link} target="_blank">
-            <%= gettext("Download") %>
+            {gettext("Download")}
           </Form.button>
         </:footer>
       </Modal.modal>

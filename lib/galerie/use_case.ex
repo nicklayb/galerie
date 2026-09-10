@@ -1,7 +1,6 @@
 defmodule Galerie.UseCase do
   alias Galerie.Accounts.User
   alias Galerie.Repo
-  require Logger
 
   defmacro __using__(_) do
     quote do

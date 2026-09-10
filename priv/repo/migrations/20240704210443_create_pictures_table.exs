@@ -7,6 +7,7 @@ defmodule Galerie.Repo.Migrations.CreatePicturesTable do
 
   def change do
     execute(@create_query, @drop_query)
+
     create(table("pictures")) do
       add(:name, :string, null: false)
       add(:extension, :string, null: false)

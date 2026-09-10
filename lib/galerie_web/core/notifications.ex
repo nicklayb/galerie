@@ -130,10 +130,10 @@ defmodule GalerieWeb.Core.Notifications do
     ~H"""
     <div class={@class} data-notification-id={@message.id}>
       <div class="flex flex-1">
-        <%= @message.message %>
+        {@message.message}
       </div>
       <div class="cursor-pointer" phx-click="clear" phx-value-id={@message.id}>
-        <Icon.cross width="14" height="14"/>
+        <Icon.cross width="14" height="14" />
       </div>
     </div>
     """

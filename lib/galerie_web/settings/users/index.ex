@@ -18,7 +18,6 @@ defmodule GalerieWeb.Settings.Users.Index do
   end
 
   defp load_users do
-    User
-    |> Repo.paginate()
+    Repo.paginate(User)
   end
 end

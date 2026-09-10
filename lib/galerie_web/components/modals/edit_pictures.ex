@@ -96,10 +96,16 @@ defmodule GalerieWeb.Components.Modals.EditPictures do
   def render(assigns) do
     ~H"""
     <div class="">
-      <.form for={@form} class="relative" phx-change="edit_pictures:change" phx-submit="edit_pictures:save" phx-target={@myself}>
+      <.form
+        for={@form}
+        class="relative"
+        phx-change="edit_pictures:change"
+        phx-submit="edit_pictures:save"
+        phx-target={@myself}
+      >
         <Modal.modal>
           <:header>
-            <%= gettext("Edit %{count} pictures", count: @count) %>
+            {gettext("Edit %{count} pictures", count: @count)}
           </:header>
           <:body>
             <div class="">
@@ -110,7 +116,7 @@ defmodule GalerieWeb.Components.Modals.EditPictures do
                 <.edit_metadata expanded={@expanded} myself={@myself} form={@form} />
               </.block_wrapper>
               <div class="px-1 py-2 border-b last:border-b-0 border-true-gray-200 text-right">
-                <Form.button type={:submit}><%= gettext("Save") %></Form.button>
+                <Form.button type={:submit}>{gettext("Save")}</Form.button>
               </div>
             </div>
           </:body>
@@ -150,8 +156,13 @@ defmodule GalerieWeb.Components.Modals.EditPictures do
     <Form.text_input field={@field} disabled={not @checked?}>
       <:label>
         <div class="flex items-center">
-          <Form.checkbox field={@checked_field} checked={@checked?} value="true" element_class="flex mb-0 mr-1"/>
-          <div><%= @label %></div>
+          <Form.checkbox
+            field={@checked_field}
+            checked={@checked?}
+            value="true"
+            element_class="flex mb-0 mr-1"
+          />
+          <div>{@label}</div>
         </div>
       </:label>
     </Form.text_input>
@@ -163,10 +174,16 @@ defmodule GalerieWeb.Components.Modals.EditPictures do
     <ul>
       <%= for {_, album, path} <- @albums do %>
         <li class="border border-true-gray-300 border-b-0 py-1 pl-1 pr-2 last:border-b first:rounded-t-md last:rounded-b-md">
-          <Form.checkbox field={@form[:album_ids]} checked={album.id in @form[:album_ids].value} multiple={true} value={album.id} element_class="flex flex-row items-center">
+          <Form.checkbox
+            field={@form[:album_ids]}
+            checked={album.id in @form[:album_ids].value}
+            multiple={true}
+            value={album.id}
+            element_class="flex flex-row items-center"
+          >
             <:label class="w-full flex justify-between">
-              <%= album.name %>
-              <div class="text-gray-500"><%= Enum.join(path, " / ") %></div>
+              {album.name}
+              <div class="text-gray-500">{Enum.join(path, " / ")}</div>
             </:label>
           </Form.checkbox>
         </li>
@@ -183,16 +200,21 @@ defmodule GalerieWeb.Components.Modals.EditPictures do
 
     ~H"""
     <div class="px-1 py-2 border-b last:border-b-0 border-true-gray-200">
-      <div class="text-lg flex items-center cursor-pointer" phx-click="edit_pictures:expand" phx-value-key={@key} phx-target={@myself}>
+      <div
+        class="text-lg flex items-center cursor-pointer"
+        phx-click="edit_pictures:expand"
+        phx-value-key={@key}
+        phx-target={@myself}
+      >
         <%= if @expanded? do %>
           <Icon.down_chevron width="20" height="20" />
         <% else %>
           <Icon.right_chevron width="20" height="20" />
         <% end %>
-        <%= @label %>
+        {@label}
       </div>
       <div class={Html.class("", {@expanded?, "block", "hidden"})}>
-        <%= render_slot(@inner_block) %>
+        {render_slot(@inner_block)}
       </div>
     </div>
     """

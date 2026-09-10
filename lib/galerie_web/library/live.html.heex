@@ -1,76 +1,114 @@
 <div class="flex flex-row overflow-y-hidden w-full">
   <%= if @filters_visible do %>
-  <div class="flex-initial w-72 flex flex-col justify-between transition-all slide-right">
-    <div class="flex-1 overflow-y-auto border-r border-r-gray-400">
-      <Ui.expandable on_click="filter-expand" key="albums" expanded={@expanded_filters}>
-        <:title class={Html.class("border-l-4", {not is_nil(@selected_album), "border-l-pink-500", "border-l-gray-300"})}>
-          <div class="flex flex-row justify-between items-center w-full">
-            <span><%= gettext("Albums") %></span>
-            <div class="flex justify-end">
-              <span class="mr-2 hover:text-pink-600 cursor-pointer py-2" phx-click="create-album-folder">
-                <Icon.folder_plus width="14" height="14" />
-              </span>
-              <span class="mr-2 hover:text-pink-600 cursor-pointer py-2" phx-click="create-album">
-                <Icon.picture_plus width="15" height="15" />
-              </span>
-            </div>
-          </div>
-        </:title>
-        <:body>
-          <%= case @album_explorer do %>
-            <% %AsyncResult{result: %Galerie.Explorer{} = explorer} -> %>
-              <div>
-                <GalerieWeb.Components.FileExplorer.Albums.render
-                  explorer={explorer}
-                  on_back="album-explorer:back"
-                  on_click="album-explorer:click"
-                  on_edit="album-explorer:edit"
-                  highlighted={[(with %Album{id: id} <- @selected_album, do: id)]}
-                />
-                <%= with %Album{id: id, name: name} <- @selected_album do %>
-                  <div class="flex justify-between items-center px-3 py-1 m-1 bg-pink-500 text-white rounded-lg">
-                    <div class="flex items-center">
-                      <Icon.picture width="20" height="20" />
-                      <%= name %>
-                    </div>
-                    <div class="cursor-pointer" phx-click="album-explorer:click" phx-value-type="leaf" phx-value-id={id}>
-                      <Icon.cross width="12" height="12"/>
-                    </div>
-                  </div>
-                <% end %>
+    <div class="flex-initial w-72 flex flex-col justify-between transition-all slide-right">
+      <div class="flex-1 overflow-y-auto border-r border-r-gray-400">
+        <Ui.expandable on_click="filter-expand" key="albums" expanded={@expanded_filters}>
+          <:title class={
+            Html.class(
+              "border-l-4",
+              {not is_nil(@selected_album), "border-l-pink-500", "border-l-gray-300"}
+            )
+          }>
+            <div class="flex flex-row justify-between items-center w-full">
+              <span>{gettext("Albums")}</span>
+              <div class="flex justify-end">
+                <span
+                  class="mr-2 hover:text-pink-600 cursor-pointer py-2"
+                  phx-click="create-album-folder"
+                >
+                  <Icon.folder_plus width="14" height="14" />
+                </span>
+                <span
+                  class="mr-2 hover:text-pink-600 cursor-pointer py-2"
+                  phx-click="create-album"
+                >
+                  <Icon.picture_plus width="15" height="15" />
+                </span>
               </div>
-
-            <% _ -> %>
-              <div><%= gettext("Loading...") %></div>
-          <% end %>
-        </:body>
-      </Ui.expandable>
-      <Ui.expandable key="date" on_click="filter-expand" expanded={@expanded_filters}>
-        <:title class={Html.class("border-l-4 py-1", {Enum.any?(@calendar_state.highlighted_dates), "border-l-pink-500", "border-l-gray-300"})}><%= gettext("Dates") %></:title>
-        <:body>
-          <CalendarPicker.render id="dateFilter" calendar={@calendar_state} />
-        </:body>
-      </Ui.expandable>
-      <Ui.expandable key="metadata" on_click="filter-expand" expanded={@expanded_filters}>
-        <:title class={Html.class("border-l-4 py-1", {Enum.any?(@filters, fn {_, value} -> Enum.any?(value) end), "border-l-pink-500", "border-l-gray-300"})}><%= gettext("Metadatas") %></:title>
-        <:body>
-          <.live_component module={Picture.MetadataFilter} id={@picture_filter_id} current_user={@current_user} />
-        </:body>
-      </Ui.expandable>
+            </div>
+          </:title>
+          <:body>
+            <%= case @album_explorer do %>
+              <% %AsyncResult{result: %Galerie.Explorer{} = explorer} -> %>
+                <div>
+                  <GalerieWeb.Components.FileExplorer.Albums.render
+                    explorer={explorer}
+                    on_back="album-explorer:back"
+                    on_click="album-explorer:click"
+                    on_edit="album-explorer:edit"
+                    highlighted={[with(%Album{id: id} <- @selected_album, do: id)]}
+                  />
+                  <%= with %Album{id: id, name: name} <- @selected_album do %>
+                    <div class="flex justify-between items-center px-3 py-1 m-1 bg-pink-500 text-white rounded-lg">
+                      <div class="flex items-center">
+                        <Icon.picture width="20" height="20" />
+                        {name}
+                      </div>
+                      <div
+                        class="cursor-pointer"
+                        phx-click="album-explorer:click"
+                        phx-value-type="leaf"
+                        phx-value-id={id}
+                      >
+                        <Icon.cross width="12" height="12" />
+                      </div>
+                    </div>
+                  <% end %>
+                </div>
+              <% _ -> %>
+                <div>{gettext("Loading...")}</div>
+            <% end %>
+          </:body>
+        </Ui.expandable>
+        <Ui.expandable key="date" on_click="filter-expand" expanded={@expanded_filters}>
+          <:title class={
+            Html.class(
+              "border-l-4 py-1",
+              {Enum.any?(@calendar_state.highlighted_dates), "border-l-pink-500",
+               "border-l-gray-300"}
+            )
+          }>
+            {gettext("Dates")}
+          </:title>
+          <:body>
+            <CalendarPicker.render id="dateFilter" calendar={@calendar_state} />
+          </:body>
+        </Ui.expandable>
+        <Ui.expandable key="metadata" on_click="filter-expand" expanded={@expanded_filters}>
+          <:title class={
+            Html.class(
+              "border-l-4 py-1",
+              {Enum.any?(@filters, fn {_, value} -> Enum.any?(value) end), "border-l-pink-500",
+               "border-l-gray-300"}
+            )
+          }>
+            {gettext("Metadatas")}
+          </:title>
+          <:body>
+            <.live_component
+              module={Picture.MetadataFilter}
+              id={@picture_filter_id}
+              current_user={@current_user}
+            />
+          </:body>
+        </Ui.expandable>
+      </div>
+      <div class="flex flex-col flex-initial text-xs">
+        <%= for {job, count} <- @jobs, count > 0 do %>
+          <div class="flex justify-between py-1 px-1">
+            <span>{GalerieWeb.Gettext.Jobs.translate_job_state(job)}</span>
+            <span>{count}</span>
+          </div>
+        <% end %>
+      </div>
     </div>
-    <div class="flex flex-col flex-initial text-xs">
-      <%= for {job, count} <- @jobs, count > 0 do %>
-        <div class="flex justify-between py-1 px-1">
-          <span><%= GalerieWeb.Gettext.Jobs.translate_job_state(job) %></span>
-          <span><%= count %></span>
-        </div>
-      <% end %>
-    </div>
-  </div>
   <% end %>
   <Ui.loading loading={@updating}>
     <div class="w-full flex flex-col">
-      <Picture.selection_bar selectable_list={@pictures.results} on_hamburger_click="toggle-filters">
+      <Picture.selection_bar
+        selectable_list={@pictures.results}
+        on_hamburger_click="toggle-filters"
+      >
         <Picture.selection_button action="selection_bar:clear" class="rounded-full w-8">
           <Icon.cross class="m-auto" width="12" height="12" />
         </Picture.selection_button>
@@ -84,8 +122,19 @@
           <Icon.picture class="m-auto" width="15" height="15" />
         </Picture.selection_button>
       </Picture.selection_bar>
-      <Dropzone.render upload={@uploads.upload_pictures} current_user={@current_user} class="overflow-y-hidden flex-1 h-full" id="libraryDropzone">
-        <div class="flex-1 h-full overflow-y-auto px-2" id="library" phx-viewport-bottom={if @pictures.has_next_page and not @scroll_disabled, do: "scrolled-bottom"}>
+      <Dropzone.render
+        upload={@uploads.upload_pictures}
+        current_user={@current_user}
+        class="overflow-y-hidden flex-1 h-full"
+        id="libraryDropzone"
+      >
+        <div
+          class="flex-1 h-full overflow-y-auto px-2"
+          id="library"
+          phx-viewport-bottom={
+            if @pictures.has_next_page and not @scroll_disabled, do: "scrolled-bottom"
+          }
+        >
           <%= case @pictures do %>
             <% %Page{results: pictures} -> %>
               <Picture.grid pictures={pictures} filter_selected={@filter_selected} />
@@ -96,10 +145,16 @@
     </div>
   </Ui.loading>
   <%= case {@pictures, @modal} do %>
-    <% {_, {_, _} = component} -> %> 
+    <% {_, {_, _} = component} -> %>
       <Modal.render component={component} />
     <% {%Page{has_next_page: has_next_page, results: %SelectableList{highlighted_index: highlighted_index} = results}, _} when is_integer(highlighted_index) -> %>
-      <.live_component module={Picture.Viewer} id={@picture_viewer_id} results={results} has_next_page={has_next_page} current_user={@current_user} />
+      <.live_component
+        module={Picture.Viewer}
+        id={@picture_viewer_id}
+        results={results}
+        has_next_page={has_next_page}
+        current_user={@current_user}
+      />
     <% _ -> %>
   <% end %>
 </div>

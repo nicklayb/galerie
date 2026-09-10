@@ -1,7 +1,6 @@
 defmodule GalerieWeb.Logger.Backend do
   @behaviour :gen_event
 
-  require Logger
   alias GalerieWeb.Logger.Config
 
   @impl :gen_event

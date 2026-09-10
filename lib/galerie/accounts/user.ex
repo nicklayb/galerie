@@ -17,7 +17,6 @@ defmodule Galerie.Accounts.User do
   alias Galerie.Repo
 
   require Ecto.Query
-  require Logger
 
   @permissions [
     :upload_pictures,

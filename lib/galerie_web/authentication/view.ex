@@ -15,7 +15,7 @@ defmodule GalerieWeb.Authentication.View do
         <Layouts.logo />
       </div>
 
-      <%= render_slot(@inner_block) %>
+      {render_slot(@inner_block)}
     </div>
     """
   end

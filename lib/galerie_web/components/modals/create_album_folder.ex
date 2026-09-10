@@ -66,26 +66,26 @@ defmodule GalerieWeb.Components.Modals.CreateAlbumFolder do
       <.form for={@form} class="relative" phx-change="change" phx-submit="save" phx-target={@myself}>
         <Modal.modal>
           <:header>
-            <%= gettext("Create album folder") %>
+            {gettext("Create album folder")}
           </:header>
           <:body>
             <Form.text_input field={@form[:name]}>
-              <:label><%= gettext("Folder name") %></:label>
+              <:label>{gettext("Folder name")}</:label>
             </Form.text_input>
             <div>
               <Form.radio_input field={@form[:parent_folder_id]} value="">
-                <:label><%= gettext("Root Folder") %></:label>
+                <:label>{gettext("Root Folder")}</:label>
               </Form.radio_input>
               <%= for {id, parts} <- @folders do %>
                 <Form.radio_input field={@form[:parent_folder_id]} value={id}>
-                  <:label><%= Enum.join(parts, " / ") %></:label>
+                  <:label>{Enum.join(parts, " / ")}</:label>
                 </Form.radio_input>
               <% end %>
             </div>
           </:body>
           <:footer class="text-right">
             <Form.button type={:submit} phx-target={@myself}>
-              <%= gettext("Create") %>
+              {gettext("Create")}
             </Form.button>
           </:footer>
         </Modal.modal>

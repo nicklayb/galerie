@@ -96,38 +96,53 @@ defmodule GalerieWeb.Components.Modals.EditAlbum do
   def render(assigns) do
     ~H"""
     <div>
-      <.form for={@form} class="relative" phx-change="edit_album:change" phx-submit="edit_album:save" phx-target={@myself}>
+      <.form
+        for={@form}
+        class="relative"
+        phx-change="edit_album:change"
+        phx-submit="edit_album:save"
+        phx-target={@myself}
+      >
         <Modal.modal>
           <:header>
-            <%= gettext("Edit album") %>
+            {gettext("Edit album")}
           </:header>
           <:body>
             <Form.text_input field={@form[:name]}>
-              <:label><%= gettext("Album name") %></:label>
+              <:label>{gettext("Album name")}</:label>
             </Form.text_input>
             <div class="text-right">
-              <Form.checkbox field={@form[:hide_from_main_library]} value="true" checked={@form[:hide_from_main_library].value}>
-                <:label><%= gettext("Hide from main library") %></:label>
+              <Form.checkbox
+                field={@form[:hide_from_main_library]}
+                value="true"
+                checked={@form[:hide_from_main_library].value}
+              >
+                <:label>{gettext("Hide from main library")}</:label>
               </Form.checkbox>
             </div>
             <div>
               <Form.radio_input field={@form[:album_folder_id]} value="">
-                <:label><%= gettext("No folder") %></:label>
+                <:label>{gettext("No folder")}</:label>
               </Form.radio_input>
               <%= for {id, parts} <- @folders do %>
                 <Form.radio_input field={@form[:album_folder_id]} value={id}>
-                  <:label><%= Enum.join(parts, " / ") %></:label>
+                  <:label>{Enum.join(parts, " / ")}</:label>
                 </Form.radio_input>
               <% end %>
             </div>
           </:body>
           <:footer class="text-right">
-            <Form.hidden field={@form[:id]} value={@form[:id].value}/>
-            <Form.button type={:button} style={:danger} phx-target={@myself} phx-click="edit_album:delete">
-              <%= gettext("Delete") %>
+            <Form.hidden field={@form[:id]} value={@form[:id].value} />
+            <Form.button
+              type={:button}
+              style={:danger}
+              phx-target={@myself}
+              phx-click="edit_album:delete"
+            >
+              {gettext("Delete")}
             </Form.button>
             <Form.button type={:submit} phx-target={@myself}>
-              <%= gettext("Update") %>
+              {gettext("Update")}
             </Form.button>
           </:footer>
         </Modal.modal>

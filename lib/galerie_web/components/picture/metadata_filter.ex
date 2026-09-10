@@ -104,7 +104,12 @@ defmodule GalerieWeb.Components.Picture.MetadataFilter do
     <div>
       <%= for {assign, multiselect_state, label} <- @multiselect_filters do %>
         <div class="px-2 mt-2">
-          <Multiselect.render state={multiselect_state} prefix={"filter:#{assign}"} label={label} target={@myself}/>
+          <Multiselect.render
+            state={multiselect_state}
+            prefix={"filter:#{assign}"}
+            label={label}
+            target={@myself}
+          />
         </div>
       <% end %>
     </div>

@@ -11,12 +11,10 @@ defmodule GalerieWeb.Components.Modal do
         <.overlay>
           <.live_component id="modal" module={component} {component_assigns} />
         </.overlay>
-
       <% nil -> %>
-
       <% component when is_atom(component) -> %>
         <.overlay>
-          <.live_component id="modal" module={component}/>
+          <.live_component id="modal" module={component} />
         </.overlay>
     <% end %>
     """
@@ -26,8 +24,11 @@ defmodule GalerieWeb.Components.Modal do
 
   def overlay(assigns) do
     ~H"""
-    <div class="h-full w-full fixed top-0 left-0 bg-gray-800/90 transition-all z-70 absolute fade-in" phx-window-keyup="modal:keyup">
-      <%= render_slot(@inner_block) %>
+    <div
+      class="h-full w-full fixed top-0 left-0 bg-gray-800/90 transition-all z-70 absolute fade-in"
+      phx-window-keyup="modal:keyup"
+    >
+      {render_slot(@inner_block)}
     </div>
     """
   end
@@ -51,18 +52,20 @@ defmodule GalerieWeb.Components.Modal do
         <Icon.cross width="12" height="12" />
       </div>
       <%= with [slot | _] <- @header do %>
-        <div class={Html.class("text-xl font-bold border-b border-b-true-gray-200 p-2", Map.get(slot, :class))}>
-          <%= render_slot(slot) %>
+        <div class={
+          Html.class("text-xl font-bold border-b border-b-true-gray-200 p-2", Map.get(slot, :class))
+        }>
+          {render_slot(slot)}
         </div>
       <% end %>
       <%= with [slot | _] <- @body do %>
         <div class={Html.class("p-2", Map.get(slot, :class))}>
-          <%= render_slot(slot) %>
+          {render_slot(slot)}
         </div>
       <% end %>
       <%= with [slot | _] <- @footer do %>
         <div class={Html.class("border-t border-t-true-gray-200 p-2", Map.get(slot, :class))}>
-          <%= render_slot(slot) %>
+          {render_slot(slot)}
         </div>
       <% end %>
     </div>

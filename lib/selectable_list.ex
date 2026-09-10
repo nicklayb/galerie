@@ -348,10 +348,6 @@ defimpl Enumerable, for: SelectableList do
     {:ok, Enum.any?(items, fn {_, current_value} -> current_value == value end)}
   end
 
-  def member?(_map, _other) do
-    {:ok, false}
-  end
-
   def slice(%SelectableList{count: count} = selectable_list) do
     {:ok, count, &SelectableList.slice(selectable_list, &1, &2)}
   end

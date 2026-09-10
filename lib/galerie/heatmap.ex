@@ -39,15 +39,15 @@ defmodule Galerie.Heatmap do
   defp map_values(%Heatmap{scale: scale}, values) do
     with true <- Enum.any?(values),
          {_, maximum} when maximum > 0 <- Enum.max_by(values, fn {_, value} -> value end) do
-      Enum.reduce(values, %{}, fn {key, value}, acc ->
-        scaled_value =
-          if value == 0 do
-            0
-          else
-            ceil(scale * value / maximum)
-          end
+      Enum.reduce(values, %{}, fn
+        {key, 0}, acc ->
+          Map.put(acc, key, 0)
 
-        Map.put(acc, key, scaled_value)
+        {key, value}, acc ->
+          scaled_value =
+            ceil(scale * value / maximum)
+
+          Map.put(acc, key, scaled_value)
       end)
     else
       _ -> %{}

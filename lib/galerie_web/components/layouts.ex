@@ -21,7 +21,7 @@ defmodule GalerieWeb.Components.Layouts do
     <%= if @message do %>
       <div class={@class}>
         <%= for message <- List.wrap(@message) do %>
-          <span class=""><%= message %></span>
+          <span class="">{message}</span>
         <% end %>
       </div>
     <% end %>
@@ -52,12 +52,12 @@ defmodule GalerieWeb.Components.Layouts do
       <.settings_nav_item path={~p(/app)} title={gettext("Back to Galerie")} class="pl-1">
         <div class="flex items-center">
           <Icon.left_chevron width="30" height="30" />
-          <%= gettext("Back to Galerie") %>
+          {gettext("Back to Galerie")}
         </div>
       </.settings_nav_item>
       <%= for %{title: title, path: path} <- @items do %>
         <.settings_nav_item title={title} path={path} active={String.starts_with?(@uri.path, path)}>
-          <%= title %>
+          {title}
         </.settings_nav_item>
       <% end %>
     </nav>
@@ -76,8 +76,17 @@ defmodule GalerieWeb.Components.Layouts do
     assigns = update(assigns, :class, fn class -> Html.class(@default_class, class) end)
 
     ~H"""
-    <Ui.link_local href={@path} class={Html.class(@class, {@active, "bg-pink-500 text-white", "text-true-gray-700 hover:bg-true-gray-200"})} data-active={if @active, do: "true", else: "false"}>
-      <%= render_slot(@inner_block) %>
+    <Ui.link_local
+      href={@path}
+      class={
+        Html.class(
+          @class,
+          {@active, "bg-pink-500 text-white", "text-true-gray-700 hover:bg-true-gray-200"}
+        )
+      }
+      data-active={if @active, do: "true", else: "false"}
+    >
+      {render_slot(@inner_block)}
     </Ui.link_local>
     """
   end

@@ -4,7 +4,7 @@ defmodule Galerie.Repo.Migrations.CreatePictureExifTable do
   def change do
     create(table("picture_exif")) do
       add(:picture_id, references("pictures", on_delete: :delete_all), null: false)
-      
+
       add(:exif, :json, null: false)
 
       timestamps()

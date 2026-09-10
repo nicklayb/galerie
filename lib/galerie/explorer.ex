@@ -11,7 +11,7 @@ defmodule Galerie.Explorer do
   @callback children(item(), kind()) :: [element()] | {item(), [element()]}
 
   def new(%Explorer{} = parent, items) do
-    explorer = new(parent.implementation, items)
+    %Explorer{} = explorer = new(parent.implementation, items)
     %Explorer{explorer | parent: parent}
   end
 

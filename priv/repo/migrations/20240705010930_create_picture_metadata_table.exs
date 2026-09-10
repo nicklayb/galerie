@@ -6,6 +6,7 @@ defmodule Galerie.Repo.Migrations.CreatePictureMetadataTable do
   @drop_query "DROP TYPE #{@enum_name}"
   def change do
     execute(@create_query, @drop_query)
+
     create(table("picture_metadata")) do
       add(:picture_id, references("pictures", on_delete: :delete_all), null: false)
       add(:exposure_time, :fraction)
@@ -21,7 +22,7 @@ defmodule Galerie.Repo.Migrations.CreatePictureMetadataTable do
       add(:height, :integer)
       add(:rotation, :integer, null: false, default: 0)
       add(:orientation, @enum_name)
-      
+
       timestamps()
     end
 
