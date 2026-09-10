@@ -6,10 +6,9 @@
 name: Elixir CI
 
 on:
-  push:
-    branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+  workflow_call:
 
 env:
   SECRET_KEY_BASE: "AoGYUaRhn77k8uIXUz5jERU5AiV4qRiF"
